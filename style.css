@@ -308,3 +308,99 @@ body.detail-open{overflow:hidden}
 .gift-confirmation{margin-top:15px;padding:16px;border:1px solid #cfc5aa;border-radius:13px;background:#fffdf7}
 .gift-confirmation h4{font:600 17px 'Playfair Display',serif;color:#77563a;margin:0 0 9px}
 .gift-confirmation p{font:400 12px/1.65 'DM Sans',sans-serif;color:#6b5a47;margin:0 0 12px}
+.gift-confirmation .gift-choice-button:disabled{background:#b6aa98;cursor:not-allowed}
+.gift-choice-back{display:block;margin:12px auto 0;border:0;background:transparent;color:#785c43;text-decoration:underline;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
+.gift-demo-banner{margin-top:12px;padding:10px 12px;background:#f4eadb;border-radius:9px;color:#825e3c;font:600 11px/1.6 'DM Sans',sans-serif}
+.reservation-unavailable{margin-top:18px;padding:14px;border:1px solid #e0d2bc;border-radius:11px;background:#f5eddf;color:#775e44;font:500 12px/1.6 'DM Sans',sans-serif}
+@media(max-width:650px){.gift-choice{padding:14px;margin-top:17px}.gift-choice-title{font-size:19px}.gift-confirmation{padding:13px}}
+
+/* v39 – foglalási felület: kontraszt, olvashatóság, egységes gombok */
+.gift-choice{background:linear-gradient(145deg,#fffaf1,#eaf0e5);border-color:#c9bba4;padding:22px}
+.gift-choice-title{font-size:23px;line-height:1.35;color:#503a2a;font-weight:600;letter-spacing:0}
+.gift-choice-description{font-size:15px;line-height:1.75;color:#514335;font-weight:500;margin-bottom:17px}
+.gift-choice-note{font-size:13px;line-height:1.7;color:#574838;font-weight:500;margin-top:13px}
+.gift-confirmation{background:#fffdf8;border:1px solid #c9b79c;padding:19px;margin-top:18px;box-shadow:0 3px 12px rgba(86,64,39,.055)}
+.gift-confirmation h4{font-size:20px;line-height:1.4;color:#543b29;font-weight:600;margin-bottom:11px}
+.gift-confirmation p{font-size:14px;line-height:1.75;color:#514333;font-weight:500;margin-bottom:16px}
+.gift-choice-button{min-height:49px;font-size:14px;line-height:1.4;padding:12px 16px}
+.gift-choice-back{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;margin:11px 0 0;padding:11px 16px;border:1.5px solid #b7a083;border-radius:12px;background:#fbf4e8;color:#65472f;text-decoration:none;font:700 14px/1.4 'DM Sans',sans-serif;box-shadow:0 2px 5px rgba(86,64,39,.07);transition:background .18s,border-color .18s,transform .18s}
+.gift-choice-back:hover{background:#f0e4d2;border-color:#947452;transform:translateY(-1px)}
+.gift-demo-banner{font-size:13px;line-height:1.7;color:#60452e;background:#f3e8d7;border:1px solid #e4d3bd;padding:12px 14px;margin-top:13px}
+.detail-footnote{font-size:13px;line-height:1.7;color:#5e4b39}
+.reservation-unavailable{font-size:14px;line-height:1.7;color:#594332}
+@media(max-width:650px){.gift-choice{padding:17px}.gift-choice-title{font-size:21px}.gift-choice-description{font-size:14px}.gift-choice-note{font-size:13px}.gift-confirmation{padding:16px}.gift-confirmation h4{font-size:19px}.gift-confirmation p{font-size:14px}.gift-choice-back{font-size:14px}}
+
+
+/* v40 – lebegő kosár és kosárpanel */
+.floating-cart{position:fixed;right:24px;bottom:84px;z-index:61;display:flex;align-items:center;gap:9px;min-height:48px;padding:10px 13px;border:1px solid #bda788;border-radius:999px;background:#fffaf0;color:#62432c;box-shadow:0 7px 25px #3d312233;font:700 13px 'DM Sans',sans-serif;cursor:pointer}.floating-cart:hover{background:#f3e7d6}.floating-cart-icon{font-size:19px}.cart-count{display:grid;place-items:center;min-width:25px;height:25px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#99724e;color:#fff;font-size:12px}.floating-cart:focus-visible,.cart-modal button:focus-visible,.product-cart-button:focus-visible,.detail-cart-action:focus-visible{outline:3px solid #ac8357;outline-offset:3px}
+.cart-modal[hidden]{display:none!important}.cart-modal{position:fixed;inset:0;z-index:110;display:flex;justify-content:flex-end}.cart-backdrop{position:absolute;inset:0;background:#25201891;backdrop-filter:blur(3px)}.cart-panel{position:relative;z-index:1;display:flex;flex-direction:column;width:min(440px,100%);height:100%;max-height:100dvh;box-sizing:border-box;overflow:hidden;background:#fffaf2;box-shadow:-15px 0 55px #271d1840;padding:25px 24px 22px;outline:none}.cart-header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.cart-eyebrow{margin:0 0 7px;color:#94795d;letter-spacing:1.8px;font:700 10px 'DM Sans',sans-serif}.cart-header h2{margin:0;font:600 29px 'Playfair Display',serif;color:#61432e}.cart-close{width:38px;height:38px;flex:none;border:1px solid #e4d6c4;border-radius:50%;background:#fffdf9;color:#76583c;font-size:25px;cursor:pointer}.cart-intro{font:500 14px/1.65 'DM Sans',sans-serif;color:#5d4c3c;margin:17px 0 19px}.cart-items{flex:1;overflow:auto;min-height:0;border-top:1px solid #eadfce;border-bottom:1px solid #eadfce}.cart-item{display:flex;align-items:center;gap:11px;padding:14px 0;border-bottom:1px solid #eee5d7}.cart-item:last-child{border-bottom:0}.cart-item-picture{width:64px;height:66px;flex:none;position:relative;display:grid;place-items:center;overflow:hidden;border-radius:11px;background:#f1e9dc;font-size:30px}.cart-item-picture img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cart-item-info{min-width:0;flex:1}.cart-item-info h3{font:600 15px/1.4 'Playfair Display',serif;color:#61452f;margin:0 0 5px}.cart-item-info p{font:700 13px 'DM Sans',sans-serif;color:#7b573a;margin:0 0 7px}.cart-remove{border:0;background:transparent;color:#965f4e;text-decoration:underline;font:600 12px 'DM Sans',sans-serif;padding:0;cursor:pointer}.cart-view{border:1px solid #d8c4aa;border-radius:9px;background:#fff8ec;color:#71543a;font:600 11px 'DM Sans',sans-serif;padding:9px 8px;cursor:pointer}.cart-empty{text-align:center;padding:55px 20px;color:#70583f}.cart-empty span{font-size:54px}.cart-empty h3{font:600 21px 'Playfair Display',serif;margin:14px 0 8px}.cart-empty p{font:400 14px/1.6 'DM Sans',sans-serif}.cart-bottom{padding-top:17px}.cart-total{display:flex;justify-content:space-between;align-items:center;gap:10px;font:600 16px 'DM Sans',sans-serif;color:#63472f}.cart-total strong{font:600 23px 'Playfair Display',serif}.cart-help{font:500 12px/1.6 'DM Sans',sans-serif;color:#79654f;margin:11px 0 15px}.cart-continue{width:100%;min-height:47px;border:0;border-radius:12px;background:#98714c;color:white;font:700 14px 'DM Sans',sans-serif;cursor:pointer}.cart-clear{display:block;margin:12px auto 0;padding:6px 12px;border:0;background:transparent;text-decoration:underline;color:#8a5d49;font:600 12px 'DM Sans',sans-serif;cursor:pointer}.cart-clear[hidden]{display:none}.cart-open{overflow:hidden}.product-cart-button{cursor:pointer}.product-cart-button:disabled{cursor:not-allowed}.detail-cart-action{background:#98714c}.detail-cart-action:hover{background:#805c3b}.guest-name-label{display:block;margin:5px 0 6px;font:700 14px 'DM Sans',sans-serif;color:#604630}.guest-name-label span{font-weight:400}.guest-name-input{width:100%;box-sizing:border-box;min-height:44px;margin-bottom:14px;border:1px solid #c9b79e;border-radius:10px;padding:10px 12px;background:#fffdf8;color:#513b2b;font:500 14px 'DM Sans',sans-serif}
+@media(max-width:650px){.floating-cart{right:14px;bottom:75px;min-height:45px;padding:9px 11px}.cart-panel{padding:21px 17px 18px}.cart-header h2{font-size:26px}.cart-item-picture{width:55px;height:58px}.cart-view{font-size:10px;padding:8px 6px}}
+@media(prefers-reduced-motion:reduce){.floating-cart,.cart-panel{scroll-behavior:auto}}
+
+/* v41: rétegsorrend és lebegő vezérlők biztos elkülönítése */
+.cart-modal[hidden],.detail-modal[hidden]{display:none!important;pointer-events:none!important}
+.cart-modal:not([hidden]){z-index:1200;pointer-events:auto}
+.detail-modal:not([hidden]){z-index:1100;pointer-events:auto}
+.floating-cart{z-index:90;bottom:84px;right:24px}
+.back-to-top{z-index:89;right:24px;bottom:24px}
+@media(max-width:650px){.floating-cart{right:14px;bottom:79px}.back-to-top{right:14px;bottom:17px}}
+
+/* v42 – kosár a fejléc képe alatt, külön a vissza a tetejére gombtól */
+.floating-cart{top:180px;bottom:auto!important;right:24px;z-index:90}
+@media(max-width:650px){.floating-cart{top:145px;bottom:auto!important;right:14px}}
+/* Több ajándék együttes foglalásának bemutatója */
+.cart-reserve-all{display:block;width:100%;min-height:48px;margin:15px 0 10px;border:0;border-radius:12px;background:#98714c;color:#fff;font:700 14px 'DM Sans',sans-serif;cursor:pointer}
+.cart-reserve-all:hover{background:#805c3b}
+.cart-reserve-all[hidden],.cart-reservation-preview[hidden]{display:none!important}
+.cart-reservation-preview{margin:12px 0 15px;padding:17px;border:1px solid #ddcbb2;border-radius:14px;background:#fffdf8;color:#55402e}
+.cart-reservation-preview h3{margin:0 0 9px;font:600 20px/1.35 'Playfair Display',serif}
+.cart-reservation-preview p{font:500 13px/1.6 'DM Sans',sans-serif;margin:8px 0 13px}
+.cart-reservation-preview label{display:block;font:700 13px 'DM Sans',sans-serif;margin-bottom:7px}
+.cart-reservation-preview input{display:block;width:100%;box-sizing:border-box;min-height:43px;border:1px solid #cdbba4;border-radius:9px;padding:10px 12px;background:white;color:#4e3b2a;font:500 14px 'DM Sans',sans-serif}
+.cart-reservation-preview .cart-reservation-warning{color:#7b5541}
+.cart-reserve-disabled,.cart-reserve-cancel{width:100%;min-height:44px;border-radius:10px;font:700 13px 'DM Sans',sans-serif}
+.cart-reserve-disabled{background:#b9a89a;border:0;color:#fff;cursor:not-allowed}
+.cart-reserve-cancel{margin-top:8px;border:1px solid #cbb89e;background:#fffaf2;color:#684c34;cursor:pointer}
+.cart-continue{background:#fffaf2;border:1px solid #cbb89e;color:#684c34;margin-top:8px}
+.cart-reserve-all:focus-visible,.cart-reserve-cancel:focus-visible{outline:3px solid #ac8357;outline-offset:2px}
+.cart-bottom{max-height:65dvh;overflow-y:auto;overscroll-behavior:contain}
+
+/* v43 – a rögzített kosárgomb szigorú méretkorlátja */
+button#floating-cart.floating-cart{
+  position:fixed;
+  top:calc(180px + env(safe-area-inset-top, 0px));
+  right:24px;
+  bottom:auto!important;
+  left:auto;
+  display:inline-flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:nowrap;
+  flex:0 0 auto;
+  width:max-content;
+  max-width:calc(100vw - 32px);
+  height:48px;
+  min-height:48px;
+  max-height:48px;
+  padding:0 15px;
+  gap:9px;
+  overflow:visible;
+  white-space:nowrap;
+  box-sizing:border-box;
+  border-radius:999px;
+  z-index:90;
+}
+#floating-cart .floating-cart-icon,
+#floating-cart .floating-cart-text,
+#floating-cart .cart-count{flex:0 0 auto;white-space:nowrap}
+@media(max-width:650px){
+  button#floating-cart.floating-cart{
+    top:calc(145px + env(safe-area-inset-top, 0px));
+    right:14px;
+    height:45px;
+    min-height:45px;
+    max-height:45px;
+    padding:0 12px;
+  }
+}

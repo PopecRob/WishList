@@ -38,6 +38,13 @@ const products = [
   {id:9,name:'Plüss zsiráf',description:'Nimród első barátja lehet. ♡',price:14990,category:'toys',status:'available',emoji:'🦒',image:'assets/images/product-giraffe.jpg'}
 ];
 const state = {category:'all',query:'',sort:'default',favorites:new Set()};
+// A kosár csak ebben a böngészőben tárolódik. Nem foglal le semmit.
+const CART_KEY='nimrod-wishlist-demo-cart-v40';
+function readCart(){try{const stored=JSON.parse(localStorage.getItem(CART_KEY)||'[]');return new Set(Array.isArray(stored)?stored.filter(id=>Number.isInteger(id)&&products.some(p=>p.id===id&&p.status==='available')):[]);}catch{return new Set();}}
+const cart=readCart();
+function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify([...cart]));}catch{}}
+function updateCartBadge(){const count=cart.size;document.getElementById('cart-count').textContent=String(count);document.getElementById('floating-cart').setAttribute('aria-label',`Kosár megnyitása, ${count} termék`);}
+function toggleCartItem(id){const product=products.find(p=>p.id===id);if(!product||product.status!=='available')return;if(cart.has(id))cart.delete(id);else cart.add(id);saveCart();updateCartBadge();renderProducts();if(!detailModal.hidden&&detailContent.dataset.productId===String(id))openProductDetail(id,true);if(!cartModal.hidden)renderCart();}
 const categoryContainer = document.getElementById('categories');
 const grid = document.getElementById('product-grid');
 const money = value => new Intl.NumberFormat('hu-HU').format(value)+' Ft';
@@ -56,11 +63,12 @@ function renderProducts(){
   grid.innerHTML=filtered.map(p=>{
     const reserved=p.status==='reserved';const preordered=p.status==='preordered';
     const statusText=reserved?'Foglalt':preordered?'Félretéve':'Szabad';
-    return `<article class="product-card" data-product="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.name)} részleteinek megtekintése"><div class="product-image"><span class="product-placeholder" aria-hidden="true">${p.emoji}</span>${p.image?`<img class="product-photo" src="${p.image}" alt="" loading="lazy" onerror="this.remove()">`:``}<button type="button" class="favorite" data-favorite="${p.id}" aria-pressed="${state.favorites.has(p.id)}" aria-label="${state.favorites.has(p.id)?'Eltávolítás a kedvencekből':'Kedvencekhez adás'}: ${escapeHtml(p.name)}">${state.favorites.has(p.id)?'♥':'♡'}</button></div><div class="product-body"><h3 class="product-name">${escapeHtml(p.name)}</h3><p class="product-description">${escapeHtml(p.description)}</p><p class="price">${money(p.price)}</p><button class="product-button" type="button" disabled title="A vásárlási linkek később lesznek elérhetők">🛒 &nbsp; Megnézem – hamarosan</button><div class="status ${reserved?'reserved':preordered?'preordered':''}"><span aria-hidden="true">🎁</span>${statusText} <span class="sr-only">(bemutatóadat)</span></div></div></article>`;
+    return `<article class="product-card" data-product="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.name)} részleteinek megtekintése"><div class="product-image"><span class="product-placeholder" aria-hidden="true">${p.emoji}</span>${p.image?`<img class="product-photo" src="${p.image}" alt="" loading="lazy" onerror="this.remove()">`:``}<button type="button" class="favorite" data-favorite="${p.id}" aria-pressed="${state.favorites.has(p.id)}" aria-label="${state.favorites.has(p.id)?'Eltávolítás a kedvencekből':'Kedvencekhez adás'}: ${escapeHtml(p.name)}">${state.favorites.has(p.id)?'♥':'♡'}</button></div><div class="product-body"><h3 class="product-name">${escapeHtml(p.name)}</h3><p class="product-description">${escapeHtml(p.description)}</p><p class="price">${money(p.price)}</p><button class="product-button product-cart-button" type="button" data-cart-add="${p.id}" ${p.status!=='available'?'disabled title="Ez az ajándék jelenleg nem elérhető"':''}>${p.status!=='available'?'Nem elérhető':cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button><div class="status ${reserved?'reserved':preordered?'preordered':''}"><span aria-hidden="true">🎁</span>${statusText} <span class="sr-only">(bemutatóadat)</span></div></div></article>`;
   }).join('');
 }
 categoryContainer.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;state.category=button.dataset.category;renderCategories();renderProducts();});
 grid.addEventListener('click',event=>{
+  const cartButton=event.target.closest('[data-cart-add]');if(cartButton){toggleCartItem(Number(cartButton.dataset.cartAdd));return;}
   const favorite=event.target.closest('[data-favorite]');
   if(favorite){const id=Number(favorite.dataset.favorite);if(state.favorites.has(id))state.favorites.delete(id);else state.favorites.add(id);renderProducts();return;}
   const card=event.target.closest('[data-product]');if(card)openProductDetail(Number(card.dataset.product));
@@ -90,9 +98,10 @@ const detailModal=document.getElementById('detail-modal');
 const detailDialog=detailModal.querySelector('.detail-dialog');
 const detailContent=document.getElementById('detail-content');
 let detailReturnFocus=null;
-function openProductDetail(id){
+function openProductDetail(id,keepFocus=false){
   const p=products.find(item=>item.id===id);if(!p)return;
-  detailReturnFocus=document.activeElement;
+  if(!keepFocus)detailReturnFocus=document.activeElement;
+  detailContent.dataset.productId=String(id);
   const cat=categories.find(item=>item.id===p.category);
   const statusText=p.status==='reserved'?'Foglalt':p.status==='preordered'?'Félretéve':'Szabad';
   const statusClass=p.status==='reserved'?'reserved':p.status==='preordered'?'preordered':'';
@@ -108,6 +117,7 @@ function openProductDetail(id){
     <p class="detail-price">${money(p.price)}</p>
     <span class="detail-status ${statusClass}">♡ ${statusText}</span>
     <div class="detail-actions">${shopAction}
+      ${p.status==='available'?`<button type="button" class="detail-action detail-cart-action" id="detail-cart-add">${cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button>`:''}
       <p class="detail-footnote">A webshop megtekintése <strong>nem jelent foglalást</strong>, és nem változtatja meg az ajándék állapotát.</p>
     </div></div></div>
     ${p.status==='available'?`<section class="gift-choice" aria-labelledby="gift-choice-title">
@@ -118,11 +128,15 @@ function openProductDetail(id){
       <div class="gift-confirmation" id="gift-confirmation" hidden>
         <h4>Biztosan szeretnéd lefoglalni?</h4>
         <p>A végleges rendszerben a megerősítés után az ajándék <strong>azonnal foglalttá válna</strong> mások számára. Vásárlás után kérnénk a visszajelzésedet. Ha nem érkezik visszajelzés, nem szabadítjuk fel automatikusan; előbb egyeztetünk.</p>
+        <label class="guest-name-label" for="guest-name">Neved <span>(nem kötelező)</span></label>
+        <input class="guest-name-input" id="guest-name" type="text" maxlength="80" placeholder="Pl. Nagyi">
         <button class="gift-choice-button" type="button" disabled>Foglalás véglegesítése – hamarosan</button>
         <button class="gift-choice-back" type="button" id="cancel-gift-choice">Mégsem, csak nézelődöm</button>
         <div class="gift-demo-banner">Bemutatóverzió: itt még nem történik valódi foglalás. Az adatbázist és a visszajelzést később kötjük be.</div>
       </div>
     </section>`:`<div class="reservation-unavailable">Ez az ajándék jelenleg ${statusText.toLowerCase()} a bemutatóadatok szerint, ezért most nem foglalható. A webshop megtekintése ettől függetlenül lehetséges, ha van terméklink.</div>`}`;
+  const detailCartButton=detailContent.querySelector('#detail-cart-add');
+  if(detailCartButton)detailCartButton.addEventListener('click',()=>toggleCartItem(p.id));
   const startChoice=detailContent.querySelector('#start-gift-choice');
   const confirmation=detailContent.querySelector('#gift-confirmation');
   const cancelChoice=detailContent.querySelector('#cancel-gift-choice');
@@ -139,7 +153,7 @@ function openProductDetail(id){
       startChoice.focus();
     });
   }
-  detailModal.hidden=false;document.body.classList.add('detail-open');detailDialog.focus();
+  detailModal.hidden=false;detailModal.removeAttribute('hidden');document.body.classList.add('detail-open');detailDialog.focus();
 }
 function closeProductDetail(){
   if(detailModal.hidden)return;
@@ -159,3 +173,47 @@ document.addEventListener('keydown',event=>{
     else if(document.activeElement===detailDialog&&event.shiftKey){event.preventDefault();last.focus();}
   }
 });
+
+
+// v40 – lebegő, helyben működő próbakosár
+const cartModal=document.getElementById('cart-modal');
+const cartPanel=cartModal.querySelector('.cart-panel');
+const cartItems=document.getElementById('cart-items');
+let cartReturnFocus=null;
+function renderCart(){
+  const selected=products.filter(p=>cart.has(p.id));
+  cartItems.innerHTML=selected.length?selected.map(p=>`<article class="cart-item"><div class="cart-item-picture"><span aria-hidden="true">${p.emoji}</span>${p.image?`<img src="${escapeHtml(p.image)}" alt="" onerror="this.remove()">`:''}</div><div class="cart-item-info"><h3>${escapeHtml(p.name)}</h3><p>${money(p.price)}</p><button type="button" class="cart-remove" data-cart-remove="${p.id}">Eltávolítás</button></div><button type="button" class="cart-view" data-cart-view="${p.id}" aria-label="${escapeHtml(p.name)} részletei">Részletek ›</button></article>`).join(''):'<div class="cart-empty"><span aria-hidden="true">🧸</span><h3>A kosarad még üres</h3><p>Nézelődj a kívánságlistában, és tedd ide a neked tetsző ajándékokat!</p></div>';
+  document.getElementById('cart-total').textContent=money(selected.reduce((sum,p)=>sum+p.price,0));
+  document.getElementById('cart-clear').hidden=!selected.length;
+  document.getElementById('cart-reserve-all').hidden=!selected.length;
+  if(!selected.length)closeCartReservationPreview();
+}
+function closeCartReservationPreview(){document.getElementById('cart-reservation-preview').hidden=true;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','false');}
+function openCart(){if(!detailModal.hidden)closeProductDetail();cartReturnFocus=document.activeElement;renderCart();cartModal.hidden=false;cartModal.removeAttribute('hidden');document.body.classList.add('cart-open');cartPanel.focus();}
+function closeCart(){if(cartModal.hidden)return;closeCartReservationPreview();cartModal.hidden=true;document.body.classList.remove('cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus();}
+document.getElementById('floating-cart').addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openCart();});
+document.getElementById('cart-continue').addEventListener('click',closeCart);
+document.getElementById('cart-reserve-all').addEventListener('click',()=>{const selected=products.filter(p=>cart.has(p.id)&&p.status==='available');if(!selected.length)return;document.getElementById('cart-reservation-summary').textContent=`${selected.length} ajándék, összesen ${money(selected.reduce((sum,p)=>sum+p.price,0))}. A végleges rendszerben mindegyiket egyszerre foglalhatod le.`;document.getElementById('cart-reservation-preview').hidden=false;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','true');document.getElementById('cart-reservation-preview').scrollIntoView({block:'nearest',behavior:'smooth'});});
+document.getElementById('cart-reserve-cancel').addEventListener('click',closeCartReservationPreview);
+document.getElementById('cart-clear').addEventListener('click',()=>{cart.clear();saveCart();updateCartBadge();renderProducts();renderCart();});
+cartModal.addEventListener('click',event=>{
+  if(event.target.closest('[data-close-cart]')){closeCart();return;}
+  const remove=event.target.closest('[data-cart-remove]');if(remove){toggleCartItem(Number(remove.dataset.cartRemove));return;}
+  const view=event.target.closest('[data-cart-view]');if(view){const id=Number(view.dataset.cartView);closeCart();openProductDetail(id);}
+});
+document.addEventListener('keydown',event=>{
+  if(cartModal.hidden)return;
+  if(event.key==='Escape'){event.preventDefault();closeCart();return;}
+  if(event.key==='Tab'){
+    const focusable=[...cartModal.querySelectorAll('button:not([disabled]):not([hidden]),a[href]')].filter(el=>el.getClientRects().length);
+    if(!focusable.length){event.preventDefault();cartPanel.focus();return;}
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(event.shiftKey&&(document.activeElement===first||document.activeElement===cartPanel)){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(document.activeElement===last||document.activeElement===cartPanel)){event.preventDefault();first.focus();}
+  }
+});
+updateCartBadge();
+
+// v42 – a kosár a fejléc alatti magasságban lebeg, görgetéskor is ugyanott marad.
+function positionFloatingCart(){const hero=document.querySelector('.hero');const button=document.getElementById('floating-cart');if(!hero||!button)return;const bottom=hero.getBoundingClientRect().bottom+window.scrollY;const target=Math.min(Math.max(bottom+12,76),Math.max(76,window.innerHeight-75));button.style.top=`${Math.round(target)}px`;}
+positionFloatingCart();window.addEventListener('resize',positionFloatingCart);
