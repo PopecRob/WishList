@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=29">
-  <script src="script.js?v=29" defer></script>
+  <link rel="stylesheet" href="style.css?v=38">
+  <script src="script.js?v=38" defer></script>
 </head>
 <body>
   <div class="site-shell" id="top">
@@ -48,6 +48,13 @@
     </main>
     <section id="information" class="information"><span class="tiny-ornament">♡</span><h2>Szívből köszönjük!</h2><p>A legnagyobb ajándék számunkra a szeretetetek. Ez a lista csak néhány ötlet, ha szeretnétek meglepni Nimródot valamivel.</p><p class="demo-note">Az oldal jelenleg bemutatóverzió. A foglalás és a vásárlási linkek később lesznek aktívak.</p></section>
     <footer class="footer">NIMRÓD <span>♡</span> BABY WISHING LIST <small>Szeretettel készítve</small></footer>
+  </div>
+  <div class="detail-modal" id="detail-modal" hidden>
+    <div class="detail-backdrop" data-close-detail></div>
+    <section class="detail-dialog" role="dialog" aria-modal="true" aria-labelledby="detail-title" tabindex="-1">
+      <button class="detail-close" type="button" aria-label="Bezárás" data-close-detail>×</button>
+      <div id="detail-content"></div>
+    </section>
   </div>
   <button type="button" id="back-to-top" class="back-to-top" aria-label="Vissza a lap tetejére"><span aria-hidden="true">↑</span> Vissza a tetejére</button>
 </body>
