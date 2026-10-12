@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f1e8">
+  <meta name="description" content="Nimród babaváró kívánságlistája – szeretettel összeállított ajándékötletek.">
+  <title>Nimród | Baby Wishing List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=29">
+  <script src="script.js?v=29" defer></script>
+</head>
+<body>
+  <div class="site-shell" id="top">
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Nimród - főoldal"><span>NIMRÓD <span class="brand-leaf">♥</span></span><small>BABY WISHING LIST</small></a>
+      <nav class="desktop-nav" aria-label="Fő navigáció">
+        <a href="#top">⌂ &nbsp;Főoldal</a><a href="#wishlist">♧ &nbsp;Kívánságlista</a><a href="#information">ⓘ &nbsp;Tudnivalók</a>
+      </nav>
+      <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü megnyitása">☰</button>
+      <nav class="mobile-menu" id="mobile-menu" aria-label="Mobil navigáció" hidden><a href="#top">Főoldal</a><a href="#wishlist">Kívánságlista</a><a href="#information">Tudnivalók</a></nav>
+    </header>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">Egy apró csoda érkezik</p>
+        <h1 id="hero-title">Nimród <span>♡</span></h1>
+        <p class="hero-subtitle">BABY WISHING LIST</p>
+        <p class="hero-description">Segítsetek, hogy Nimród érkezése még szebb és teljesebb legyen! Itt megtaláljátok azokat a dolgokat, amelyekre nagy szükségünk van – vagy amelyek egyszerűen örömet okoznának. ♡</p>
+      </div>
+      <div class="wood-sign" aria-label="Köszönjük a szeretetet és a támogatást!">Köszönjük<br>a szeretetet!<span>♡</span></div>
+    </section>
+
+    <main id="wishlist" class="content-area">
+      <section class="catalog" aria-labelledby="catalog-title">
+        <div class="section-heading"><span class="tiny-ornament">♡</span><h2 id="catalog-title">Apró kívánságaink</h2><p>Válogassatok szeretettel összeállított ötleteink közül!</p></div>
+        <div class="categories" id="categories" aria-label="Ajándékkategóriák"></div>
+        <div class="toolbar">
+          <label class="search-wrap"><span aria-hidden="true">⌕</span><span class="sr-only">Keresés a kívánságlistában</span><input id="search" type="search" placeholder="Keresés a kívánságlistában..." autocomplete="off"></label>
+          <label class="sort-wrap"><span>☷</span><span class="sr-only">Rendezés</span><select id="sort"><option value="default">Rendezés</option><option value="price-asc">Ár: növekvő</option><option value="price-desc">Ár: csökkenő</option><option value="name">Név szerint</option><option value="available">Szabad ajándékok előre</option></select></label>
+        </div>
+        <p id="results" class="results" aria-live="polite"></p>
+        <div id="product-grid" class="product-grid"></div>
+        <p id="empty-state" class="empty-state" hidden>Ehhez a kereséshez most nem találtunk ajándékot. ♡</p>
+      </section>
+    </main>
+    <section id="information" class="information"><span class="tiny-ornament">♡</span><h2>Szívből köszönjük!</h2><p>A legnagyobb ajándék számunkra a szeretetetek. Ez a lista csak néhány ötlet, ha szeretnétek meglepni Nimródot valamivel.</p><p class="demo-note">Az oldal jelenleg bemutatóverzió. A foglalás és a vásárlási linkek később lesznek aktívak.</p></section>
+    <footer class="footer">NIMRÓD <span>♡</span> BABY WISHING LIST <small>Szeretettel készítve</small></footer>
+  </div>
+  <button type="button" id="back-to-top" class="back-to-top" aria-label="Vissza a lap tetejére"><span aria-hidden="true">↑</span> Vissza a tetejére</button>
+</body>
+</html>
