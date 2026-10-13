@@ -9,20 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=42">
-  <script src="script.js?v=42" defer></script>
+  <link rel="stylesheet" href="style.css?v=50">
+  <script src="script.js?v=46" defer></script>
 </head>
 <body>
   <div class="site-shell" id="top">
     <header class="site-header">
       <a class="brand" href="#top" aria-label="Nimród - főoldal"><span>NIMRÓD <span class="brand-leaf">♥</span></span><small>BABY WISHING LIST</small></a>
-      <nav class="desktop-nav" aria-label="Fő navigáció">
-        <a href="#top">⌂ &nbsp;Főoldal</a><a href="#wishlist">♧ &nbsp;Kívánságlista</a><a href="#information">ⓘ &nbsp;Tudnivalók</a>
-      </nav>
-      <button class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü megnyitása">☰</button>
-      <nav class="mobile-menu" id="mobile-menu" aria-label="Mobil navigáció" hidden><a href="#top">Főoldal</a><a href="#wishlist">Kívánságlista</a><a href="#information">Tudnivalók</a></nav>
+      <button type="button" id="floating-cart" class="floating-cart" aria-label="Kosár megnyitása, 0 termék" aria-haspopup="dialog" aria-controls="cart-modal"><span class="floating-cart-icon" aria-hidden="true">🛒</span><span class="floating-cart-text">Kosár</span><span class="cart-count" id="cart-count" aria-live="polite">0</span></button>
     </header>
-
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="hero-eyebrow">Egy apró csoda érkezik</p>
@@ -32,7 +27,6 @@
       </div>
       <div class="wood-sign" aria-label="Köszönjük a szeretetet és a támogatást!">Köszönjük<br>a szeretetet!<span>♡</span></div>
     </section>
-
     <main id="wishlist" class="content-area">
       <section class="catalog" aria-labelledby="catalog-title">
         <div class="section-heading"><span class="tiny-ornament">♡</span><h2 id="catalog-title">Apró kívánságaink</h2><p>Válogassatok szeretettel összeállított ötleteink közül!</p></div>
@@ -46,7 +40,7 @@
         <p id="empty-state" class="empty-state" hidden>Ehhez a kereséshez most nem találtunk ajándékot. ♡</p>
       </section>
     </main>
-    <section id="information" class="information"><span class="tiny-ornament">♡</span><h2>Szívből köszönjük!</h2><p>A legnagyobb ajándék számunkra a szeretetetek. Ez a lista csak néhány ötlet, ha szeretnétek meglepni Nimródot valamivel.</p><p class="demo-note">Az oldal jelenleg bemutatóverzió. A foglalás és a vásárlási linkek később lesznek aktívak.</p></section>
+    <section id="information" class="information"><span class="tiny-ornament">♡</span><h2>Szívből köszönjük!</h2><p>A legnagyobb ajándék számunkra a szeretetetek. Ez a lista csak néhány ötlet, ha szeretnétek meglepni Nimródot valamivel.</p><p class="demo-note">A kiválasztott ajándékokat 7 napra lehet lefoglalni. A webshop linkje önmagában nem jelent foglalást.</p></section>
     <footer class="footer">NIMRÓD <span>♡</span> BABY WISHING LIST <small>Szeretettel készítve</small></footer>
   </div>
   <div class="detail-modal" id="detail-modal" hidden>
@@ -56,14 +50,13 @@
       <div id="detail-content"></div>
     </section>
   </div>
-  <button type="button" id="floating-cart" class="floating-cart" aria-label="Kosár megnyitása, 0 termék" aria-haspopup="dialog" aria-controls="cart-modal"><span class="floating-cart-icon" aria-hidden="true">🛒</span><span class="floating-cart-text">Kosár</span><span class="cart-count" id="cart-count" aria-live="polite">0</span></button>
   <div class="cart-modal" id="cart-modal" hidden>
     <div class="cart-backdrop" data-close-cart></div>
     <section class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1">
       <div class="cart-header"><div><p class="cart-eyebrow">NIMRÓD KÍVÁNSÁGLISTÁJA</p><h2 id="cart-title">Az én kosaram ♡</h2></div><button class="cart-close" type="button" data-close-cart aria-label="Kosár bezárása">×</button></div>
       <p class="cart-intro">Itt gyűjtheted a kiszemelt ajándékokat. A kosárba helyezés <strong>nem foglalás</strong>.</p>
       <div id="cart-items" class="cart-items"></div>
-      <div class="cart-bottom"><div class="cart-total"><span>Összesen</span><strong id="cart-total">0 Ft</strong></div><p class="cart-help">A kosárba helyezés még nem foglalás. A kiválasztott ajándékok később egyetlen lépésben lefoglalhatók lesznek.</p><button type="button" id="cart-reserve-all" class="cart-reserve-all" hidden>Összes ajándék lefoglalása</button><div id="cart-reservation-preview" class="cart-reservation-preview" hidden><h3>Az összes ajándék lefoglalása</h3><p id="cart-reservation-summary"></p><label for="cart-guest-name">Neved (nem kötelező)</label><input id="cart-guest-name" type="text" autocomplete="name" maxlength="80" placeholder="Pl. Nagyi"><p class="cart-reservation-warning">A foglalás véglegesítése még fejlesztés alatt áll. Most egyik ajándék sem kerül foglalásra.</p><button type="button" class="cart-reserve-disabled" disabled>Foglalás véglegesítése – hamarosan</button><button type="button" id="cart-reserve-cancel" class="cart-reserve-cancel">Vissza a kosárhoz</button></div><button type="button" id="cart-continue" class="cart-continue">Vissza a kívánságlistához</button><button type="button" id="cart-clear" class="cart-clear">Kosár kiürítése</button></div>
+      <div class="cart-bottom"><div class="cart-total"><span>Összesen</span><strong id="cart-total">0 Ft</strong></div><p class="cart-help">A kosárba helyezés még nem foglalás. A kiválasztott ajándékokat egyetlen lépésben lefoglalhatod.</p><button type="button" id="cart-reserve-all" class="cart-reserve-all" hidden>Összes ajándék lefoglalása</button><div id="cart-reservation-preview" class="cart-reservation-preview" hidden><h3>Az összes ajándék lefoglalása</h3><p id="cart-reservation-summary"></p><label for="cart-guest-name">Neved (nem kötelező)</label><input id="cart-guest-name" type="text" autocomplete="name" maxlength="80" placeholder="Pl. Nagyi"><p class="cart-reservation-warning">A véglegesítéssel a kiválasztott ajándékok 7 napra foglalttá válnak.</p><button type="button" class="cart-reserve-disabled" id="cart-reserve-confirm">Foglalás véglegesítése</button><p id="cart-reservation-feedback" role="status" aria-live="polite"></p><button type="button" id="cart-reserve-cancel" class="cart-reserve-cancel">Vissza a kosárhoz</button></div><button type="button" id="cart-continue" class="cart-continue">Vissza a kívánságlistához</button><button type="button" id="cart-clear" class="cart-clear">Kosár kiürítése</button></div>
     </section>
   </div>
   <button type="button" id="back-to-top" class="back-to-top" aria-label="Vissza a lap tetejére"><span aria-hidden="true">↑</span> Vissza a tetejére</button>
