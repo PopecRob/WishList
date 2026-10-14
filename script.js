@@ -724,6 +724,36 @@ manageStyles.textContent=`
 
 .own-reservation-feedback{margin:8px 0 0;font-size:.93rem}
 
+/* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő */
+@media (max-width:650px){
+  #own-reservations-trigger{
+    position:static;inset:auto;display:inline-flex;align-items:center;justify-content:center;
+    width:max-content;max-width:100%;margin:9px 0 15px;padding:9px 13px;
+    font-size:12px;line-height:1.3;box-shadow:0 3px 12px #00000016;
+  }
+  .detail-dialog{padding:15px;max-height:90dvh;max-height:90svh}
+  .detail-layout{gap:9px}
+  .detail-picture{min-height:145px;max-height:175px}
+  .detail-emoji{font-size:65px}
+  .detail-eyebrow{margin:4px 0 6px}
+  .detail-title{margin:0 0 7px;font-size:24px}
+  .detail-description{margin:0 0 10px;line-height:1.5}
+  .detail-price{margin:0 0 9px;font-size:23px}
+  .detail-actions{margin-top:12px;gap:7px}
+  .detail-action{min-height:42px;padding:9px 12px}
+  .detail-footnote{font-size:12px;line-height:1.5;margin:2px 0 0}
+  .gift-choice{margin-top:13px;padding:14px}
+  .gift-choice-title{font-size:19px;line-height:1.3;margin-bottom:7px}
+  .gift-choice-description{font-size:13px;line-height:1.55;margin-bottom:11px}
+  .gift-choice-note{font-size:12px;line-height:1.5;margin-top:10px}
+  .gift-choice-button{min-height:44px;padding:10px 12px;font-size:13px}
+  .gift-confirmation{margin-top:11px;padding:13px}
+  .gift-confirmation h4{font-size:18px;line-height:1.3;margin-bottom:7px}
+  .gift-confirmation p{font-size:13px;line-height:1.55;margin-bottom:10px}
+  .gift-choice-back{min-height:42px;margin-top:9px;padding:9px 12px;font-size:13px}
+  .gift-demo-banner{margin-top:9px;padding:8px 10px}
+}
+
 `;
 
 document.head.appendChild(manageStyles);
@@ -734,7 +764,13 @@ const manageTrigger=document.createElement('button');
 
 manageTrigger.id='own-reservations-trigger';manageTrigger.type='button';manageTrigger.textContent='♡ Foglalásaim';
 
-document.body.appendChild(manageTrigger);
+// Mobilon a gomb a terméklista elé kerül, így nem takar ki termékkártyát.
+// Asztali nézetben továbbra is fixen a bal alsó sarokban látszik.
+if(grid && grid.parentNode){
+  grid.parentNode.insertBefore(manageTrigger,grid);
+}else{
+  document.body.appendChild(manageTrigger);
+}
 
 
 
