@@ -727,8 +727,8 @@ manageStyles.textContent=`
 /* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő */
 @media (max-width:650px){
   #own-reservations-trigger{
-    position:static;inset:auto;display:inline-flex;align-items:center;justify-content:center;
-    width:max-content;max-width:100%;margin:9px 0 15px;padding:9px 13px;
+    position:fixed;left:18px;bottom:18px;right:auto;top:auto;display:inline-flex;align-items:center;justify-content:center;
+    width:max-content;max-width:calc(100vw - 36px);margin:0;padding:9px 13px;
     font-size:12px;line-height:1.3;box-shadow:0 3px 12px #00000016;
   }
   .detail-dialog{padding:15px;max-height:90dvh;max-height:90svh}
@@ -764,14 +764,8 @@ const manageTrigger=document.createElement('button');
 
 manageTrigger.id='own-reservations-trigger';manageTrigger.type='button';manageTrigger.textContent='♡ Foglalásaim';
 
-// Mobilon a gomb a terméklista elé kerül, így nem takar ki termékkártyát.
-// Asztali nézetben továbbra is fixen a bal alsó sarokban látszik.
-if(grid && grid.parentNode){
-  grid.parentNode.insertBefore(manageTrigger,grid);
-}else{
-  document.body.appendChild(manageTrigger);
-}
-
+// A gomb minden nézetben lebegő elem, a mobilos méretet a CSS szabályozza.
+document.body.appendChild(manageTrigger);
 
 
 const manageOverlay=document.createElement('div');
