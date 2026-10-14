@@ -801,6 +801,47 @@ function showOwnReservations(){
   }).join(''):'<p>Ebben a böngészőben nincs aktív foglalás.</p>';
 }
 
+let ownReservationsRefreshRunning=false;
+
+// Megnyitáskor ellenőrizzük a mentett foglalások valódi szerveroldali állapotát.
+// Hálózati hiba esetén a foglalást nem töröljük és nem minősítjük lezártnak.
+async function refreshOwnReservationsOnOpen(){
+  if(ownReservationsRefreshRunning)return;
+  const pending=readOwnReservations().filter(r=>
+    !['cancelled','expired','completed'].includes(r.local_status)&&!ownReservationIsExpired(r));
+  if(!pending.length)return;
+  ownReservationsRefreshRunning=true;
+  const notice=document.createElement('p');
+  notice.id='own-reservations-refresh-notice';
+  notice.setAttribute('role','status');
+  notice.textContent='Foglalások állapotának automatikus ellenőrzése…';
+  manageList.prepend(notice);
+  manageList.querySelectorAll('button').forEach(b=>b.disabled=true);
+  let failures=0;
+  try{
+    const results=await Promise.allSettled(pending.map(r=>requestOwnReservation('get',r)));
+    results.forEach((result,i)=>{
+      if(result.status!=='fulfilled'){failures++;return;}
+      const info=result.value.reservation||result.value;
+      const status=String(info.status||'').toLowerCase();
+      if(['cancelled','expired','completed'].includes(status)){
+        markOwnReservationClosed(pending[i].reservation_id,status);
+      }
+    });
+  }finally{
+    ownReservationsRefreshRunning=false;
+    if(!manageOverlay.hidden){
+      showOwnReservations();
+      if(failures){
+        const warning=document.createElement('p');
+        warning.setAttribute('role','status');
+        warning.textContent=`${failures} foglalás állapotát nem sikerült ellenőrizni. Próbáld meg később, vagy használd az „Állapot lekérdezése” gombot.`;
+        manageList.prepend(warning);
+      }
+    }
+  }
+}
+
 function openOwnReservations(){
 
   if(!detailModal.hidden)closeProductDetail();
@@ -810,6 +851,7 @@ function openOwnReservations(){
   manageReturnFocus=document.activeElement;
 
   showOwnReservations();manageOverlay.hidden=false;document.body.style.overflow='hidden';manageDialog.focus();
+  void refreshOwnReservationsOnOpen();
 
 }
 
