@@ -786,7 +786,7 @@ function ownReservationIsExpired(record){
 
 function showOwnReservations(){
   const records=readOwnReservations();
-  const activeRecords=records.filter(record=>record.local_status!=='cancelled'&&record.local_status!=='completed'&&!ownReservationIsExpired(record));
+  const activeRecords=records.filter(record=>!['cancelled','expired','completed'].includes(record.local_status)&&!ownReservationIsExpired(record));
   manageList.innerHTML=activeRecords.length?activeRecords.map((record,i)=>{
     const index=records.findIndex(r=>r.reservation_id===record.reservation_id);
     return `
@@ -865,64 +865,66 @@ async function requestOwnReservation(action,record){
 
 }
 
+// A foglalást az azonosítója alapján keressük, nem a változó listasorszám alapján.
+function markOwnReservationClosed(reservationId,status){
+  const records=readOwnReservations();
+  const index=records.findIndex(r=>r.reservation_id===reservationId);
+  if(index<0)return;
+  records[index].local_status=status;
+  writeOwnReservations(records);
+}
+
 manageList.addEventListener('click',async e=>{
-
-  const button=e.target.closest('[data-own-view],[data-own-cancel]');if(!button)return;
-
+  const button=e.target.closest('[data-own-view],[data-own-cancel]');
+  if(!button)return;
   const cancelling=button.hasAttribute('data-own-cancel');
-
   const index=Number(button.dataset.ownCancel??button.dataset.ownView);
-
-  const record=readOwnReservations()[index];if(!record)return;
-
+  const record=readOwnReservations()[index];
+  if(!record)return;
   if(cancelling&&!window.confirm('Biztosan lemondod ezt a foglalást? A benne lévő ajándékok újra foglalhatóvá válnak.'))return;
 
   const entry=button.closest('.own-reservation-entry');
-
   const feedback=entry.querySelector('.own-reservation-feedback');
-
-  const buttons=entry.querySelectorAll('button');buttons.forEach(b=>b.disabled=true);
-
+  const buttons=entry.querySelectorAll('button');
+  buttons.forEach(b=>b.disabled=true);
   feedback.textContent=cancelling?'Lemondás folyamatban…':'Állapot lekérdezése…';
 
   try{
-
-    const result=await requestOwnReservation(cancelling?'cancel':'get',record);
-
-    if(cancelling){
-
-      feedback.textContent='A foglalást sikeresen lemondtad.';
-
-      const records=readOwnReservations();
-
-      const current=records.findIndex(r=>r.reservation_id===record.reservation_id);
-
-      if(current!==-1){records.splice(current,1);writeOwnReservations(records);}
-
-      await loadProducts().catch(()=>{});
-
-      showOwnReservations();
-
-    }else{
-
-      const info=result.reservation||result;
-
-      const status=info.status||'ismeretlen';
-
-      const labels={active:'Aktív',cancelled:'Lemondva',expired:'Lejárt',completed:'Lezárva'};
-
-      feedback.textContent=`Aktuális állapot: ${labels[status]||status}.`;
-        if(['cancelled','expired','completed'].includes(status)){
-          const records=readOwnReservations();
-          const current=records.findIndex(r=>r.reservation_id===record.reservation_id);
-          if(current!==-1){records[current].local_status=status;writeOwnReservations(records);}
-          showOwnReservations();
-        }
-
+    let result;
+    try{
+      result=await requestOwnReservation(cancelling?'cancel':'get',record);
+    }catch(error){
+      // Ha a lemondás nem sikerül, előbb ellenőrizzük a szerver szerinti állapotot.
+      // Hálózati vagy jogosultsági hiba esetén semmit nem jelölünk önkényesen lezártnak.
+      if(!cancelling)throw error;
+      const current=await requestOwnReservation('get',record);
+      const currentStatus=String((current.reservation||current).status||'').toLowerCase();
+      if(['cancelled','expired','completed'].includes(currentStatus)){
+        markOwnReservationClosed(record.reservation_id,currentStatus);
+        showOwnReservations();
+        await loadProducts().catch(()=>{});
+        return;
+      }
+      throw error;
     }
 
-  }catch(error){feedback.textContent=error instanceof Error?error.message:'Nem sikerült a művelet.';}
-
-  finally{buttons.forEach(b=>b.disabled=false);}
-
+    if(cancelling){
+      markOwnReservationClosed(record.reservation_id,'cancelled');
+      showOwnReservations();
+      await loadProducts().catch(()=>{});
+    }else{
+      const info=result.reservation||result;
+      const status=String(info.status||'ismeretlen').toLowerCase();
+      if(['cancelled','expired','completed'].includes(status)){
+        markOwnReservationClosed(record.reservation_id,status);
+        showOwnReservations();
+      }else{
+        feedback.textContent=`Aktuális állapot: ${ownReservationStatusLabel(status)}.`;
+      }
+    }
+  }catch(error){
+    feedback.textContent=error instanceof Error?error.message:'Nem sikerült a művelet.';
+  }finally{
+    buttons.forEach(b=>b.disabled=false);
+  }
 });
