@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 // Supabase terméklista és biztonságos Edge Function foglalás.
 
 const categories = [
@@ -24,8 +22,6 @@ const categories = [
 
 ];
 
-
-
 const categoryArt = {
 
   'all': '<g transform="translate(1 2)"><rect x="12" y="42" width="29" height="24" rx="3" fill="#ead4b7" stroke="#a88d6f" stroke-width="1.8"/><path d="M15 44v20m7-20v20m7-20v20m7-20v20" stroke="#b99b78" stroke-width="1.7"/><path d="M13 66v7m27-7v7" stroke="#94785e" stroke-width="3"/><path d="M47 41q1-19 18-19 16 1 18 19z" fill="#b9cbb1" stroke="#7e9b83" stroke-width="1.7"/><path d="M47 42h36l-6 17H55z" fill="#ddc2a1" stroke="#ab8b6b" stroke-width="1.7"/><path d="M57 59l-5 9m22-9 5 9" stroke="#8e806c" stroke-width="2.5"/><circle cx="51" cy="69" r="4" fill="#869f8b"/><circle cx="80" cy="69" r="4" fill="#869f8b"/><circle cx="52" cy="15" r="7" fill="#d9b994"/><circle cx="68" cy="15" r="7" fill="#d9b994"/><circle cx="60" cy="23" r="12" fill="#e5c6a0"/><circle cx="56" cy="22" r="1.6" fill="#6e5a4b"/><circle cx="64" cy="22" r="1.6" fill="#6e5a4b"/><ellipse cx="60" cy="28" rx="4" ry="3" fill="#f5e8d3"/></g>',
@@ -46,8 +42,6 @@ const categoryArt = {
 
 };
 
-
-
 function categoryImage(id) {
 
   const drawing = categoryArt[id] || categoryArt.other;
@@ -58,33 +52,17 @@ function categoryImage(id) {
 
 }
 
-
-
 // Termékek kizárólag a Supabase adatbázisból érkeznek.
 
 const SUPABASE_URL='https://aalzgkdnqurpoepueehc.supabase.co';
 
-
-
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1PZSSo5VB-ZD90s5OOU2QA_v_1bj_ZK';
-
-
 
 let products=[];
 
-
-
 const RESERVATION_ENDPOINT=`${SUPABASE_URL}/functions/v1/create-reservation`;
 
-
-
 let reservationBusy=false;
-
-
-
-let reservationNotice='';
-
-
 
 const categoryAliases={
 
@@ -97,8 +75,6 @@ const categoryAliases={
   feeding:'feeding',bath:'bath',clothes:'clothes',other:'other'
 
 };
-
-
 
 function normalizeProduct(p){
 
@@ -115,8 +91,6 @@ function normalizeProduct(p){
     price:Number(p.price)||0,category,status:'available',emoji,image,url};
 
 }
-
-
 
 async function loadProducts(){
 
@@ -142,8 +116,6 @@ async function loadProducts(){
 
     await loadReservedStatus();
 
-
-
     // A korábban kosárba tett, már nem létező termékeket eltávolítjuk.
 
     for(const id of cart)if(!products.some(p=>p.id===id&&p.status==='available'))cart.delete(id);
@@ -166,61 +138,35 @@ async function loadProducts(){
 
 }
 
-
-
 const state = {category:'all',query:'',sort:'default',favorites:new Set()};
-
-
 
 // A kosár csak ebben a böngészőben tárolódik. Nem foglal le semmit.
 
 const CART_KEY='nimrod-wishlist-supabase-cart-v43';
 
-
-
 function readCart(){try{const stored=JSON.parse(localStorage.getItem(CART_KEY)||'[]');return new Set(Array.isArray(stored)?stored.filter(id=>typeof id==='string'):[]);}catch{return new Set();}}
-
-
 
 const cart=readCart();
 
-
-
 function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify([...cart]));}catch{}}
-
-
 
 function updateCartBadge(){const count=cart.size;document.getElementById('cart-count').textContent=String(count);document.getElementById('floating-cart').setAttribute('aria-label',`Kosár megnyitása, ${count} termék`);}
 
-
-
 function toggleCartItem(id){const product=products.find(p=>p.id===id);if(!product||product.status!=='available')return;if(cart.has(id))cart.delete(id);else cart.add(id);saveCart();updateCartBadge();renderProducts();if(!detailModal.hidden&&detailContent.dataset.productId===String(id))openProductDetail(id,true);if(!cartModal.hidden)renderCart();}
-
-
 
 const categoryContainer = document.getElementById('categories');
 
-
-
 const grid = document.getElementById('product-grid');
-
-
 
 const money = value => new Intl.NumberFormat('hu-HU').format(value)+' Ft';
 
-
-
 const escapeHtml = value => String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-
-
 
 function renderCategories(){
 
   categoryContainer.innerHTML=categories.map(cat=>`<button type="button" class="category ${state.category===cat.id?'active':''}" data-category="${cat.id}" aria-pressed="${state.category===cat.id}"><img class="category-art" src="${categoryImage(cat.id)}" alt="" aria-hidden="true" decoding="async"><span class="category-label">${cat.label}</span></button>`).join('');
 
 }
-
-
 
 function renderProducts(){
 
@@ -280,13 +226,9 @@ document.getElementById('sort').addEventListener('change',event=>{state.sort=eve
 
 renderCategories();loadProducts();
 
-
-
 // A lap tetejére gomb csak görgetés után látható.
 
 const backToTop = document.getElementById('back-to-top');
-
-
 
 function updateBackToTop(){backToTop.classList.toggle('is-visible',window.scrollY>=200);}
 
@@ -296,23 +238,13 @@ backToTop.addEventListener('click',()=>{window.scrollTo({top:0,behavior:window.m
 
 updateBackToTop();
 
-
-
 const detailModal=document.getElementById('detail-modal');
-
-
 
 const detailDialog=detailModal.querySelector('.detail-dialog');
 
-
-
 const detailContent=document.getElementById('detail-content');
 
-
-
 let detailReturnFocus=null;
-
-
 
 function openProductDetail(id,keepFocus=false){
 
@@ -354,97 +286,19 @@ function openProductDetail(id,keepFocus=false){
 
       ${p.status==='available'?`<button type="button" class="detail-action detail-cart-action" id="detail-cart-add">${cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button>`:''}
 
-      <p class="detail-footnote">A webshop megtekintése <strong>nem jelent foglalást</strong>, és nem változtatja meg az ajándék állapotát.</p>
+      <p class="detail-footnote">A kosárba helyezés még nem jelent foglalást. A kiválasztott ajándékokat a kosárban tudod 7 napra lefoglalni. A webshop megtekintése sem változtatja meg az ajándék állapotát.</p>
 
     </div></div></div>
 
-    ${p.status==='available'?`<section class="gift-choice" aria-labelledby="gift-choice-title">
-
-      <h3 class="gift-choice-title" id="gift-choice-title">Szeretnéd ezzel meglepni Nimródot? ♡</h3>
-
-      <p class="gift-choice-description">Ha biztosan ezt az ajándékot választod, indítsd el a foglalást. Csak a következő lépésben, külön megerősítés után válna foglalttá.</p>
-
-      <button class="gift-choice-button" type="button" id="start-gift-choice">♡ Ezt az ajándékot választom</button>
-
-      <p class="gift-choice-note">Ha csak körülnéznél, nyugodtan megnyithatod fentebb a webshopot – attól még szabad marad az ajándék.</p>
-
-      <div class="gift-confirmation" id="gift-confirmation" hidden>
-
-        <h4>Biztosan szeretnéd lefoglalni?</h4>
-
-        <p>A megerősítés után az ajándék <strong>7 napra foglalttá válik</strong>. Ha megvásároltad, a foglalás kezelését később a visszaigazolásból érheted el.</p>
-
-        <label class="guest-name-label" for="guest-name">Neved <span>(nem kötelező)</span></label>
-
-        <input class="guest-name-input" id="guest-name" type="text" maxlength="80" placeholder="Pl. Nagyi">
-
-        <button class="gift-choice-button" type="button" id="confirm-single-reservation">Foglalás véglegesítése</button>
-
-        <button class="gift-choice-back" type="button" id="cancel-gift-choice">Mégsem, csak nézelődöm</button>
-
-        <p class="gift-demo-banner" id="single-reservation-feedback" role="status" aria-live="polite"></p>
-
-      </div>
-
-    </section>`:`<div class="reservation-unavailable">Ez az ajándék jelenleg ${statusText.toLowerCase()} az aktuális állapot szerint, ezért most nem foglalható. A webshop megtekintése ettől függetlenül lehetséges, ha van terméklink.</div>`}`;
+    ${p.status!=='available'?`<div class="reservation-unavailable">Ez az ajándék jelenleg ${statusText.toLowerCase()} az aktuális állapot szerint, ezért most nem foglalható. A webshop megtekintése ettől függetlenül lehetséges, ha van terméklink.</div>`:''}`;
 
   const detailCartButton=detailContent.querySelector('#detail-cart-add');
 
   if(detailCartButton)detailCartButton.addEventListener('click',()=>toggleCartItem(p.id));
 
-  const startChoice=detailContent.querySelector('#start-gift-choice');
-
-  const confirmation=detailContent.querySelector('#gift-confirmation');
-
-  const cancelChoice=detailContent.querySelector('#cancel-gift-choice');
-
-  const confirmSingle=detailContent.querySelector('#confirm-single-reservation');
-
-  if(confirmSingle){
-
-    confirmSingle.addEventListener('click',async()=>{
-
-      const name=detailContent.querySelector('#guest-name')?.value||'';
-
-      const feedback=detailContent.querySelector('#single-reservation-feedback');
-
-      await submitReservation([p.id],name,confirmSingle,feedback);
-
-    });
-
-  }
-
-  if(startChoice&&confirmation){
-
-    startChoice.addEventListener('click',()=>{
-
-      confirmation.hidden=false;
-
-      startChoice.hidden=true;
-
-      confirmation.scrollIntoView({block:'nearest',behavior:'smooth'});
-
-      cancelChoice.focus();
-
-    });
-
-    cancelChoice.addEventListener('click',()=>{
-
-      confirmation.hidden=true;
-
-      startChoice.hidden=false;
-
-      startChoice.focus();
-
-    });
-
-  }
-
   detailModal.hidden=false;detailModal.removeAttribute('hidden');document.body.classList.add('detail-open');detailDialog.focus();
 
 }
-
-
 
 function closeProductDetail(){
 
@@ -482,23 +336,13 @@ document.addEventListener('keydown',event=>{
 
 });
 
-
-
 const cartModal=document.getElementById('cart-modal');
-
-
 
 const cartPanel=cartModal.querySelector('.cart-panel');
 
-
-
 const cartItems=document.getElementById('cart-items');
 
-
-
 let cartReturnFocus=null;
-
-
 
 function renderCart(){
 
@@ -516,15 +360,9 @@ function renderCart(){
 
 }
 
-
-
 function closeCartReservationPreview(){document.getElementById('cart-reservation-preview').hidden=true;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','false');}
 
-
-
 function openCart(){if(!detailModal.hidden)closeProductDetail();cartReturnFocus=document.activeElement;renderCart();cartModal.hidden=false;cartModal.removeAttribute('hidden');document.body.classList.add('cart-open');cartPanel.focus();}
-
-
 
 function closeCart(){if(cartModal.hidden)return;closeCartReservationPreview();cartModal.hidden=true;document.body.classList.remove('cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus();}
 
@@ -580,8 +418,6 @@ document.addEventListener('keydown',event=>{
 
 updateCartBadge();
 
-
-
 // Foglaltság lekérdezése: kizárólag nyilvános, név és token nélküli nézetből.
 
 async function loadReservedStatus(){
@@ -600,8 +436,6 @@ async function loadReservedStatus(){
 
 }
 
-
-
 async function submitReservation(ids,name,button,feedback){
 
   if(reservationBusy)return;
@@ -619,8 +453,6 @@ async function submitReservation(ids,name,button,feedback){
     if(!response.ok)throw new Error(result.error||`Foglalási hiba (${response.status})`);
 
     if(!result.reservation_id||!result.management_token)throw new Error('Hiányos foglalási visszaigazolás.');
-
-
 
     // A kezelési token kizárólag a látogató saját böngészőjében marad.
 
@@ -648,8 +480,6 @@ async function submitReservation(ids,name,button,feedback){
 
     feedback.textContent=error instanceof Error?error.message:'Nem sikerült a foglalás.';
 
-
-
     // Bizonytalan hálózati válasz esetén frissítsük a foglaltságot.
 
     await loadProducts().catch(()=>{});
@@ -658,17 +488,11 @@ async function submitReservation(ids,name,button,feedback){
 
 }
 
-
-
 // Saját foglalások – nincs regisztráció, csak a böngészőben mentett kezelőtoken.
 
 const OWN_RESERVATIONS_KEY='nimrod-own-reservations-v44';
 
-
-
 const MANAGEMENT_ENDPOINT=`${SUPABASE_URL}/functions/v1/manage-reservation`;
-
-
 
 function readOwnReservations(){
 
@@ -682,31 +506,27 @@ function readOwnReservations(){
 
 }
 
-
-
 function writeOwnReservations(records){
 
   try{localStorage.setItem(OWN_RESERVATIONS_KEY,JSON.stringify(records));return true;}catch{return false;}
 
 }
 
-
-
 const manageStyles=document.createElement('style');
 
 manageStyles.textContent=`
 
-#own-reservations-trigger{position:fixed;bottom:18px;left:18px;z-index:900;background:#f6ecdd;color:#554537;border:1px solid #cbb89f;border-radius:999px;padding:12px 17px;box-shadow:0 5px 22px #0002;cursor:pointer;font:600 14px/1.3 inherit}
+\#own-reservations-trigger{position:fixed;bottom:18px;left:18px;z-index:900;background:#f6ecdd;color:#554537;border:1px solid #cbb89f;border-radius:999px;padding:12px 17px;box-shadow:0 5px 22px #0002;cursor:pointer;font:600 14px/1.3 inherit}
 
-#own-reservations-overlay[hidden]{display:none!important}
+\#own-reservations-overlay[hidden]{display:none!important}
 
-#own-reservations-overlay{position:fixed;inset:0;z-index:3000;background:#18140fb8;display:flex;justify-content:center;align-items:center;padding:16px}
+\#own-reservations-overlay{position:fixed;inset:0;z-index:3000;background:#18140fb8;display:flex;justify-content:center;align-items:center;padding:16px}
 
-#own-reservations-dialog{background:#fffaf3;color:#51483d;border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 18px 70px #0004;font-family:inherit}
+\#own-reservations-dialog{background:#fffaf3;color:#51483d;border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 18px 70px #0004;font-family:inherit}
 
-#own-reservations-dialog h2{margin:0 0 10px;font-size:1.5rem}
+\#own-reservations-dialog h2{margin:0 0 10px;font-size:1.5rem}
 
-#own-reservations-dialog p{line-height:1.5}
+\#own-reservations-dialog p{line-height:1.5}
 
 .own-reservation-entry{border:1px solid #e2d4c2;border-radius:12px;padding:16px;margin:12px 0;background:#fff}
 
@@ -720,53 +540,59 @@ manageStyles.textContent=`
 
 .own-reservation-actions button:disabled{opacity:.5;cursor:wait}
 
-#own-reservations-close{float:right}
+\#own-reservations-close{float:right}
 
 .own-reservation-feedback{margin:8px 0 0;font-size:.93rem}
 
-/* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő */
+/\* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő \*/
+
 @media (max-width:650px){
+
   #own-reservations-trigger{
-    position:fixed;left:18px;bottom:18px;right:auto;top:auto;display:inline-flex;align-items:center;justify-content:center;
+
+    display:inline-flex;align-items:center;justify-content:center;
+
     width:max-content;max-width:calc(100vw - 36px);margin:0;padding:9px 13px;
+
     font-size:12px;line-height:1.3;box-shadow:0 3px 12px #00000016;
+
   }
-  .detail-dialog{padding:15px;max-height:90dvh;max-height:90svh}
+
+  .detail-dialog{padding:15px;max-height:90svh}
+
   .detail-layout{gap:9px}
+
   .detail-picture{min-height:145px;max-height:175px}
+
   .detail-emoji{font-size:65px}
+
   .detail-eyebrow{margin:4px 0 6px}
+
   .detail-title{margin:0 0 7px;font-size:24px}
+
   .detail-description{margin:0 0 10px;line-height:1.5}
+
   .detail-price{margin:0 0 9px;font-size:23px}
+
   .detail-actions{margin-top:12px;gap:7px}
+
   .detail-action{min-height:42px;padding:9px 12px}
+
   .detail-footnote{font-size:12px;line-height:1.5;margin:2px 0 0}
-  .gift-choice{margin-top:13px;padding:14px}
-  .gift-choice-title{font-size:19px;line-height:1.3;margin-bottom:7px}
-  .gift-choice-description{font-size:13px;line-height:1.55;margin-bottom:11px}
-  .gift-choice-note{font-size:12px;line-height:1.5;margin-top:10px}
-  .gift-choice-button{min-height:44px;padding:10px 12px;font-size:13px}
-  .gift-confirmation{margin-top:11px;padding:13px}
-  .gift-confirmation h4{font-size:18px;line-height:1.3;margin-bottom:7px}
-  .gift-confirmation p{font-size:13px;line-height:1.55;margin-bottom:10px}
-  .gift-choice-back{min-height:42px;margin-top:9px;padding:9px 12px;font-size:13px}
-  .gift-demo-banner{margin-top:9px;padding:8px 10px}
+
 }
 
 `;
 
 document.head.appendChild(manageStyles);
 
-
-
 const manageTrigger=document.createElement('button');
 
 manageTrigger.id='own-reservations-trigger';manageTrigger.type='button';manageTrigger.textContent='♡ Foglalásaim';
 
 // A gomb minden nézetben lebegő elem, a mobilos méretet a CSS szabályozza.
-document.body.appendChild(manageTrigger);
 
+document.body.appendChild(manageTrigger);
 
 const manageOverlay=document.createElement('div');
 
@@ -776,19 +602,11 @@ manageOverlay.innerHTML=`<div id="own-reservations-dialog" role="dialog" aria-mo
 
 document.body.appendChild(manageOverlay);
 
-
-
 const manageDialog=document.getElementById('own-reservations-dialog');
-
-
 
 const manageList=document.getElementById('own-reservations-list');
 
-
-
 let manageReturnFocus=null;
-
-
 
 function ownReservationProducts(record){
 
@@ -798,78 +616,136 @@ function ownReservationProducts(record){
 
 }
 
-
-
 function ownReservationTitle(record,i){
+
   const name=typeof record.guest_name==='string'?record.guest_name.trim():'';
+
   return name?escapeHtml(name):`Foglalás ${i+1}`;
+
 }
 
 function ownReservationStatusLabel(status){
+
   return {active:'Aktív',cancelled:'Lemondva',expired:'Lejárt',completed:'Lezárva'}[status]||'Ismeretlen';
+
 }
 
 function ownReservationIsExpired(record){
+
   const date=Date.parse(record.expires_at);
+
   return Number.isFinite(date)&&date<=Date.now();
+
 }
 
 function showOwnReservations(){
+
   const records=readOwnReservations();
+
   const activeRecords=records.filter(record=>!['cancelled','expired','completed'].includes(record.local_status)&&!ownReservationIsExpired(record));
+
   manageList.innerHTML=activeRecords.length?activeRecords.map((record,i)=>{
+
     const index=records.findIndex(r=>r.reservation_id===record.reservation_id);
+
     return `
+
     <article class="own-reservation-entry" data-own-index="${index}">
+
       <h3>${ownReservationTitle(record,i)}</h3>
+
       <p><strong>Azonosító:</strong> <code>${escapeHtml(record.reservation_id)}</code></p>
+
       <p><strong>Lejárat:</strong> ${record.expires_at&&Number.isFinite(Date.parse(record.expires_at))?escapeHtml(new Date(record.expires_at).toLocaleString('hu-HU')):'Nem ismert'}</p>
+
       <ul>${ownReservationProducts(record)}</ul>
+
       <div class="own-reservation-actions"><button type="button" data-own-view="${index}">Állapot lekérdezése</button><button type="button" data-own-cancel="${index}">Foglalás lemondása</button></div>
+
       <p class="own-reservation-feedback" data-own-feedback="${index}" role="status" aria-live="polite"></p>
+
     </article>`;
+
   }).join(''):'<p>Ebben a böngészőben nincs aktív foglalás.</p>';
+
 }
 
 let ownReservationsRefreshRunning=false;
 
 // Megnyitáskor ellenőrizzük a mentett foglalások valódi szerveroldali állapotát.
+
 // Hálózati hiba esetén a foglalást nem töröljük és nem minősítjük lezártnak.
+
 async function refreshOwnReservationsOnOpen(){
+
   if(ownReservationsRefreshRunning)return;
+
   const pending=readOwnReservations().filter(r=>
+
     !['cancelled','expired','completed'].includes(r.local_status)&&!ownReservationIsExpired(r));
+
   if(!pending.length)return;
+
   ownReservationsRefreshRunning=true;
+
   const notice=document.createElement('p');
+
   notice.id='own-reservations-refresh-notice';
+
   notice.setAttribute('role','status');
+
   notice.textContent='Foglalások állapotának automatikus ellenőrzése…';
+
   manageList.prepend(notice);
+
   manageList.querySelectorAll('button').forEach(b=>b.disabled=true);
+
   let failures=0;
+
   try{
+
     const results=await Promise.allSettled(pending.map(r=>requestOwnReservation('get',r)));
+
     results.forEach((result,i)=>{
+
       if(result.status!=='fulfilled'){failures++;return;}
+
       const info=result.value.reservation||result.value;
+
       const status=String(info.status||'').toLowerCase();
+
       if(['cancelled','expired','completed'].includes(status)){
+
         markOwnReservationClosed(pending[i].reservation_id,status);
+
       }
+
     });
+
   }finally{
+
     ownReservationsRefreshRunning=false;
+
     if(!manageOverlay.hidden){
+
       showOwnReservations();
+
       if(failures){
+
         const warning=document.createElement('p');
+
         warning.setAttribute('role','status');
+
         warning.textContent=`${failures} foglalás állapotát nem sikerült ellenőrizni. Próbáld meg később, vagy használd az „Állapot lekérdezése” gombot.`;
+
         manageList.prepend(warning);
+
       }
+
     }
+
   }
+
 }
 
 function openOwnReservations(){
@@ -881,11 +757,10 @@ function openOwnReservations(){
   manageReturnFocus=document.activeElement;
 
   showOwnReservations();manageOverlay.hidden=false;document.body.style.overflow='hidden';manageDialog.focus();
+
   void refreshOwnReservationsOnOpen();
 
 }
-
-
 
 function closeOwnReservations(){manageOverlay.hidden=true;document.body.style.overflow='';if(manageReturnFocus?.isConnected)manageReturnFocus.focus();}
 
@@ -917,8 +792,6 @@ document.addEventListener('keydown',e=>{
 
 });
 
-
-
 async function requestOwnReservation(action,record){
 
   const response=await fetch(MANAGEMENT_ENDPOINT,{
@@ -938,65 +811,119 @@ async function requestOwnReservation(action,record){
 }
 
 // A foglalást az azonosítója alapján keressük, nem a változó listasorszám alapján.
+
 function markOwnReservationClosed(reservationId,status){
+
   const records=readOwnReservations();
+
   const index=records.findIndex(r=>r.reservation_id===reservationId);
+
   if(index<0)return;
+
   records[index].local_status=status;
+
   writeOwnReservations(records);
+
 }
 
 manageList.addEventListener('click',async e=>{
+
   const button=e.target.closest('[data-own-view],[data-own-cancel]');
+
   if(!button)return;
+
   const cancelling=button.hasAttribute('data-own-cancel');
+
   const index=Number(button.dataset.ownCancel??button.dataset.ownView);
+
   const record=readOwnReservations()[index];
+
   if(!record)return;
+
   if(cancelling&&!window.confirm('Biztosan lemondod ezt a foglalást? A benne lévő ajándékok újra foglalhatóvá válnak.'))return;
 
   const entry=button.closest('.own-reservation-entry');
+
   const feedback=entry.querySelector('.own-reservation-feedback');
+
   const buttons=entry.querySelectorAll('button');
+
   buttons.forEach(b=>b.disabled=true);
+
   feedback.textContent=cancelling?'Lemondás folyamatban…':'Állapot lekérdezése…';
 
   try{
+
     let result;
+
     try{
+
       result=await requestOwnReservation(cancelling?'cancel':'get',record);
+
     }catch(error){
+
       // Ha a lemondás nem sikerül, előbb ellenőrizzük a szerver szerinti állapotot.
+
       // Hálózati vagy jogosultsági hiba esetén semmit nem jelölünk önkényesen lezártnak.
+
       if(!cancelling)throw error;
+
       const current=await requestOwnReservation('get',record);
+
       const currentStatus=String((current.reservation||current).status||'').toLowerCase();
+
       if(['cancelled','expired','completed'].includes(currentStatus)){
+
         markOwnReservationClosed(record.reservation_id,currentStatus);
+
         showOwnReservations();
+
         await loadProducts().catch(()=>{});
+
         return;
+
       }
+
       throw error;
+
     }
 
     if(cancelling){
+
       markOwnReservationClosed(record.reservation_id,'cancelled');
+
       showOwnReservations();
+
       await loadProducts().catch(()=>{});
+
     }else{
+
       const info=result.reservation||result;
+
       const status=String(info.status||'ismeretlen').toLowerCase();
+
       if(['cancelled','expired','completed'].includes(status)){
+
         markOwnReservationClosed(record.reservation_id,status);
+
         showOwnReservations();
+
       }else{
+
         feedback.textContent=`Aktuális állapot: ${ownReservationStatusLabel(status)}.`;
+
       }
+
     }
+
   }catch(error){
+
     feedback.textContent=error instanceof Error?error.message:'Nem sikerült a művelet.';
+
   }finally{
+
     buttons.forEach(b=>b.disabled=false);
+
   }
+
 });
