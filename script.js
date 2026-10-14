@@ -370,7 +370,7 @@ document.getElementById('floating-cart').addEventListener('click',event=>{event.
 
 document.getElementById('cart-continue').addEventListener('click',closeCart);
 
-document.getElementById('cart-reserve-all').addEventListener('click',()=>{const selected=products.filter(p=>cart.has(p.id)&&p.status==='available');if(!selected.length)return;document.getElementById('cart-reservation-summary').textContent=`${selected.length} ajándék, összesen ${money(selected.reduce((sum,p)=>sum+p.price,0))}. A megerősítés után mindegyik 7 napra foglalttá válik.`;document.getElementById('cart-reservation-preview').hidden=false;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','true');document.getElementById('cart-reservation-preview').scrollIntoView({block:'nearest',behavior:'smooth'});});
+document.getElementById('cart-reserve-all').addEventListener('click',()=>{const selected=products.filter(p=>cart.has(p.id)&&p.status==='available');if(!selected.length)return;document.getElementById('cart-reservation-summary').textContent=`${selected.length} ajándék, összesen ${money(selected.reduce((sum,p)=>sum+p.price,0))}. A megerősítés után mindegyik 7 napra foglalttá válik.`;document.getElementById('cart-reserve-confirm').disabled=false;document.getElementById('cart-reservation-preview').hidden=false;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','true');document.getElementById('cart-reservation-preview').scrollIntoView({block:'nearest',behavior:'smooth'});});
 
 document.getElementById('cart-reserve-cancel').addEventListener('click',closeCartReservationPreview);
 
@@ -544,7 +544,7 @@ manageStyles.textContent=`
 
 .own-reservation-feedback{margin:8px 0 0;font-size:.93rem}
 
-/\* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő \*/
+/\\* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő \\*/
 
 @media (max-width:650px){
 
