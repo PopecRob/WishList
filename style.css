@@ -973,3 +973,23 @@ body.detail-open{overflow:hidden}
   .product-body .status{font-size:10px!important;margin:8px 1px 1px!important}
   #own-reservations-dialog{padding:18px!important}
 }
+
+/* v54: egységes, mobilon is valóban lebegő vissza a tetejére gomb */
+#back-to-top.back-to-top{
+  position:fixed!important;right:18px!important;bottom:calc(20px + env(safe-area-inset-bottom, 0px))!important;
+  left:auto!important;top:auto!important;z-index:1900!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+  width:auto!important;min-width:0!important;max-width:calc(100vw - 36px)!important;min-height:44px!important;
+  padding:10px 15px!important;border:1px solid #cbb89f!important;border-radius:999px!important;
+  background:#fff8ed!important;color:#60462f!important;box-shadow:0 5px 22px #0002!important;
+  font:700 13px/1.3 'DM Sans',sans-serif!important;text-decoration:none!important;cursor:pointer!important;
+  opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+  transform:translateY(12px)!important;transition:opacity .2s ease,transform .2s ease,visibility .2s ease!important;
+}
+#back-to-top.back-to-top.is-visible{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:translateY(0)!important}
+#back-to-top.back-to-top>span[aria-hidden]{font-size:21px;line-height:1}
+@media(max-width:650px){
+  #back-to-top.back-to-top{right:12px!important;bottom:calc(14px + env(safe-area-inset-bottom, 0px))!important;width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border-radius:50%!important}
+  #back-to-top .back-to-top-label{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){#back-to-top.back-to-top{transition:none!important}}

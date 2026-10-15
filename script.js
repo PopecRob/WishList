@@ -462,7 +462,7 @@ const backToTop = document.getElementById('back-to-top');
 
 
 
-function updateBackToTop(){backToTop.classList.toggle('is-visible',window.scrollY>=200);}
+function updateBackToTop(){if(!backToTop)return;const y=window.scrollY||document.documentElement.scrollTop||0;backToTop.classList.toggle('is-visible',y>=220);}
 
 
 
@@ -470,7 +470,7 @@ window.addEventListener('scroll',updateBackToTop,{passive:true});
 
 
 
-backToTop.addEventListener('click',()=>{window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});});
+if(backToTop)backToTop.addEventListener('click',()=>{window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
 
 
 
