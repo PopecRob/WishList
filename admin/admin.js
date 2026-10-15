@@ -168,3 +168,59 @@ productForm.addEventListener('submit',async event=>{
     else productFeedback('Nem sikerült menteni az ajándékot. Ellenőrizd az internetkapcsolatot és a Supabase beállításait.','error');
   }finally{productSave.disabled=false;productSave.textContent='Ajándék mentése →';}
 });
+
+
+// Automatikus termékadat-kitöltés a már telepített fetch-product Edge Functionből.
+const importUrl=document.getElementById('product-import-url');
+const importButton=document.getElementById('product-import-button');
+const importMessage=document.getElementById('product-import-message');
+const importPreview=document.getElementById('product-import-preview');
+const importImage=document.getElementById('product-import-image');
+let importRequestId=0;
+function importFeedback(message,type=''){importMessage.textContent=message;importMessage.className='product-form-message'+(type?' '+type:'');}
+function clearImportPreview(){importPreview.hidden=true;importImage.hidden=true;importImage.removeAttribute('src');document.getElementById('product-import-name').textContent='';document.getElementById('product-import-price').textContent='';}
+function parseImportedPrice(value,currency){
+  if(value===null||value===undefined||value==='')return null;
+  const amount=Number(value);
+  if(!Number.isFinite(amount)||amount<0)return null;
+  if(currency&&currency.toUpperCase()!=='HUF')return null;
+  return Number.isSafeInteger(amount)&&amount<=999999999?amount:null;
+}
+importButton.addEventListener('click',async()=>{
+  if(!authClient||adminApp.hidden||!verifyIdle()){importFeedback('Jelentkezz be újra a lekéréshez.','error');return;}
+  const raw=importUrl.value.trim();
+  let url;
+  try{url=new URL(raw);if(!['https:','http:'].includes(url.protocol))throw Error();}
+  catch{importFeedback('Adj meg egy érvényes http:// vagy https:// webshoplinket.','error');return;}
+  const requestId=++importRequestId;
+  importButton.disabled=true;importButton.textContent='Lekérés folyamatban…';clearImportPreview();importFeedback('Termékadatok lekérése…');
+  try{
+    const {data:sessionData,error:sessionError}=await authClient.auth.getSession();
+    if(sessionError||!sessionData.session||!verifyIdle())throw new Error('A munkamenet lejárt. Jelentkezz be újra.');
+    const {data,error}=await authClient.functions.invoke('fetch-product',{body:{url:url.href}});
+    if(requestId!==importRequestId||adminApp.hidden||!verifyIdle())return;
+    if(error){
+      let message=error.message||'Nem sikerült lekérni az adatokat.';
+      try{const details=await error.context?.json();if(details?.error)message=details.error;}catch{}
+      throw new Error(message);
+    }
+    if(!data||typeof data!=='object'||data.error)throw new Error(data?.error||'A webshop nem adott feldolgozható adatokat.');
+    const name=typeof data.name==='string'?data.name.trim():'';
+    const description=typeof data.description==='string'?data.description.trim():'';
+    const price=parseImportedPrice(data.price,data.currency);
+    const image=typeof data.image_url==='string'&&/^https?:\/\//i.test(data.image_url)?data.image_url:'';
+    if(name)document.getElementById('product-name').value=name.slice(0,180);
+    if(description)document.getElementById('product-description').value=description.slice(0,2000);
+    if(price!==null)document.getElementById('product-price').value=String(price);
+    document.getElementById('product-webshop').value=url.href;
+    if(image)document.getElementById('product-image').value=image.slice(0,2000);
+    document.getElementById('product-import-name').textContent=name||'A termék neve nem érhető el';
+    document.getElementById('product-import-price').textContent=price!==null?price.toLocaleString('hu-HU')+' Ft':(data.currency&&data.currency!=='HUF'?'Nem forintban megadott ár – töltsd ki kézzel.':'Az ár nem érhető el');
+    if(image){importImage.src=image;importImage.hidden=false;importImage.onerror=()=>{importImage.hidden=true;};}
+    importPreview.hidden=false;
+    const missing=[!name?'név':null,price===null?'ár':null,!image?'kép':null].filter(Boolean);
+    importFeedback(missing.length?'Részleges kitöltés. Hiányzó adatok: '+missing.join(', ')+'. A kategóriát is válaszd ki, majd ellenőrizd az adatokat.':'Adatok betöltve! Válassz kategóriát, és mentés előtt ellenőrizd az adatokat.','success');
+  }catch(error){if(requestId===importRequestId)importFeedback('Nem sikerült automatikusan kitölteni: '+String(error?.message||'Ismeretlen hiba')+' A mezőket kézzel is kitöltheted.','error');}
+  finally{if(requestId===importRequestId){importButton.disabled=false;importButton.textContent='✨ Adatok lekérése';}}
+});
+document.getElementById('product-reset').addEventListener('click',()=>{++importRequestId;importUrl.value='';importFeedback('');clearImportPreview();});
