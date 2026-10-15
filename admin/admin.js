@@ -118,3 +118,53 @@ logoutButton.addEventListener('click',async()=>{
   catch{showLogin('A kijelentkezés nem sikerült. Frissítsd az oldalt, majd próbáld újra.');}
 });
 initAuth();
+
+// Termékfeltöltés: az adatbázis RLS szabályai ellenőrzik az admin jogosultságot.
+const productForm=document.getElementById('new-product-form');
+const productSave=document.getElementById('product-save');
+const productMessage=document.getElementById('product-form-message');
+function productFeedback(message,type=''){
+  productMessage.textContent=message;
+  productMessage.className='product-form-message'+(type?' '+type:'');
+}
+document.getElementById('product-reset').addEventListener('click',()=>{
+  productForm.reset();productFeedback('');
+});
+productForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(!authClient||adminApp.hidden||!verifyIdle()){
+    productFeedback('A munkamenet lejárt. Jelentkezz be újra.','error');return;
+  }
+  const name=document.getElementById('product-name').value.trim();
+  const category=document.getElementById('product-category').value;
+  const priceText=document.getElementById('product-price').value;
+  const price=Number(priceText);
+  const description=document.getElementById('product-description').value.trim();
+  const image=document.getElementById('product-image').value.trim();
+  const webshop=document.getElementById('product-webshop').value.trim();
+  const active=document.getElementById('product-active').checked;
+  if(!name||!category||priceText===''||!Number.isSafeInteger(price)||price<0||price>999999999){
+    productFeedback('Ellenőrizd a nevet, a kategóriát és az árat.','error');return;
+  }
+  for(const link of [image,webshop]){
+    if(link){try{const parsed=new URL(link);if(!['http:','https:'].includes(parsed.protocol))throw Error();}
+      catch{productFeedback('Csak http:// vagy https:// kezdetű linket adj meg.','error');return;}}
+  }
+  productSave.disabled=true;productSave.textContent='Mentés…';productFeedback('Ajándék mentése folyamatban…');
+  try{
+    const {data:sessionData,error:sessionError}=await authClient.auth.getSession();
+    if(sessionError||!sessionData.session||!verifyIdle())throw new Error('A munkamenet lejárt. Jelentkezz be újra.');
+    const payload={name,category,price,description:description||null,image_url:image||null,webshop_url:webshop||null,is_active:active};
+    // Nem kérünk vissza sort: az inaktív ajándék SELECT joga később kerül beállításra.
+    const {error}=await authClient.from('products').insert(payload);
+    if(error)throw error;
+    productForm.reset();
+    productFeedback(active?'Sikeres mentés! Az ajándék megjelenhet a nyilvános kívánságlistán.':'Sikeres mentés! Az ajándék inaktívként került az adatbázisba.','success');
+  }catch(error){
+    console.error('Termékmentési hiba:',error);
+    const message=String(error?.message||'');
+    if(/row-level security|permission denied|42501/i.test(message))productFeedback('A Supabase elutasította a mentést. Ellenőrizni kell az adminjogosultságot és az RLS-szabályokat.','error');
+    else if(/munkamenet lejárt/i.test(message))productFeedback(message,'error');
+    else productFeedback('Nem sikerült menteni az ajándékot. Ellenőrizd az internetkapcsolatot és a Supabase beállításait.','error');
+  }finally{productSave.disabled=false;productSave.textContent='Ajándék mentése →';}
+});
