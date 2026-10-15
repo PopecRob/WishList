@@ -595,3 +595,12 @@ body.detail-open{overflow:hidden}
 }
 #cart-reserve-confirm.cart-reserve-disabled {border:0;background:#98714c;color:white;}
 #cart-reserve-cancel.cart-reserve-cancel {margin-top:8px;border:1px solid #cbb89e;background:#fffaf2;color:#684c34;}
+
+/* A kosár megnyitásakor a háttéroldal lebegő vezérlői nem látszanak. */
+body.cart-open #own-reservations-trigger,
+body.cart-open #back-to-top.back-to-top,
+body.cart-open #back-to-top.back-to-top.is-visible {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
