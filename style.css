@@ -993,3 +993,25 @@ body.detail-open{overflow:hidden}
   #back-to-top .back-to-top-label{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){#back-to-top.back-to-top{transition:none!important}}
+
+/* v55 – mobilos szélesség helyreállítása: sem a kategóriák, sem a termékek
+   nem nyújthatják a lapot a készülék képernyőjén túl. */
+@media (max-width:650px) {
+  html, body {width:100%;max-width:100%;overflow-x:clip;}
+  .site-shell, .content-area, .catalog {box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;}
+  .catalog {padding-left:12px!important;padding-right:12px!important;overflow-x:clip;}
+  .categories {display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;max-width:100%!important;min-width:0!important;gap:6px!important;}
+  .categories > * {box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;}
+  .category {min-width:0!important;min-height:82px!important;padding:6px 2px!important;overflow:hidden!important;}
+  .category-art {width:42px!important;height:42px!important;max-width:100%!important;object-fit:contain!important;}
+  .category-label {font-size:9px!important;line-height:1.18!important;overflow-wrap:anywhere!important;word-break:normal!important;}
+  .toolbar {width:100%!important;max-width:100%!important;min-width:0!important;}
+  .toolbar > * {min-width:0!important;max-width:100%!important;}
+  .product-grid {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;width:100%!important;max-width:100%!important;min-width:0!important;}
+  .product-card {box-sizing:border-box!important;display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:5px!important;overflow:hidden!important;}
+  .product-image {width:100%!important;min-width:0!important;aspect-ratio:1/1!important;height:auto!important;}
+  .product-body {box-sizing:border-box!important;width:100%!important;min-width:0!important;padding:7px 3px 4px!important;}
+  .product-name {font-size:12px!important;overflow-wrap:anywhere!important;}
+  .product-description {font-size:10px!important;overflow-wrap:anywhere!important;}
+  .product-button {box-sizing:border-box!important;width:100%!important;min-width:0!important;font-size:10px!important;white-space:normal!important;}
+}
