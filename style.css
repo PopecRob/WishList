@@ -922,3 +922,36 @@ body.detail-open{overflow:hidden}
 .detail-description-toggle{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:#946b43;font:700 12px/1.5 'DM Sans',sans-serif;padding:5px 0 9px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .detail-description-toggle:hover{color:#654329}
 .detail-description-toggle:focus-visible{outline:2px solid #946b43;outline-offset:3px;border-radius:3px}
+
+/* V52 – mobilon kényelmes, nem összenyomott termékkártyák */
+#own-reservations-trigger.own-reservations-fixed{
+  position:fixed!important;bottom:18px!important;left:18px!important;right:auto!important;
+  z-index:2000!important;display:inline-flex!important;align-items:center;justify-content:center;
+  width:auto!important;max-width:calc(100vw - 36px);padding:11px 16px;
+  border:1px solid #cbb89f;border-radius:999px;background:#fff8ed;color:#60462f;
+  box-shadow:0 5px 22px #0002;font:700 13px/1.3 'DM Sans',sans-serif;
+  visibility:visible!important;opacity:1!important;transform:none!important;
+}
+@media(max-width:650px){
+  .site-shell,.catalog,.content-area{max-width:100%;min-width:0}
+  .categories{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .category{min-width:0;padding:6px 2px;min-height:91px}
+  .category-art{width:48px;max-width:100%;height:48px}
+  .category-label{font-size:9px;overflow-wrap:anywhere}
+  .toolbar{min-width:0;gap:8px}
+  .search-wrap{min-width:0;flex:1 1 50%}
+  .sort-wrap{min-width:0;flex:1 1 42%}
+  .search-wrap input{min-width:0;width:100%;text-overflow:ellipsis}
+  .product-grid{grid-template-columns:minmax(0,1fr);gap:13px}
+  .product-card{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;min-width:0;padding:10px;align-items:stretch}
+  .product-image{height:100%;min-height:175px;max-height:230px}
+  .product-body{padding:4px 3px 3px;min-width:0;display:flex;flex-direction:column}
+  .product-name{font-size:16px;line-height:1.3;min-height:0;max-height:none;-webkit-line-clamp:3;line-clamp:3;overflow-wrap:break-word}
+  .product-description{font-size:12px;line-height:1.45;max-height:2.9em;-webkit-line-clamp:2;line-clamp:2}
+  .product-body .price{font-size:17px;margin-top:auto;padding-top:8px}
+  .product-button{min-height:36px;height:auto;font-size:12px;padding:7px 5px}
+  .status{margin-top:8px}
+  #own-reservations-trigger.own-reservations-fixed{bottom:14px!important;left:12px!important;padding:10px 13px;font-size:12px}
+  .back-to-top{bottom:14px;right:12px}
+}
+@media(min-width:651px) and (max-width:900px){.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
