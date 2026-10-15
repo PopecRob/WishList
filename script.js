@@ -1042,27 +1042,27 @@ manageStyles.textContent=`
 
 
 
-\\#own-reservations-trigger{position:fixed;bottom:18px;left:18px;z-index:900;background:#f6ecdd;color:#554537;border:1px solid #cbb89f;border-radius:999px;padding:12px 17px;box-shadow:0 5px 22px #0002;cursor:pointer;font:600 14px/1.3 inherit}
+#own-reservations-trigger{position:fixed;bottom:18px;left:18px;z-index:900;background:#f6ecdd;color:#554537;border:1px solid #cbb89f;border-radius:999px;padding:12px 17px;box-shadow:0 5px 22px #0002;cursor:pointer;font:600 14px/1.3 inherit}
 
 
 
-\\#own-reservations-overlay[hidden]{display:none!important}
+#own-reservations-overlay[hidden]{display:none!important}
 
 
 
-\\#own-reservations-overlay{position:fixed;inset:0;z-index:3000;background:#18140fb8;display:flex;justify-content:center;align-items:center;padding:16px}
+#own-reservations-overlay{position:fixed;inset:0;z-index:3000;background:#18140fb8;display:flex;justify-content:center;align-items:center;padding:16px}
 
 
 
-\\#own-reservations-dialog{background:#fffaf3;color:#51483d;border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 18px 70px #0004;font-family:inherit}
+#own-reservations-dialog{background:#fffaf3;color:#51483d;border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 18px 70px #0004;font-family:inherit}
 
 
 
-\\#own-reservations-dialog h2{margin:0 0 10px;font-size:1.5rem}
+#own-reservations-dialog h2{margin:0 0 10px;font-size:1.5rem}
 
 
 
-\\#own-reservations-dialog p{line-height:1.5}
+#own-reservations-dialog p{line-height:1.5}
 
 
 
@@ -1090,7 +1090,7 @@ manageStyles.textContent=`
 
 
 
-\\#own-reservations-close{float:right}
+#own-reservations-close{float:right}
 
 
 
