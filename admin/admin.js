@@ -19,8 +19,56 @@ const loginSubmit=document.getElementById('login-submit');
 const logoutButton=document.getElementById('logout-button');
 let authClient=null;
 let authVersion=0;
+// 15 perc tényleges inaktivitás után automatikus kijelentkezés.
+const IDLE_LIMIT_MS=15*60*1000;
+const LAST_ACTIVITY_KEY='nimrod_admin_last_activity_v1';
+let lastActivity=0;
+let idleLogoutInProgress=false;
+let lastStoredActivity=0;
+function storedActivity(){
+  try { const value=Number(localStorage.getItem(LAST_ACTIVITY_KEY));return Number.isFinite(value)&&value>0?value:0; }
+  catch {return 0;}
+}
+function rememberActivity(time=Date.now()){
+  lastActivity=time;
+  if(time-lastStoredActivity>5000){
+    try{localStorage.setItem(LAST_ACTIVITY_KEY,String(time));lastStoredActivity=time;}catch{}
+  }
+}
+function clearActivity(){lastActivity=0;lastStoredActivity=0;try{localStorage.removeItem(LAST_ACTIVITY_KEY);}catch{}}
+async function logoutForInactivity(){
+  if(idleLogoutInProgress||!authClient)return;
+  idleLogoutInProgress=true;
+  authVersion++;
+  showLogin('15 perc inaktivitás miatt automatikusan kijelentkeztettünk. Jelentkezz be újra.');
+  try{
+    const {error}=await authClient.auth.signOut();
+    if(error)throw error;
+    clearActivity();
+  }catch{
+    // Hálózati hiba esetén sem engedjük vissza a felületre.
+    showLogin('A munkamenet lejárt, de a kijelentkezést nem sikerült befejezni. Internetkapcsolat után frissítsd az oldalt.');
+  }finally{idleLogoutInProgress=false;}
+}
+function verifyIdle(){
+  if(adminApp.hidden||!authClient||idleLogoutInProgress)return false;
+  const latest=lastActivity||storedActivity();
+  if(!latest||Date.now()-latest>=IDLE_LIMIT_MS){void logoutForInactivity();return false;}
+  return true;
+}
+function recordUserActivity(){
+  if(!verifyIdle())return;
+  if(Date.now()-lastActivity>=1000)rememberActivity();
+}
+['pointerdown','keydown','touchstart','scroll'].forEach(type=>
+  document.addEventListener(type,recordUserActivity,{passive:true,capture:true})
+);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)verifyIdle();});
+window.addEventListener('focus',verifyIdle);
+setInterval(verifyIdle,5000);
+
 function showLogin(message=''){adminApp.hidden=true;loginScreen.hidden=false;loginMessage.textContent=message;closeMenu();}
-function showAdmin(){loginScreen.hidden=true;adminApp.hidden=false;loginMessage.textContent='';}
+function showAdmin(){if(idleLogoutInProgress)return;loginScreen.hidden=true;adminApp.hidden=false;loginMessage.textContent='';}
 async function checkAdmin(session){
   if(!session?.user?.id){showLogin();return;}
   const version=++authVersion;
@@ -28,19 +76,28 @@ async function checkAdmin(session){
   const {data,error}=await authClient.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
   if(version!==authVersion)return;
   if(error||!data){showLogin('Ehhez a fiókhoz nincs adminjogosultság, vagy az ellenőrzés sikertelen.');return;}
+  if(lastActivity && Date.now()-lastActivity>=IDLE_LIMIT_MS){await logoutForInactivity();return;}
   showAdmin();
 }
+
 async function initAuth(){
   showLogin('Bejelentkezés ellenőrzése…');
   if(!window.supabase?.createClient){showLogin('A bejelentkezési szolgáltatás nem töltődött be. Ellenőrizd az internetkapcsolatot.');return;}
   authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
   const {data,error}=await authClient.auth.getSession();
   if(error){showLogin('Nem sikerült ellenőrizni a munkamenetet.');return;}
-  await checkAdmin(data.session);
+  if(data.session){
+    lastActivity=storedActivity();
+    if(!lastActivity||Date.now()-lastActivity>=IDLE_LIMIT_MS){
+      await authClient.auth.signOut();
+      clearActivity();
+      showLogin('A korábbi munkamenet lejárt. Jelentkezz be újra.');
+    }else await checkAdmin(data.session);
+  }else{clearActivity();showLogin();}
   authClient.auth.onAuthStateChange((event,session)=>{
-    if(event==='SIGNED_OUT'){authVersion++;showLogin();}
+    if(event==='SIGNED_OUT'){authVersion++;clearActivity();if(!idleLogoutInProgress)showLogin();}
     // A tokenfrissítést is ellenőrizzük, de ne blokkoljuk a Supabase auth callbacket.
-    else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')setTimeout(()=>checkAdmin(session),0);
+    else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')setTimeout(()=>{if(!idleLogoutInProgress&&session){if(!lastActivity)lastActivity=storedActivity();if(!lastActivity||Date.now()-lastActivity>=IDLE_LIMIT_MS){void logoutForInactivity();}else void checkAdmin(session);}},0);
   });
 }
 loginForm.addEventListener('submit',async event=>{
@@ -49,13 +106,14 @@ loginForm.addEventListener('submit',async event=>{
   try{
     const {data,error}=await authClient.auth.signInWithPassword({email:document.getElementById('login-email').value.trim(),password:document.getElementById('login-password').value});
     if(error){showLogin('Hibás e-mail-cím vagy jelszó, vagy a bejelentkezés nem sikerült.');return;}
+    rememberActivity();
     await checkAdmin(data.session);
     document.getElementById('login-password').value='';
   }catch{showLogin('Hálózati hiba történt. Próbáld újra.');}
   finally{loginSubmit.disabled=false;loginSubmit.textContent='Bejelentkezés →';}
 });
 logoutButton.addEventListener('click',async()=>{
-  authVersion++;showLogin('Kijelentkezés…');
+  authVersion++;clearActivity();showLogin('Kijelentkezés…');
   try{const {error}=await authClient.auth.signOut();if(error)throw error;showLogin('Sikeresen kijelentkeztél.');}
   catch{showLogin('A kijelentkezés nem sikerült. Frissítsd az oldalt, majd próbáld újra.');}
 });
