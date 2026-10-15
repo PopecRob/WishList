@@ -1,8 +1,62 @@
 'use strict';
-// Csak navigáció a dizájn előnézetében. Nincs adatbázis-hozzáférés.
+// Admin belépés Supabase Auth-tal; az adminfelület tartalma továbbra is bemutató adat.
 const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
 function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');overlay.hidden=true;toggle.setAttribute('aria-expanded','false');}
 function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view],[data-go]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view||el.dataset.go)));
 toggle.addEventListener('click',()=>{const open=!sidebar.classList.contains('open');sidebar.classList.toggle('open',open);overlay.classList.toggle('open',open);overlay.hidden=!open;toggle.setAttribute('aria-expanded',String(open));});overlay.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+
+
+// A nyilvános publishable key nem titok. Service role kulcsot SOHA ne tegyünk frontendbe.
+const SUPABASE_URL='https://aalzgkdnqurpoepueehc.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1PZSSo5VB-ZD90s5OOU2QA_v_1bj_ZK';
+const loginScreen=document.getElementById('login-screen');
+const adminApp=document.getElementById('admin-app');
+const loginForm=document.getElementById('login-form');
+const loginMessage=document.getElementById('login-message');
+const loginSubmit=document.getElementById('login-submit');
+const logoutButton=document.getElementById('logout-button');
+let authClient=null;
+let authVersion=0;
+function showLogin(message=''){adminApp.hidden=true;loginScreen.hidden=false;loginMessage.textContent=message;closeMenu();}
+function showAdmin(){loginScreen.hidden=true;adminApp.hidden=false;loginMessage.textContent='';}
+async function checkAdmin(session){
+  if(!session?.user?.id){showLogin();return;}
+  const version=++authVersion;
+  // Az admin_users RLS policy kizárólag a saját sor lekérdezését engedi.
+  const {data,error}=await authClient.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(version!==authVersion)return;
+  if(error||!data){showLogin('Ehhez a fiókhoz nincs adminjogosultság, vagy az ellenőrzés sikertelen.');return;}
+  showAdmin();
+}
+async function initAuth(){
+  showLogin('Bejelentkezés ellenőrzése…');
+  if(!window.supabase?.createClient){showLogin('A bejelentkezési szolgáltatás nem töltődött be. Ellenőrizd az internetkapcsolatot.');return;}
+  authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
+  const {data,error}=await authClient.auth.getSession();
+  if(error){showLogin('Nem sikerült ellenőrizni a munkamenetet.');return;}
+  await checkAdmin(data.session);
+  authClient.auth.onAuthStateChange((event,session)=>{
+    if(event==='SIGNED_OUT'){authVersion++;showLogin();}
+    // A tokenfrissítést is ellenőrizzük, de ne blokkoljuk a Supabase auth callbacket.
+    else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')setTimeout(()=>checkAdmin(session),0);
+  });
+}
+loginForm.addEventListener('submit',async event=>{
+  event.preventDefault();if(!authClient)return;
+  loginSubmit.disabled=true;loginSubmit.textContent='Ellenőrzés…';loginMessage.textContent='';
+  try{
+    const {data,error}=await authClient.auth.signInWithPassword({email:document.getElementById('login-email').value.trim(),password:document.getElementById('login-password').value});
+    if(error){showLogin('Hibás e-mail-cím vagy jelszó, vagy a bejelentkezés nem sikerült.');return;}
+    await checkAdmin(data.session);
+    document.getElementById('login-password').value='';
+  }catch{showLogin('Hálózati hiba történt. Próbáld újra.');}
+  finally{loginSubmit.disabled=false;loginSubmit.textContent='Bejelentkezés →';}
+});
+logoutButton.addEventListener('click',async()=>{
+  authVersion++;showLogin('Kijelentkezés…');
+  try{const {error}=await authClient.auth.signOut();if(error)throw error;showLogin('Sikeresen kijelentkeztél.');}
+  catch{showLogin('A kijelentkezés nem sikerült. Frissítsd az oldalt, majd próbáld újra.');}
+});
+initAuth();
