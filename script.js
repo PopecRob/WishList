@@ -1,272 +1,92 @@
-'use strict';
+/\* Nimród Baby Wishing List – V10. Teljes, kompakt fejléc és egységes stíluslap. \*/
 
 
 
-// Supabase terméklista és biztonságos Edge Function foglalás.
+:root{--paper:#f8f3e9;--cream:#fffaf2;--card:#fffaf3;--sage:#b1824d;--sage-dark:#966a3b;--olive:#bc966a;--ink:#66411f;--muted:#967b61;--line:#eadfce;--shadow:0 8px 25px rgba(95,66,37,.12)}
 
 
 
-const categories = [
+\*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 
 
-  {id:'all',icon:'▦',label:'Összes'},
+.site-shell{width:100%;max-width:none;margin:0;background:var(--paper);min-height:100vh;overflow:clip}
 
 
 
-  {id:'stroller',icon:'♧',label:'Babakocsi és autósülés'},
+.site-header{height:54px;padding:0 clamp(18px,3vw,64px);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(255,250,241,.55),rgba(255,250,241,0));border:0;position:absolute;top:0;left:0;right:0;z-index:3}.brand{display:flex;flex-direction:column;letter-spacing:.23em;font-weight:700;font-size:22px;line-height:1.15;color:#593b27;text-shadow:0 1px 2px #fff}.brand small{font-size:9px;letter-spacing:.31em;font-weight:600;margin-top:5px}.brand-leaf{font-size:14px;color:#a77947;letter-spacing:0}
 
 
 
-  {id:'nursery',icon:'♙',label:'Babaszoba'},
+.hero{width:100%;height:10vw;min-height:0;background:#f3eee4 url('assets/images/baby-wishlist-header-desktop.png') center center / 100% auto no-repeat;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding-top:0}
 
 
 
-  {id:'feeding',icon:'♧',label:'Etetés'},
+.hero-copy{position:relative;z-index:1;width:39%;max-width:550px;margin-left:10%;text-align:center;padding:3px;transform:none}.hero-eyebrow{font-family:'Playfair Display',serif;font-size:clamp(9px,.9vw,13px);letter-spacing:.09em;color:#996633;margin:0 0 2px;color:#5c402b;font-weight:700;text-shadow:0 1px 2px #fff}.hero h1{font-family:'Great Vibes',cursive;font-weight:400;font-size:clamp(32px,4.1vw,68px);line-height:1.03;margin:0;color:#b1814e;text-shadow:0 2px 2px #ffffff99;color:#83542f;text-shadow:0 1px 2px #fff,0 0 4px rgba(255,255,255,.8)}.hero h1 span{font-family:'Playfair Display',serif;font-size:clamp(19px,1.8vw,26px);color:#a77644}.hero-subtitle{font-family:'Playfair Display',serif;font-size:clamp(9px,.85vw,12px);letter-spacing:.26em;color:#b1814e;margin:0 0 2px;color:#68462c;font-weight:700;text-shadow:0 1px 2px #fff}.hero-description{font-family:'Playfair Display',serif;font-size:clamp(9px,.78vw,11px);line-height:1.4;max-width:410px;margin:auto;color:#8c592d;text-shadow:0 1px 2px #fff;color:#4c3727;font-weight:700;text-shadow:0 1px 2px #fff,0 0 3px #fff}.wood-sign{display:none}
 
 
 
-  {id:'bath',icon:'♧',label:'Fürdetés és ápolás'},
+.content-area{background:radial-gradient(ellipse at 50% 0%,#fffaf3 0%,#f8f2e8 65%,#f4eadd 100%);position:relative}.content-area:before,.content-area:after{content:'❧';position:absolute;font-family:Georgia,serif;font-size:310px;line-height:1;color:#a4a27a;opacity:.16;pointer-events:none}.content-area:before{top:10px;left:-80px;transform:rotate(-35deg)}.content-area:after{bottom:0;right:-65px;transform:rotate(135deg)}.catalog{position:relative;z-index:1;width:100%;max-width:none;margin:0;padding:20px clamp(18px,3vw,64px) 80px}.section-heading{text-align:center;margin:0 0 20px}.tiny-ornament{color:#b78248;font-size:21px}.section-heading h2,.information h2{font-family:'Playfair Display',serif;font-size:clamp(29px,2.6vw,41px);font-weight:400;margin:1px 0 4px;color:#ad7942}.section-heading p{margin:0;color:#9d744e;font-family:'Playfair Display',serif;font-size:14px}
 
 
 
-  {id:'clothes',icon:'♧',label:'Ruhák és textíliák'},
+.toolbar{display:flex;gap:17px;margin-bottom:12px}.search-wrap,.sort-wrap{height:46px;border:1px solid #efe7dc;border-radius:12px;background:#f0eae2;display:flex;align-items:center;gap:10px;padding:0 17px;color:#986f45}.search-wrap{flex:1}.search-wrap span:first-child{font-size:26px}.search-wrap input{border:0;outline:0;background:transparent;width:100%;min-width:0;font-size:13px;color:var(--ink)}.sort-wrap select{border:0;background:transparent;outline:0;color:#845b35;max-width:220px;font-size:13px}.results{font-size:12px;font-weight:700;color:#65452d;margin:0 0 10px;min-height:18px;text-shadow:0 1px 0 rgba(255,255,255,.7)}.product-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:11px}.product-card{min-width:0;background:var(--card);border:1px solid #eee4d6;border-radius:12px;padding:6px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}.product-card:hover{transform:translateY(-3px);box-shadow:0 13px 30px #6b492b22}.product-image{height:121px;border-radius:8px;background:radial-gradient(circle at 50% 30%,#fffaf3,#e9ddca);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.product-photo{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}.product-placeholder{font-size:59px;filter:drop-shadow(0 6px 6px #0000001a)}.favorite{position:absolute;z-index:1;top:5px;right:5px;width:27px;height:27px;border-radius:50%;border:1px solid #eee4d7;background:#fffaf2ec;color:#9f7146;font-size:22px;display:grid;place-items:center;line-height:1}.favorite[aria-pressed=true]{color:#b56e6e;background:#fff0ec}.product-body{padding:9px 5px 5px}.product-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:500;line-height:1.35;margin:0 0 6px;color:#784b25}.product-description{font-size:11px;line-height:1.35;color:#9b8168;min-height:27px;margin:0 0 6px}.price{font-family:'Playfair Display',serif;font-size:15px;color:#8e5c2f;margin:0 0 7px}.product-button{width:100%;height:31px;border:0;border-radius:9px;background:#af7f4d;color:white;font-size:11px;font-weight:700}.product-button:disabled{background:#b6a18a;color:white;cursor:not-allowed}.status{display:flex;align-items:center;gap:6px;font-size:11px;margin:12px 2px 2px;color:#5f8056}.status.reserved{color:#a07b50}.status.preordered{color:#b87b35}.empty-state{text-align:center;padding:40px;color:var(--muted)}
 
 
 
-  {id:'toys',icon:'♡',label:'Játékok'},
+.information{text-align:center;background:#f2e8d9;padding:60px 24px 50px;border-top:1px solid #e7d8c6}.information p{max-width:660px;margin:12px auto;line-height:1.8;font-size:14px;color:#8a6b4c}.information .demo-note{font-size:12px;color:#a28d78;margin-top:22px}.footer{background:#9e744b;color:#fffaf2;text-align:center;padding:25px;font-weight:700;letter-spacing:.22em;font-size:12px}.footer span{color:#f6e2c5}.footer small{display:block;letter-spacing:.08em;font-size:10px;font-weight:400;margin-top:9px;opacity:.8}
 
 
 
-  {id:'other',icon:'•••',label:'Egyéb'}
+@media(max-width:1100px){.hero{height:10vw;min-height:0}.hero-copy{margin-left:11%;width:43%}.hero h1{font-size:clamp(32px,4.1vw,68px)}.hero-description{font-size:clamp(9px,.85vw,12px)}.product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.product-image{height:130px}}
 
 
 
-];
+/\* Mobil: külön elrendezés, az asztali fejléc változatlan. \*/
 
 
 
-const categoryArt = {
+@media (max-width:650px) {
 
 
 
-  'all': '<g transform="translate(1 2)"><rect x="12" y="42" width="29" height="24" rx="3" fill="#ead4b7" stroke="#a88d6f" stroke-width="1.8"/><path d="M15 44v20m7-20v20m7-20v20m7-20v20" stroke="#b99b78" stroke-width="1.7"/><path d="M13 66v7m27-7v7" stroke="#94785e" stroke-width="3"/><path d="M47 41q1-19 18-19 16 1 18 19z" fill="#b9cbb1" stroke="#7e9b83" stroke-width="1.7"/><path d="M47 42h36l-6 17H55z" fill="#ddc2a1" stroke="#ab8b6b" stroke-width="1.7"/><path d="M57 59l-5 9m22-9 5 9" stroke="#8e806c" stroke-width="2.5"/><circle cx="51" cy="69" r="4" fill="#869f8b"/><circle cx="80" cy="69" r="4" fill="#869f8b"/><circle cx="52" cy="15" r="7" fill="#d9b994"/><circle cx="68" cy="15" r="7" fill="#d9b994"/><circle cx="60" cy="23" r="12" fill="#e5c6a0"/><circle cx="56" cy="22" r="1.6" fill="#6e5a4b"/><circle cx="64" cy="22" r="1.6" fill="#6e5a4b"/><ellipse cx="60" cy="28" rx="4" ry="3" fill="#f5e8d3"/></g>',
+  /\* A mobilképen minden felirat rajta van: nincs dupla szöveg. \*/
 
 
 
-  'stroller': '<path d="M23 37q2-22 23-23 19 1 21 23H23z" fill="#b7c6aa" stroke="#7b977b" stroke-width="2"/><path d="M23 38h46l-8 20H35z" fill="#e0c7a4" stroke="#a78e70" stroke-width="2"/><path d="M25 22l-9-7" stroke="#8a7966" stroke-width="3" stroke-linecap="round"/><path d="M36 59l-6 11m27-11 7 11" stroke="#8a7966" stroke-width="3"/><circle cx="28" cy="71" r="6" fill="#8c9e89"/><circle cx="66" cy="71" r="6" fill="#8c9e89"/><path d="M75 34v26m0-26 12-4" stroke="#b7a084" stroke-width="3"/><rect x="70" y="41" width="15" height="19" rx="5" fill="#d9bda3" stroke="#a58c77" stroke-width="2"/>',
+  .hero {
 
 
 
-  'nursery': '<rect x="17" y="30" width="65" height="39" rx="4" fill="#e5d0ae" stroke="#a78d70" stroke-width="2"/><rect x="23" y="35" width="53" height="21" rx="4" fill="#faf2e3"/><path d="M26 34v30m10-30v30m10-30v30m10-30v30m10-30v30m10-30v30" stroke="#ae987a" stroke-width="2"/><path d="M22 68v8m55-8v8" stroke="#94775b" stroke-width="4"/><path d="M20 27q27-20 58 0" fill="none" stroke="#b6c3a6" stroke-width="3"/><circle cx="51" cy="18" r="4" fill="#cfb98d"/>',
+    height: auto;
 
 
 
-  'feeding': '<path d="M24 26h25v38q-12 13-25 0z" fill="#f5e3c8" stroke="#ad9476" stroke-width="2"/><path d="M29 20h15v6H29z" fill="#c5d0b4"/><path d="M35 11q8 4 3 9h-7q-4-6 4-9z" fill="#d3b9a2"/><path d="M55 34q19-4 25 11l-5 17H59z" fill="#b9c9b4" stroke="#829b84" stroke-width="2"/><path d="M55 35q13 9 25 10" fill="none" stroke="#f9f1e1" stroke-width="3"/><circle cx="66" cy="53" r="3" fill="#e7d1aa"/><path d="M20 70h64" stroke="#b9a68a" stroke-width="3" stroke-linecap="round"/>',
+    min-height: 0;
 
 
 
-  'bath': '<path d="M16 43h72l-9 23H27z" fill="#c5d7cc" stroke="#8aa79b" stroke-width="2"/><path d="M20 42q3-8 10 0h50q7-8 9 0" fill="#f8f4e8" stroke="#8aa79b" stroke-width="2"/><path d="M33 66l-4 8m47-8 4 8" stroke="#a18c70" stroke-width="3"/><circle cx="42" cy="29" r="6" fill="#fff8e9" stroke="#d7cdb4"/><circle cx="57" cy="22" r="8" fill="#fff8e9" stroke="#d7cdb4"/><circle cx="69" cy="32" r="5" fill="#fff8e9" stroke="#d7cdb4"/><path d="M28 40V23q0-8 8-8" stroke="#a5b5a2" stroke-width="3" fill="none"/>',
+    aspect-ratio: 1821 / 864;
 
 
 
-  'clothes': '<path d="M29 24l12-7h16l12 7 14 17-13 10-8-8v30H36V43l-8 8-13-10z" fill="#e6c7b4" stroke="#ad8f7e" stroke-width="2"/><path d="M41 17q7 14 16 0" fill="none" stroke="#f7e8d6" stroke-width="4"/><path d="M36 56h26" stroke="#f5e6d9" stroke-width="2"/><path d="M75 61q8-7 13 1l-3 13H71z" fill="#c3cdb4" stroke="#899b81" stroke-width="2"/>',
+    background-image: url('assets/images/baby-wishlist-header-mobile.png');
 
 
 
-  'toys': '<circle cx="38" cy="25" r="11" fill="#c9a77e"/><circle cx="62" cy="25" r="11" fill="#c9a77e"/><circle cx="50" cy="36" r="21" fill="#ddbb90" stroke="#a78968" stroke-width="2"/><ellipse cx="50" cy="64" rx="21" ry="17" fill="#ddbb90" stroke="#a78968" stroke-width="2"/><circle cx="42" cy="34" r="2.3" fill="#645646"/><circle cx="58" cy="34" r="2.3" fill="#645646"/><ellipse cx="50" cy="43" rx="7" ry="5" fill="#f8e7cd"/><circle cx="50" cy="41" r="2" fill="#7d6656"/><path d="M32 59l-10 7m46-7 10 7" stroke="#b99a77" stroke-width="7" stroke-linecap="round"/>',
+    background-repeat: no-repeat;
 
 
 
-  'other': '<g><rect x="15" y="29" width="44" height="34" rx="6" fill="#d9c9af" stroke="#a28b71" stroke-width="2"/><rect x="20" y="34" width="34" height="23" rx="3" fill="#f8f4e9"/><path d="M25 47q5-8 10 0t10 0" fill="none" stroke="#98ae9d" stroke-width="2.5" stroke-linecap="round"/><circle cx="37" cy="61" r="2" fill="#9b8b74"/><path d="M31 29v-6q0-5 6-5" fill="none" stroke="#b6a38b" stroke-width="3"/><g transform="translate(59 26)"><circle cx="14" cy="14" r="13" fill="#c3d0b8" stroke="#8fa38d" stroke-width="2"/><circle cx="14" cy="14" r="5" fill="#f9f2e6"/><path d="M14 1V-5m0 38v7m-13-26h-5m36 0h6" stroke="#b8a17f" stroke-width="4" stroke-linecap="round"/></g><path d="M58 68q10-9 21 0" fill="none" stroke="#bba181" stroke-width="4" stroke-linecap="round"/><circle cx="83" cy="69" r="5" fill="#e2c5a4"/></g>'
+    background-position: center top;
 
 
 
-};
+    background-size: contain;
 
 
 
-function categoryImage(id) {
-
-
-
-  const drawing = categoryArt[id] || categoryArt.other;
-
-
-
-  const svg = `<svg xmlns="http\://www.w3.org/2000/svg" viewBox="0 0 100 88" role="img"><ellipse cx="50" cy="47" rx="44" ry="38" fill="#f2eadb" opacity=".65"/><path d="M8 58q5-13 13-13M82 15q6 7 7 15" fill="none" stroke="#c1cdb6" stroke-width="3" stroke-linecap="round" opacity=".7"/>${drawing}</svg>`;
-
-
-
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-
-
-
-}
-
-
-
-// Termékek kizárólag a Supabase adatbázisból érkeznek.
-
-
-
-const SUPABASE_URL='https\://aalzgkdnqurpoepueehc.supabase.co';
-
-
-
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1PZSSo5VB-ZD90s5OOU2QA_v_1bj_ZK';
-
-
-
-let products=[];
-
-
-
-const RESERVATION_ENDPOINT=`${SUPABASE_URL}/functions/v1/create-reservation`;
-
-
-
-let reservationBusy=false;
-
-
-
-const categoryAliases={
-
-
-
-  'Játékok':'toys','Babakocsi és autósülés':'stroller','Babaszoba':'nursery',
-
-
-
-  'Etetés':'feeding','Fürdetés és ápolás':'bath','Ruhák és textíliák':'clothes',
-
-
-
-  'Egyéb':'other',toys:'toys',stroller:'stroller',nursery:'nursery',
-
-
-
-  feeding:'feeding',bath:'bath',clothes:'clothes',other:'other'
-
-
-
-};
-
-
-
-function normalizeProduct(p){
-
-
-
-  const category=categoryAliases[p.category]||'other';
-
-
-
-  const emoji={toys:'🧸',stroller:'🛒',nursery:'🛏️',feeding:'🍼',bath:'🛁',clothes:'👶',other:'🎁'}[category];
-
-
-
-  const url=typeof p.webshop_url==='string'&&/^https?:\/\//i.test(p.webshop_url)?p.webshop_url:'';
-
-
-
-  const image=typeof p.image_url==='string'&&/^https?:\/\//i.test(p.image_url)?p.image_url:'';
-
-
-
-  return {id:String(p.id),name:String(p.name||''),description:String(p.description||''),
-
-
-
-    price:Number(p.price)||0,category,status:'available',emoji,image,url};
-
-
-
-}
-
-
-
-async function loadProducts(){
-
-
-
-  const results=document.getElementById('results');
-
-
-
-  results.textContent='Ajándékok betöltése…';
-
-
-
-  try{
-
-
-
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/products?select=id,name,description,price,category,image_url,webshop_url&is_active=eq.true&order=created_at.asc`,{
-
-
-
-      headers:{apikey:SUPABASE_PUBLISHABLE_KEY}
-
-
-
-    });
-
-
-
-    if(!response.ok)throw new Error(`HTTP ${response.status}`);
-
-
-
-    const rows=await response.json();
-
-
-
-    if(!Array.isArray(rows))throw new Error('Érvénytelen válasz');
-
-
-
-    products=rows.map(normalizeProduct);
-
-
-
-    await loadReservedStatus();
-
-
-
-    // A korábban kosárba tett, már nem létező termékeket eltávolítjuk.
-
-
-
-    for(const id of cart)if(!products.some(p=>p.id===id&&p.status==='available'))cart.delete(id);
-
-
-
-    saveCart();updateCartBadge();renderProducts();
-
-
-
-    if(!cartModal.hidden)renderCart();
-
-
-
-  }catch(error){
-
-
-
-    console.error('Supabase termékbetöltési hiba:',error);
-
-
-
-    results.textContent='Nem sikerült betölteni az ajándékokat. Frissítsd az oldalt, vagy próbáld újra később.';
-
-
-
-    grid.innerHTML='';
-
-
-
-    document.getElementById('empty-state').hidden=true;
+    padding: 0;
 
 
 
@@ -274,119 +94,111 @@ async function loadProducts(){
 
 
 
-}
+  .hero .hero-copy, .hero .hero-eyebrow, .hero .hero-subtitle, .hero .hero-description, .hero h1, .hero .wood-sign {display:none !important;}
 
 
 
-const state = {category:'all',query:'',sort:'default',favorites:new Set()};
+  /\* A képre égetett bal felső logót ne duplázzuk. \*/
 
 
 
-// A kosár csak ebben a böngészőben tárolódik. Nem foglal le semmit.
+  /\* Mobilon a menü a képre kerül, külön felső sáv nélkül. \*/
 
 
 
-const CART_KEY='nimrod-wishlist-supabase-cart-v43';
+  .catalog {padding:18px 12px 45px;}
 
 
 
-function readCart(){try{const stored=JSON.parse(localStorage.getItem(CART_KEY)||'[]');return new Set(Array.isArray(stored)?stored.filter(id=>typeof id==='string'):[]);}catch{return new Set();}}
+  .section-heading {margin-bottom:14px;}
 
 
 
-const cart=readCart();
+  .tiny-ornament {font-size:18px;}
 
 
 
-function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify([...cart]));}catch{}}
+  .section-heading h2 {font-size:clamp(28px,7.5vw,34px);}
 
 
 
-function updateCartBadge(){const count=cart.size;document.getElementById('cart-count').textContent=String(count);document.getElementById('floating-cart').setAttribute('aria-label',`Kosár megnyitása, ${count} termék`);}
+  .section-heading p {font-size:12px;}
 
 
 
-function toggleCartItem(id){const product=products.find(p=>p.id===id);if(!product||product.status!=='available')return;if(cart.has(id))cart.delete(id);else cart.add(id);saveCart();updateCartBadge();renderProducts();if(!detailModal.hidden&&detailContent.dataset.productId===String(id))openProductDetail(id,true);if(!cartModal.hidden)renderCart();}
+  .toolbar {gap:8px;}
 
 
 
-const categoryContainer = document.getElementById('categories');
+  .search-wrap,.sort-wrap {height:43px;padding:0 10px;border-radius:11px;}
 
 
 
-const grid = document.getElementById('product-grid');
+  .search-wrap {min-width:0;}
 
 
 
-const money = value => new Intl.NumberFormat('hu-HU').format(value)+' Ft';
+  .search-wrap input {font-size:12px;}
 
 
 
-const escapeHtml = value => String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  .sort-wrap {flex:0 0 38%;min-width:0;}
 
 
 
-function renderCategories(){
+  .sort-wrap select {font-size:12px;max-width:100%;width:100%;}
 
 
 
-  categoryContainer.innerHTML=categories.map(cat=>`<button type="button" class="category ${state.category===cat.id?'active':''}" data-category="${cat.id}" aria-pressed="${state.category===cat.id}"><img class="category-art" src="${categoryImage(cat.id)}" alt="" aria-hidden="true" decoding="async"><span class="category-label">${cat.label}</span></button>`).join('');
+  .product-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
 
 
 
-}
+  .product-card {padding:6px;border-radius:12px;}
 
 
 
-function renderProducts(){
+  .product-image {height:118px;border-radius:9px;}
 
 
 
-  let filtered=products.filter(p=>(state.category==='all'||p.category===state.category)&&`${p.name} ${p.description}`.toLocaleLowerCase('hu-HU').includes(state.query));
+  .product-placeholder {font-size:48px;}
 
 
 
-  if(state.sort==='price-asc')filtered.sort((a,b)=>a.price-b.price);
+  .favorite {height:29px;width:29px;font-size:19px;}
 
 
 
-  if(state.sort==='price-desc')filtered.sort((a,b)=>b.price-a.price);
+  .product-body {padding:9px 3px 4px;}
 
 
 
-  if(state.sort==='name')filtered.sort((a,b)=>a.name.localeCompare(b.name,'hu'));
+  .product-name {font-size:13px;min-height:34px;}
 
 
 
-  if(state.sort==='available')filtered.sort((a,b)=>(a.status==='available'?0:1)-(b.status==='available'?0:1));
+  .product-description {font-size:11px;min-height:32px;}
 
 
 
-  document.getElementById('results').textContent=`${filtered.length} ajándék megjelenítve · A foglalás 7 napig érvényes`;
+  .price {font-size:15px;margin-bottom:8px;}
 
 
 
-  document.getElementById('empty-state').hidden=filtered.length>0;
+  .product-button {font-size:11px;height:32px;}
 
 
 
-  grid.innerHTML=filtered.map(p=>{
+  .status {font-size:10px;margin-top:10px;}
 
 
 
-    const reserved=p.status==='reserved';const preordered=p.status==='preordered';
+  .information {padding:40px 20px;}
 
 
 
-    const statusText=reserved?'Foglalt':preordered?'Félretéve':'Szabad';
-
-
-
-    return `<article class="product-card" data-product="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.name)} részleteinek megtekintése"><div class="product-image"><span class="product-placeholder" aria-hidden="true">${p.emoji}</span>${p.image?`<img class="product-photo" src="${p.image}" alt="" loading="lazy" onerror="this.remove()">`:``}<button type="button" class="favorite" data-favorite="${p.id}" aria-pressed="${state.favorites.has(p.id)}" aria-label="${state.favorites.has(p.id)?'Eltávolítás a kedvencekből':'Kedvencekhez adás'}: ${escapeHtml(p.name)}">${state.favorites.has(p.id)?'♥':'♡'}</button></div><div class="product-body"><h3 class="product-name">${escapeHtml(p.name)}</h3><p class="product-description">${escapeHtml(p.description)}</p><p class="price">${money(p.price)}</p><button class="product-button product-cart-button" type="button" data-cart-add="${p.id}" ${p.status!=='available'?'disabled title="Ez az ajándék jelenleg nem elérhető"':''}>${p.status!=='available'?'Nem elérhető':cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button><div class="status ${reserved?'reserved':preordered?'preordered':''}"><span aria-hidden="true">🎁</span>${statusText}</div></div></article>`;
-
-
-
-  }).join('');
+  .information h2 {font-size:26px;}
 
 
 
@@ -394,215 +206,39 @@ function renderProducts(){
 
 
 
-categoryContainer.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;state.category=button.dataset.category;renderCategories();renderProducts();});
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.category,.product-card{transition:none}}
 
 
 
-grid.addEventListener('click',event=>{
+/\* Pasztell botanikus háttér, mindkét oldalon külön levéldísszel. \*/
 
 
 
-  const cartButton=event.target.closest('[data-cart-add]');if(cartButton){toggleCartItem(cartButton.dataset.cartAdd);return;}
+.content-area {
 
 
 
-  const favorite=event.target.closest('[data-favorite]');
+  position: relative;
 
 
 
-  if(favorite){const id=favorite.dataset.favorite;if(state.favorites.has(id))state.favorites.delete(id);else state.favorites.add(id);renderProducts();return;}
+  isolation: isolate;
 
 
 
-  const card=event.target.closest('[data-product]');if(card)openProductDetail(card.dataset.product);
+  background:
 
 
 
-});
+    radial-gradient(ellipse 45% 25% at -4% 9%, rgba(129,153,111,.28), transparent 94%),
 
 
 
-grid.addEventListener('keydown',event=>{
+    radial-gradient(ellipse 43% 29% at 104% 20%, rgba(139,161,121,.27), transparent 94%),
 
 
 
-  if((event.key==='Enter'||event.key===' ')&&event.target.matches('[data-product]')){
-
-
-
-    event.preventDefault();openProductDetail(event.target.dataset.product);
-
-
-
-  }
-
-
-
-});
-
-
-
-document.getElementById('search').addEventListener('input',event=>{state.query=event.target.value.trim().toLocaleLowerCase('hu-HU');renderProducts();});
-
-
-
-document.getElementById('sort').addEventListener('change',event=>{state.sort=event.target.value;renderProducts();});
-
-
-
-renderCategories();loadProducts();
-
-
-
-// A lap tetejére gomb csak görgetés után látható.
-
-
-
-const backToTop = document.getElementById('back-to-top');
-
-
-
-function updateBackToTop(){backToTop.classList.toggle('is-visible',window.scrollY>=200);}
-
-
-
-window.addEventListener('scroll',updateBackToTop,{passive:true});
-
-
-
-backToTop.addEventListener('click',()=>{window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});});
-
-
-
-updateBackToTop();
-
-
-
-const detailModal=document.getElementById('detail-modal');
-
-
-
-const detailDialog=detailModal.querySelector('.detail-dialog');
-
-
-
-const detailContent=document.getElementById('detail-content');
-
-
-
-let detailReturnFocus=null;
-
-
-
-function openProductDetail(id,keepFocus=false){
-
-
-
-  const p=products.find(item=>item.id===id);if(!p)return;
-
-
-
-  if(!keepFocus)detailReturnFocus=document.activeElement;
-
-
-
-  detailContent.dataset.productId=String(id);
-
-
-
-  const cat=categories.find(item=>item.id===p.category);
-
-
-
-  const statusText=p.status==='reserved'?'Foglalt':p.status==='preordered'?'Félretéve':'Szabad';
-
-
-
-  const statusClass=p.status==='reserved'?'reserved':p.status==='preordered'?'preordered':'';
-
-
-
-  const hasShopLink=typeof p.url==='string' && p.url.startsWith('https\://') || typeof p.url==='string' && p.url.startsWith('http\://');
-
-
-
-  const shopAction=hasShopLink
-
-
-
-    ? `<a class="detail-action detail-action--preview" href="${escapeHtml(p.url)}" target="_blank" rel="noopener noreferrer">↗ Termék megtekintése a webshopban</a>`
-
-
-
-    : `<button class="detail-action detail-action--preview" type="button" disabled>↗ Termék megtekintése a webshopban – hamarosan</button>`;
-
-
-
-  detailContent.innerHTML=`<div class="detail-layout">
-
-
-
-    <div class="detail-picture"><span class="detail-emoji" aria-hidden="true">${p.emoji}</span>${p.image?`<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" onerror="this.remove()">`:''}</div>
-
-
-
-    <div><p class="detail-eyebrow">${escapeHtml(cat?cat.label:'Ajándék')}</p>
-
-
-
-    <h2 class="detail-title" id="detail-title">${escapeHtml(p.name)}</h2>
-
-
-
-    <p class="detail-description" id="detail-product-description">${escapeHtml(p.description)}</p>
-    ${p.description.trim().length>180?`<button type="button" class="detail-description-toggle" id="detail-description-toggle" aria-expanded="false" aria-controls="detail-product-description">Teljes leírás megjelenítése ↓</button>`:''}
-
-
-
-    <p class="detail-price">${money(p.price)}</p>
-
-
-
-    <span class="detail-status ${statusClass}">♡ ${statusText}</span>
-
-
-
-    <div class="detail-actions">${shopAction}
-
-
-
-      ${p.status==='available'?`<button type="button" class="detail-action detail-cart-action" id="detail-cart-add">${cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button>`:''}
-
-
-
-      <p class="detail-footnote">A kosárba helyezés még nem jelent foglalást. A kiválasztott ajándékokat a kosárban tudod 7 napra lefoglalni. A webshop megtekintése sem változtatja meg az ajándék állapotát.</p>
-
-
-
-    </div></div></div>
-
-
-
-    ${p.status!=='available'?`<div class="reservation-unavailable">Ez az ajándék jelenleg ${statusText.toLowerCase()} az aktuális állapot szerint, ezért most nem foglalható. A webshop megtekintése ettől függetlenül lehetséges, ha van terméklink.</div>`:''}`;
-
-
-
-  const detailCartButton=detailContent.querySelector('#detail-cart-add');
-
-
-
-  if(detailCartButton)detailCartButton.addEventListener('click',()=>toggleCartItem(p.id));
-  const descriptionToggle=detailContent.querySelector('#detail-description-toggle');
-  if(descriptionToggle)descriptionToggle.addEventListener('click',()=>{
-    const description=detailContent.querySelector('#detail-product-description');
-    const expanded=description.classList.toggle('is-expanded');
-    descriptionToggle.setAttribute('aria-expanded',String(expanded));
-    descriptionToggle.textContent=expanded?'Leírás összecsukása ↑':'Teljes leírás megjelenítése ↓';
-  });
-
-
-
-  detailModal.hidden=false;detailModal.removeAttribute('hidden');document.body.classList.add('detail-open');detailDialog.focus();
+    linear-gradient(180deg,#e9eddf 0%,#f4f0e5 20%,#f9f3e9 53%,#eeeadd 100%);
 
 
 
@@ -610,19 +246,63 @@ function openProductDetail(id,keepFocus=false){
 
 
 
-function closeProductDetail(){
+.content-area::before,
 
 
 
-  if(detailModal.hidden)return;
+.content-area::after {
 
 
 
-  detailModal.hidden=true;document.body.classList.remove('detail-open');
+  content: '';
 
 
 
-  if(detailReturnFocus&&detailReturnFocus.isConnected)detailReturnFocus.focus();
+  position: absolute;
+
+
+
+  top: 0;
+
+
+
+  bottom: 0;
+
+
+
+  width: clamp(210px,26vw,350px);
+
+
+
+  height: auto;
+
+
+
+  opacity: .64;
+
+
+
+  transform: none;
+
+
+
+  pointer-events: none;
+
+
+
+  z-index: 0;
+
+
+
+  background-repeat: repeat-y;
+
+
+
+  background-size: 100% auto;
+
+
+
+  background-position: top center;
 
 
 
@@ -630,99 +310,19 @@ function closeProductDetail(){
 
 
 
-detailModal.addEventListener('click',event=>{if(event.target.closest('[data-close-detail]'))closeProductDetail();});
+.content-area::before {
 
 
 
-document.addEventListener('keydown',event=>{
+  left: -20px;
 
 
 
-  if(detailModal.hidden)return;
+  right: auto;
 
 
 
-  if(event.key==='Escape'){closeProductDetail();return;}
-
-
-
-  if(event.key==='Tab'){
-
-
-
-    const elements=[...detailModal.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled])')];
-
-
-
-    if(!elements.length){event.preventDefault();detailDialog.focus();return;}
-
-
-
-    const first=elements[0],last=elements[elements.length-1];
-
-
-
-    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
-
-
-
-    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
-
-
-
-    else if(document.activeElement===detailDialog&&event.shiftKey){event.preventDefault();last.focus();}
-
-
-
-  }
-
-
-
-});
-
-
-
-const cartModal=document.getElementById('cart-modal');
-
-
-
-const cartPanel=cartModal.querySelector('.cart-panel');
-
-
-
-const cartItems=document.getElementById('cart-items');
-
-
-
-let cartReturnFocus=null;
-
-
-
-function renderCart(){
-
-
-
-  const selected=products.filter(p=>cart.has(p.id));
-
-
-
-  cartItems.innerHTML=selected.length?selected.map(p=>`<article class="cart-item"><div class="cart-item-picture"><span aria-hidden="true">${p.emoji}</span>${p.image?`<img src="${escapeHtml(p.image)}" alt="" onerror="this.remove()">`:''}</div><div class="cart-item-info"><h3>${escapeHtml(p.name)}</h3><p>${money(p.price)}</p><button type="button" class="cart-remove" data-cart-remove="${p.id}">Eltávolítás</button></div><button type="button" class="cart-view" data-cart-view="${p.id}" aria-label="${escapeHtml(p.name)} részletei">Részletek ›</button></article>`).join(''):'<div class="cart-empty"><span aria-hidden="true">🧸</span><h3>A kosarad még üres</h3><p>Nézelődj a kívánságlistában, és tedd ide a neked tetsző ajándékokat!</p></div>';
-
-
-
-  document.getElementById('cart-total').textContent=money(selected.reduce((sum,p)=>sum+p.price,0));
-
-
-
-  document.getElementById('cart-clear').hidden=!selected.length;
-
-
-
-  document.getElementById('cart-reserve-all').hidden=!selected.length;
-
-
-
-  if(!selected.length)closeCartReservationPreview();
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\://www.w3.org/2000/svg' viewBox='0 0 350 650'%3E%3Cg opacity='.58'%3E%3Cpath d='M-35 -15 Q175 170 -20 380 M-35 340 Q180 480 -20 675' stroke='%237f9b7c' stroke-width='4' fill='none'/%3E%3Cg fill='%2398b094'%3E%3Cellipse cx='52' cy='75' rx='40' ry='96' transform='rotate(-48 52 75)'/%3E%3Cellipse cx='151' cy='162' rx='34' ry='84' transform='rotate(48 151 162)'/%3E%3Cellipse cx='31' cy='246' rx='48' ry='104' transform='rotate(-40 31 246)'/%3E%3Cellipse cx='120' cy='340' rx='33' ry='77' transform='rotate(47 120 340)'/%3E%3Cellipse cx='40' cy='450' rx='46' ry='98' transform='rotate(-47 40 450)'/%3E%3Cellipse cx='145' cy='532' rx='34' ry='84' transform='rotate(47 145 532)'/%3E%3Cellipse cx='22' cy='619' rx='45' ry='94' transform='rotate(-42 22 619)'/%3E%3C/g%3E%3Cg fill='%23c6b99a' opacity='.65'%3E%3Cellipse cx='212' cy='253' rx='24' ry='58' transform='rotate(50 212 253)'/%3E%3Cellipse cx='213' cy='580' rx='24' ry='56' transform='rotate(45 213 580)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
 
 
@@ -730,151 +330,19 @@ function renderCart(){
 
 
 
-function closeCartReservationPreview(){document.getElementById('cart-reservation-preview').hidden=true;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','false');}
+.content-area::after {
 
 
 
-function openCart(){if(!detailModal.hidden)closeProductDetail();cartReturnFocus=document.activeElement;renderCart();cartModal.hidden=false;cartModal.removeAttribute('hidden');document.body.classList.add('cart-open');cartPanel.focus();}
+  right: -20px;
 
 
 
-function closeCart(){if(cartModal.hidden)return;closeCartReservationPreview();cartModal.hidden=true;document.body.classList.remove('cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus();}
+  left: auto;
 
 
 
-document.getElementById('floating-cart').addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openCart();});
-
-
-
-document.getElementById('cart-continue').addEventListener('click',closeCart);
-
-
-
-document.getElementById('cart-reserve-all').addEventListener('click',()=>{const selected=products.filter(p=>cart.has(p.id)&&p.status==='available');if(!selected.length)return;document.getElementById('cart-reservation-summary').textContent=`${selected.length} ajándék, összesen ${money(selected.reduce((sum,p)=>sum+p.price,0))}. A megerősítés után mindegyik 7 napra foglalttá válik.`;document.getElementById('cart-reserve-confirm').disabled=false;document.getElementById('cart-reservation-preview').hidden=false;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','true');document.getElementById('cart-reservation-preview').scrollIntoView({block:'nearest',behavior:'smooth'});});
-
-
-
-document.getElementById('cart-reserve-cancel').addEventListener('click',closeCartReservationPreview);
-
-
-
-document.getElementById('cart-reserve-confirm').addEventListener('click',async()=>{
-
-
-
-  const ids=products.filter(p=>cart.has(p.id)&&p.status==='available').map(p=>p.id);
-
-
-
-  await submitReservation(ids,document.getElementById('cart-guest-name').value,document.getElementById('cart-reserve-confirm'),document.getElementById('cart-reservation-feedback'));
-
-
-
-});
-
-
-
-document.getElementById('cart-clear').addEventListener('click',()=>{cart.clear();saveCart();updateCartBadge();renderProducts();renderCart();});
-
-
-
-cartModal.addEventListener('click',event=>{
-
-
-
-  if(event.target.closest('[data-close-cart]')){closeCart();return;}
-
-
-
-  const remove=event.target.closest('[data-cart-remove]');if(remove){toggleCartItem(remove.dataset.cartRemove);return;}
-
-
-
-  const view=event.target.closest('[data-cart-view]');if(view){const id=view.dataset.cartView;closeCart();openProductDetail(id);}
-
-
-
-});
-
-
-
-document.addEventListener('keydown',event=>{
-
-
-
-  if(cartModal.hidden)return;
-
-
-
-  if(event.key==='Escape'){event.preventDefault();closeCart();return;}
-
-
-
-  if(event.key==='Tab'){
-
-
-
-    const focusable=[...cartModal.querySelectorAll('button:not([disabled]):not([hidden]),a[href]')].filter(el=>el.getClientRects().length);
-
-
-
-    if(!focusable.length){event.preventDefault();cartPanel.focus();return;}
-
-
-
-    const first=focusable[0],last=focusable[focusable.length-1];
-
-
-
-    if(event.shiftKey&&(document.activeElement===first||document.activeElement===cartPanel)){event.preventDefault();last.focus();}
-
-
-
-    else if(!event.shiftKey&&(document.activeElement===last||document.activeElement===cartPanel)){event.preventDefault();first.focus();}
-
-
-
-  }
-
-
-
-});
-
-
-
-updateCartBadge();
-
-
-
-// Foglaltság lekérdezése: kizárólag nyilvános, név és token nélküli nézetből.
-
-
-
-async function loadReservedStatus(){
-
-
-
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/public_reserved_products?select=product_id`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY}});
-
-
-
-  if(!response.ok)throw new Error(`Foglaltsági adatok nem elérhetők (${response.status})`);
-
-
-
-  const rows=await response.json();
-
-
-
-  if(!Array.isArray(rows))throw new Error('Érvénytelen foglaltsági válasz');
-
-
-
-  const reserved=new Set(rows.map(row=>row.product_id));
-
-
-
-  for(const p of products)p.status=reserved.has(p.id)?'reserved':'available';
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\://www.w3.org/2000/svg' viewBox='0 0 350 650'%3E%3Cg transform='translate(350 0) scale(-1 1)'%3E%3Cg opacity='.58'%3E%3Cpath d='M-35 -15 Q175 170 -20 380 M-35 340 Q180 480 -20 675' stroke='%237f9b7c' stroke-width='4' fill='none'/%3E%3Cg fill='%2398b094'%3E%3Cellipse cx='52' cy='75' rx='40' ry='96' transform='rotate(-48 52 75)'/%3E%3Cellipse cx='151' cy='162' rx='34' ry='84' transform='rotate(48 151 162)'/%3E%3Cellipse cx='31' cy='246' rx='48' ry='104' transform='rotate(-40 31 246)'/%3E%3Cellipse cx='120' cy='340' rx='33' ry='77' transform='rotate(47 120 340)'/%3E%3Cellipse cx='40' cy='450' rx='46' ry='98' transform='rotate(-47 40 450)'/%3E%3Cellipse cx='145' cy='532' rx='34' ry='84' transform='rotate(47 145 532)'/%3E%3Cellipse cx='22' cy='619' rx='45' ry='94' transform='rotate(-42 22 619)'/%3E%3C/g%3E%3Cg fill='%23c6b99a' opacity='.65'%3E%3Cellipse cx='212' cy='253' rx='24' ry='58' transform='rotate(50 212 253)'/%3E%3Cellipse cx='213' cy='580' rx='24' ry='56' transform='rotate(45 213 580)'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
 
 
@@ -882,103 +350,27 @@ async function loadReservedStatus(){
 
 
 
-async function submitReservation(ids,name,button,feedback){
+.catalog {position:relative;z-index:1;}
 
 
 
-  if(reservationBusy)return;
+.section-heading {
 
 
 
-  if(!ids.length){feedback.textContent='Nincs foglalható ajándék kiválasztva.';return;}
+  padding:18px 10px 14px;
 
 
 
-  reservationBusy=true;button.disabled=true;feedback.textContent='Foglalás feldolgozása…';
+  margin-bottom:18px;
 
 
 
-  try{
+  border-radius:24px;
 
 
 
-    const response=await fetch(RESERVATION_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({product_ids:ids,guest_name:name.trim()||null})});
-
-
-
-    const result=await response.json().catch(()=>({}));
-
-
-
-    if(!response.ok)throw new Error(result.error||`Foglalási hiba (${response.status})`);
-
-
-
-    if(!result.reservation_id||!result.management_token)throw new Error('Hiányos foglalási visszaigazolás.');
-
-
-
-    // A kezelési token kizárólag a látogató saját böngészőjében marad.
-
-
-
-    const record={reservation_id:result.reservation_id,management_token:result.management_token,expires_at:result.expires_at,product_ids:ids,guest_name:name.trim()||null};
-
-
-
-    try{const old=JSON.parse(localStorage.getItem('nimrod-own-reservations-v44')||'[]');localStorage.setItem('nimrod-own-reservations-v44',JSON.stringify([record,...(Array.isArray(old)?old:[])]));}catch{}
-
-
-
-    for(const id of ids)cart.delete(id);saveCart();updateCartBadge();
-
-
-
-    for(const p of products)if(ids.includes(p.id))p.status='reserved';
-
-
-
-    renderProducts();
-
-
-
-    feedback.textContent=`Sikeres foglalás! ${ids.length} ajándék 7 napra lefoglalva. Azonosító: ${result.reservation_id}. A visszaigazolást őrizd meg ebben a böngészőben.`;
-
-
-
-    window.alert(feedback.textContent);
-
-
-
-    button.hidden=true;
-
-
-
-    if(!cartModal.hidden)renderCart();
-
-
-
-    await loadProducts().catch(()=>{});
-
-
-
-  }catch(error){
-
-
-
-    feedback.textContent=error instanceof Error?error.message:'Nem sikerült a foglalás.';
-
-
-
-    // Bizonytalan hálózati válasz esetén frissítsük a foglaltságot.
-
-
-
-    await loadProducts().catch(()=>{});
-
-
-
-  }finally{reservationBusy=false;button.disabled=false;}
+  background:radial-gradient(ellipse at center,rgba(255,251,242,.9),rgba(255,251,242,.48) 58%,transparent 82%);
 
 
 
@@ -986,35 +378,51 @@ async function submitReservation(ids,name,button,feedback){
 
 
 
-// Saját foglalások – nincs regisztráció, csak a böngészőben mentett kezelőtoken.
+.section-heading h2 {color:#956b43;text-shadow:0 1px 0 #fff9f0;}
 
 
 
-const OWN_RESERVATIONS_KEY='nimrod-own-reservations-v44';
+.section-heading p {color:#846c50;}
 
 
 
-const MANAGEMENT_ENDPOINT=`${SUPABASE_URL}/functions/v1/manage-reservation`;
+.search-wrap,.sort-wrap {background:rgba(250,246,235,.92);border:1px solid rgba(162,174,142,.45);box-shadow:0 3px 12px rgba(93,93,72,.07);}
 
 
 
-function readOwnReservations(){
+.product-card {background:linear-gradient(155deg,rgba(255,253,247,.98),rgba(246,241,229,.98));border:1px solid rgba(173,179,148,.5);box-shadow:0 9px 26px rgba(76,82,61,.13),inset 0 1px 0 rgba(255,255,255,.92);}
 
 
 
-  try{
+.product-image {background:radial-gradient(circle at 50% 25%,#fffcf5,#e7e9d9 100%);}
 
 
 
-    const data=JSON.parse(localStorage.getItem(OWN_RESERVATIONS_KEY)||'[]');
+.information {background:linear-gradient(180deg,#e9eadc 0%,#f2ecdf 48%,#e7e2d3 100%);border-top:1px solid rgba(140,158,122,.38);}
 
 
 
-    return Array.isArray(data)?data.filter(r=>r&&typeof r.reservation_id==='string'&&typeof r.management_token==='string'):[];
+@media(max-width:650px) {
 
 
 
-  }catch{return [];}
+  .content-area::before,.content-area::after {width:150px;opacity:.23;}
+
+
+
+  .content-area::before {left:-62px;}
+
+
+
+  .content-area::after {right:-62px;}
+
+
+
+  .section-heading {padding:10px 2px 12px;}
+
+
+
+  .product-card {box-shadow:0 5px 16px rgba(76,82,61,.10);}
 
 
 
@@ -1022,11 +430,443 @@ function readOwnReservations(){
 
 
 
-function writeOwnReservations(records){
+/\* Vissza a lap tetejére gomb. \*/
 
 
 
-  try{localStorage.setItem(OWN_RESERVATIONS_KEY,JSON.stringify(records));return true;}catch{return false;}
+.back-to-top{position:fixed;right:24px;bottom:24px;z-index:60;display:flex;align-items:center;gap:9px;padding:12px 17px;border:1px solid rgba(138,105,67,.32);border-radius:999px;background:rgba(255,250,241,.96);box-shadow:0 7px 25px rgba(61,49,34,.2);color:#765034;font:600 13px "DM Sans",sans-serif;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .22s,transform .22s,visibility .22s}.back-to-top.is-visible{opacity:1;visibility:visible;transform:translateY(0)}.back-to-top:hover{background:#f3e8d7}.back-to-top:focus-visible{outline:3px solid #a77b4f;outline-offset:3px}@media(max-width:650px){.back-to-top{right:14px;bottom:20px;padding:11px 13px;font-size:12px}}@media(prefers-reduced-motion:reduce){.back-to-top{transition:none}}
+
+
+
+.categories{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:11px;margin:18px 0 20px}
+
+
+
+.category{appearance:none;min-width:0;min-height:116px;padding:10px 5px 11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(155,166,135,.43);border-radius:17px;background:linear-gradient(155deg,rgba(255,253,246,.97),rgba(237,240,226,.94));box-shadow:0 6px 17px rgba(75,85,60,.11),inset 0 1px 0 rgba(255,255,255,.94);color:#694a32;cursor:pointer;transition:transform .18s,box-shadow .18s,background .18s}
+
+
+
+.category:hover{transform:translateY(-3px);box-shadow:0 10px 23px rgba(75,85,60,.17)}
+
+
+
+.category:focus-visible{outline:3px solid #9a7a4f;outline-offset:3px}
+
+
+
+.category-art{display:block;width:min(76px,78%);height:70px;object-fit:contain;flex:none;filter:drop-shadow(0 3px 2px rgba(94,83,66,.11))}
+
+
+
+.category-label{font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.25;font-weight:700;text-align:center;overflow-wrap:break-word;text-wrap:balance}
+
+
+
+.category.active{background:linear-gradient(145deg,#b98a58,#97724a);border-color:#9e774f;color:#fffdf7;box-shadow:0 7px 20px rgba(117,87,55,.24)}
+
+
+
+.category.active .category-art{background:rgba(255,250,239,.87);border-radius:14px;padding:3px;box-sizing:border-box}
+
+
+
+@media(max-width:1100px){.categories{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.category{min-height:107px}.category-art{height:63px;width:min(70px,80%)}}
+
+
+
+@media(max-width:650px){.categories{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:15px 0}.category{min-height:96px;padding:7px 3px 8px;border-radius:13px;gap:3px}.category-art{height:52px;width:min(62px,83%)}.category-label{font-size:10px;line-height:1.2}}
+
+
+
+@media(prefers-reduced-motion:reduce){.category{transition:none}}
+
+
+
+.product-card{cursor:pointer}
+
+
+
+.product-card:focus-visible{outline:3px solid #a47b4d;outline-offset:3px}
+
+
+
+.product-card .favorite{cursor:pointer}
+
+
+
+.detail-modal[hidden]{display:none!important}
+
+
+
+.detail-modal{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px}
+
+
+
+.detail-backdrop{position:absolute;inset:0;background:rgba(32,40,32,.58);backdrop-filter:blur(5px)}
+
+
+
+.detail-dialog{position:relative;width:min(760px,100%);max-height:min(88vh,860px);overflow:auto;background:linear-gradient(150deg,#fffdf6,#f0eee0);border:1px solid #d6c7ae;border-radius:23px;box-shadow:0 24px 90px rgba(31,38,29,.3);padding:27px;color:#644a36}
+
+
+
+.detail-dialog:focus{outline:none}
+
+
+
+.detail-close{position:absolute;right:14px;top:13px;z-index:3;border:1px solid #d8cbb9;background:#fffaf0;color:#795b3c;border-radius:50%;width:36px;height:36px;font-size:27px;line-height:1;cursor:pointer}
+
+
+
+.detail-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:26px;align-items:start}
+
+
+
+.detail-picture{min-height:290px;display:flex;align-items:center;justify-content:center;position:relative;border-radius:17px;background:radial-gradient(circle at 50% 30%,#fffef8,#e4e9db);overflow:hidden}
+
+
+
+.detail-picture img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+
+
+
+.detail-emoji{font-size:104px;line-height:1}
+
+
+
+.detail-eyebrow{font:700 11px 'DM Sans',sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#8a977d;margin:10px 0}
+
+
+
+.detail-title{font:500 clamp(24px,3vw,34px)/1.2 'Playfair Display',serif;color:#765238;margin:0 0 14px}
+
+
+
+.detail-description{font:400 14px/1.7 'DM Sans',sans-serif;color:#746553;margin:0 0 18px}
+
+
+
+.detail-price{font:500 27px 'Playfair Display',serif;color:#9b6b3d;margin:0 0 15px}
+
+
+
+.detail-status{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:8px 13px;background:#e9f0e3;color:#536d49;font:700 12px 'DM Sans',sans-serif}
+
+
+
+.detail-status.reserved{background:#f1e7d8;color:#87663e}.detail-status.preordered{background:#f6e8d7;color:#956d34}
+
+
+
+.detail-actions{margin-top:23px;display:grid;gap:9px}
+
+
+
+.detail-action{border:0;border-radius:12px;background:#a77b4f;color:white;min-height:43px;padding:11px 16px;font:700 13px 'DM Sans',sans-serif;text-align:center;text-decoration:none}
+
+
+
+.detail-action:disabled{background:#c5b8a7;color:#fff;cursor:not-allowed}
+
+
+
+.detail-footnote{font:400 11px/1.55 'DM Sans',sans-serif;color:#897966;margin:4px 0 0}
+
+
+
+body.detail-open{overflow:hidden}
+
+
+
+@media(max-width:650px){.detail-modal{padding:12px}.detail-dialog{padding:19px;max-height:90dvh;border-radius:18px}.detail-layout{grid-template-columns:1fr;gap:14px}.detail-picture{min-height:190px;max-height:235px}.detail-emoji{font-size:76px}.detail-title{font-size:25px}.detail-price{font-size:23px}.detail-eyebrow{margin-top:2px}}
+
+
+
+@media(prefers-reduced-motion:reduce){.detail-backdrop{backdrop-filter:none}}
+
+
+
+.detail-actions{margin-top:22px}
+
+
+
+.detail-action{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box}
+
+
+
+.detail-action--preview{background:#f9f4e9;color:#73563c;border:1px solid #bda88b}
+
+
+
+.detail-action--preview:disabled{background:#f3eee4;color:#927f69;border-color:#d8c9b6}
+
+
+
+.detail-footnote{font-size:12px;line-height:1.6}
+
+
+
+.gift-choice{margin-top:22px;border:1px solid #d9cfb9;border-radius:17px;padding:19px;background:linear-gradient(145deg,#fffaf0,#eaf0e4)}
+
+
+
+.gift-choice[hidden],.gift-confirmation[hidden]{display:none!important}
+
+
+
+.gift-choice-title{font:500 21px/1.3 'Playfair Display',serif;color:#755337;margin:0 0 9px}
+
+
+
+.gift-choice-description{font:400 13px/1.7 'DM Sans',sans-serif;color:#6e5e4b;margin:0 0 15px}
+
+
+
+.gift-choice-button{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:47px;border:0;border-radius:12px;background:#98714c;color:#fffdf6;font:700 13px 'DM Sans',sans-serif;cursor:pointer}
+
+
+
+.gift-choice-button:hover{background:#7c593b}
+
+
+
+.gift-choice-button:focus-visible,.gift-choice-back:focus-visible{outline:3px solid #ad8759;outline-offset:3px}
+
+
+
+.gift-choice-note{font:500 11px/1.65 'DM Sans',sans-serif;color:#796b58;margin:10px 0 0}
+
+
+
+.gift-confirmation{margin-top:15px;padding:16px;border:1px solid #cfc5aa;border-radius:13px;background:#fffdf7}
+
+
+
+.gift-confirmation h4{font:600 17px 'Playfair Display',serif;color:#77563a;margin:0 0 9px}
+
+
+
+.gift-confirmation p{font:400 12px/1.65 'DM Sans',sans-serif;color:#6b5a47;margin:0 0 12px}
+
+
+
+.gift-confirmation .gift-choice-button:disabled{background:#b6aa98;cursor:not-allowed}
+
+
+
+.gift-choice-back{display:block;margin:12px auto 0;border:0;background:transparent;color:#785c43;text-decoration:underline;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
+
+
+
+.gift-demo-banner{margin-top:12px;padding:10px 12px;background:#f4eadb;border-radius:9px;color:#825e3c;font:600 11px/1.6 'DM Sans',sans-serif}
+
+
+
+.reservation-unavailable{margin-top:18px;padding:14px;border:1px solid #e0d2bc;border-radius:11px;background:#f5eddf;color:#775e44;font:500 12px/1.6 'DM Sans',sans-serif}
+
+
+
+@media(max-width:650px){.gift-choice{padding:14px;margin-top:17px}.gift-choice-title{font-size:19px}.gift-confirmation{padding:13px}}
+
+
+
+.gift-choice{background:linear-gradient(145deg,#fffaf1,#eaf0e5);border-color:#c9bba4;padding:22px}
+
+
+
+.gift-choice-title{font-size:23px;line-height:1.35;color:#503a2a;font-weight:600;letter-spacing:0}
+
+
+
+.gift-choice-description{font-size:15px;line-height:1.75;color:#514335;font-weight:500;margin-bottom:17px}
+
+
+
+.gift-choice-note{font-size:13px;line-height:1.7;color:#574838;font-weight:500;margin-top:13px}
+
+
+
+.gift-confirmation{background:#fffdf8;border:1px solid #c9b79c;padding:19px;margin-top:18px;box-shadow:0 3px 12px rgba(86,64,39,.055)}
+
+
+
+.gift-confirmation h4{font-size:20px;line-height:1.4;color:#543b29;font-weight:600;margin-bottom:11px}
+
+
+
+.gift-confirmation p{font-size:14px;line-height:1.75;color:#514333;font-weight:500;margin-bottom:16px}
+
+
+
+.gift-choice-button{min-height:49px;font-size:14px;line-height:1.4;padding:12px 16px}
+
+
+
+.gift-choice-back{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;margin:11px 0 0;padding:11px 16px;border:1.5px solid #b7a083;border-radius:12px;background:#fbf4e8;color:#65472f;text-decoration:none;font:700 14px/1.4 'DM Sans',sans-serif;box-shadow:0 2px 5px rgba(86,64,39,.07);transition:background .18s,border-color .18s,transform .18s}
+
+
+
+.gift-choice-back:hover{background:#f0e4d2;border-color:#947452;transform:translateY(-1px)}
+
+
+
+.gift-demo-banner{font-size:13px;line-height:1.7;color:#60452e;background:#f3e8d7;border:1px solid #e4d3bd;padding:12px 14px;margin-top:13px}
+
+
+
+.detail-footnote{font-size:13px;line-height:1.7;color:#5e4b39}
+
+
+
+.reservation-unavailable{font-size:14px;line-height:1.7;color:#594332}
+
+
+
+@media(max-width:650px){.gift-choice{padding:17px}.gift-choice-title{font-size:21px}.gift-choice-description{font-size:14px}.gift-choice-note{font-size:13px}.gift-confirmation{padding:16px}.gift-confirmation h4{font-size:19px}.gift-confirmation p{font-size:14px}.gift-choice-back{font-size:14px}}
+
+
+
+.floating-cart{z-index:61;display:flex;align-items:center;gap:9px;min-height:48px;padding:10px 13px;border:1px solid #bda788;border-radius:999px;background:#fffaf0;color:#62432c;box-shadow:0 7px 25px #3d312233;font:700 13px 'DM Sans',sans-serif;cursor:pointer}.floating-cart:hover{background:#f3e7d6}.floating-cart-icon{font-size:19px}.cart-count{display:grid;place-items:center;min-width:25px;height:25px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:#99724e;color:#fff;font-size:12px}.floating-cart:focus-visible,.cart-modal button:focus-visible,.product-cart-button:focus-visible,.detail-cart-action:focus-visible{outline:3px solid #ac8357;outline-offset:3px}
+
+
+
+.cart-modal[hidden]{display:none!important}.cart-modal{position:fixed;inset:0;z-index:110;display:flex;justify-content:flex-end}.cart-backdrop{position:absolute;inset:0;background:#25201891;backdrop-filter:blur(3px)}.cart-panel{position:relative;z-index:1;display:flex;flex-direction:column;width:min(440px,100%);height:100%;max-height:100dvh;box-sizing:border-box;overflow:hidden;background:#fffaf2;box-shadow:-15px 0 55px #271d1840;padding:25px 24px 22px;outline:none}.cart-header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.cart-eyebrow{margin:0 0 7px;color:#94795d;letter-spacing:1.8px;font:700 10px 'DM Sans',sans-serif}.cart-header h2{margin:0;font:600 29px 'Playfair Display',serif;color:#61432e}.cart-close{width:38px;height:38px;flex:none;border:1px solid #e4d6c4;border-radius:50%;background:#fffdf9;color:#76583c;font-size:25px;cursor:pointer}.cart-intro{font:500 14px/1.65 'DM Sans',sans-serif;color:#5d4c3c;margin:17px 0 19px}.cart-items{flex:1;overflow:auto;min-height:0;border-top:1px solid #eadfce;border-bottom:1px solid #eadfce}.cart-item{display:flex;align-items:center;gap:11px;padding:14px 0;border-bottom:1px solid #eee5d7}.cart-item:last-child{border-bottom:0}.cart-item-picture{width:64px;height:66px;flex:none;position:relative;display:grid;place-items:center;overflow:hidden;border-radius:11px;background:#f1e9dc;font-size:30px}.cart-item-picture img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.cart-item-info{min-width:0;flex:1}.cart-item-info h3{font:600 15px/1.4 'Playfair Display',serif;color:#61452f;margin:0 0 5px}.cart-item-info p{font:700 13px 'DM Sans',sans-serif;color:#7b573a;margin:0 0 7px}.cart-remove{border:0;background:transparent;color:#965f4e;text-decoration:underline;font:600 12px 'DM Sans',sans-serif;padding:0;cursor:pointer}.cart-view{border:1px solid #d8c4aa;border-radius:9px;background:#fff8ec;color:#71543a;font:600 11px 'DM Sans',sans-serif;padding:9px 8px;cursor:pointer}.cart-empty{text-align:center;padding:55px 20px;color:#70583f}.cart-empty span{font-size:54px}.cart-empty h3{font:600 21px 'Playfair Display',serif;margin:14px 0 8px}.cart-empty p{font:400 14px/1.6 'DM Sans',sans-serif}.cart-bottom{padding-top:17px}.cart-total{display:flex;justify-content:space-between;align-items:center;gap:10px;font:600 16px 'DM Sans',sans-serif;color:#63472f}.cart-total strong{font:600 23px 'Playfair Display',serif}.cart-help{font:500 12px/1.6 'DM Sans',sans-serif;color:#79654f;margin:11px 0 15px}.cart-continue{width:100%;min-height:47px;border:0;border-radius:12px;background:#98714c;color:white;font:700 14px 'DM Sans',sans-serif;cursor:pointer}.cart-clear{display:block;margin:12px auto 0;padding:6px 12px;border:0;background:transparent;text-decoration:underline;color:#8a5d49;font:600 12px 'DM Sans',sans-serif;cursor:pointer}.cart-clear[hidden]{display:none}.cart-open{overflow:hidden}.product-cart-button{cursor:pointer}.product-cart-button:disabled{cursor:not-allowed}.detail-cart-action{background:#98714c}.detail-cart-action:hover{background:#805c3b}.guest-name-label{display:block;margin:5px 0 6px;font:700 14px 'DM Sans',sans-serif;color:#604630}.guest-name-label span{font-weight:400}.guest-name-input{width:100%;box-sizing:border-box;min-height:44px;margin-bottom:14px;border:1px solid #c9b79e;border-radius:10px;padding:10px 12px;background:#fffdf8;color:#513b2b;font:500 14px 'DM Sans',sans-serif}
+
+
+
+@media(max-width:650px){.floating-cart{min-height:45px;padding:9px 11px}.cart-panel{padding:21px 17px 18px}.cart-header h2{font-size:26px}.cart-item-picture{width:55px;height:58px}.cart-view{font-size:10px;padding:8px 6px}}
+
+
+
+@media(prefers-reduced-motion:reduce){.floating-cart,.cart-panel{scroll-behavior:auto}}
+
+
+
+.cart-modal[hidden],.detail-modal[hidden]{display:none!important;pointer-events:none!important}
+
+
+
+.cart-modal:not([hidden]){z-index:1200;pointer-events:auto}
+
+
+
+.detail-modal:not([hidden]){z-index:1100;pointer-events:auto}
+
+
+
+.back-to-top{z-index:89;right:24px;bottom:24px}
+
+
+
+@media(max-width:650px){.back-to-top{right:14px;bottom:17px}}
+
+
+
+/\* Több ajándék együttes foglalásának bemutatója \*/
+
+
+
+.cart-reserve-all{display:block;width:100%;min-height:48px;margin:15px 0 10px;border:0;border-radius:12px;background:#98714c;color:#fff;font:700 14px 'DM Sans',sans-serif;cursor:pointer}
+
+
+
+.cart-reserve-all:hover{background:#805c3b}
+
+
+
+.cart-reserve-all[hidden],.cart-reservation-preview[hidden]{display:none!important}
+
+
+
+.cart-reservation-preview{margin:12px 0 15px;padding:17px;border:1px solid #ddcbb2;border-radius:14px;background:#fffdf8;color:#55402e}
+
+
+
+.cart-reservation-preview h3{margin:0 0 9px;font:600 20px/1.35 'Playfair Display',serif}
+
+
+
+.cart-reservation-preview p{font:500 13px/1.6 'DM Sans',sans-serif;margin:8px 0 13px}
+
+
+
+.cart-reservation-preview label{display:block;font:700 13px 'DM Sans',sans-serif;margin-bottom:7px}
+
+
+
+.cart-reservation-preview input{display:block;width:100%;box-sizing:border-box;min-height:43px;border:1px solid #cdbba4;border-radius:9px;padding:10px 12px;background:white;color:#4e3b2a;font:500 14px 'DM Sans',sans-serif}
+
+
+
+.cart-reservation-preview .cart-reservation-warning{color:#7b5541}
+
+
+
+.cart-reserve-disabled,.cart-reserve-cancel{width:100%;min-height:44px;border-radius:10px;font:700 13px 'DM Sans',sans-serif}
+
+
+
+.cart-reserve-disabled{background:#98714c;border:0;color:#fff;cursor:pointer}
+
+.cart-reserve-disabled:hover:not(:disabled){background:#805c3b}
+
+.cart-reserve-disabled:disabled{background:#b9a89a;color:#fff;cursor:wait}
+
+
+
+.cart-reserve-cancel{margin-top:8px;border:1px solid #cbb89e;background:#fffaf2;color:#684c34;cursor:pointer}
+
+
+
+.cart-continue{background:#fffaf2;border:1px solid #cbb89e;color:#684c34;margin-top:8px}
+
+
+
+.cart-reserve-all:focus-visible,.cart-reserve-cancel:focus-visible{outline:3px solid #ac8357;outline-offset:2px}
+
+
+
+.cart-bottom{max-height:65dvh;overflow-y:auto;overscroll-behavior:contain}
+
+
+
+/\* Fejléc és kosár – egyetlen egységes pozicionálás. \*/
+
+
+
+.site-header{position:absolute;inset:0 0 auto;height:10vw;min-height:0;padding:0;background:transparent;border:0;z-index:20;pointer-events:none;display:flex;align-items:flex-start;justify-content:space-between}
+
+
+
+.site-header .brand{pointer-events:auto;position:absolute;top:12px;left:clamp(20px,3vw,55px);z-index:2;font-size:clamp(16px,1.65vw,25px);font-weight:700;line-height:1.15;letter-spacing:.22em;color:#5b3823;text-shadow:0 1px 2px rgba(255,251,242,.98),0 0 7px #fffaf0;padding:5px 9px;border-radius:6px;background:rgba(255,250,241,.52)}
+
+
+
+.site-header .brand small{font-size:clamp(8px,.75vw,11px);letter-spacing:.24em;font-weight:700;color:#64452d}
+
+
+
+.site-header .floating-cart{pointer-events:auto;position:fixed;top:9px;right:clamp(10px,1.5vw,24px);bottom:auto;left:auto;z-index:22;display:inline-flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:nowrap;width:max-content;max-width:calc(100vw - 32px);height:48px;min-height:48px;max-height:48px;padding:0 15px;gap:9px;white-space:nowrap;border-radius:999px}
+
+
+
+.floating-cart .floating-cart-icon,.floating-cart .floating-cart-text,.floating-cart .cart-count{flex:0 0 auto;white-space:nowrap}
+
+
+
+@media(max-width:650px){
+
+
+
+ .site-header{position:absolute;inset:0 0 auto;height:auto;aspect-ratio:1821 / 864;padding:0;align-items:flex-end;justify-content:flex-end;pointer-events:none}
+
+
+
+ .site-header .brand{display:none!important}
+
+
+
+ .site-header .floating-cart{position:fixed;top:12px;right:12px;bottom:auto;height:45px;min-height:45px;max-height:45px;padding:0 12px;z-index:22}
 
 
 
@@ -1034,139 +874,31 @@ function writeOwnReservations(records){
 
 
 
-const manageStyles=document.createElement('style');
+/\* Termékadatlap: stabil két oszlop asztali nézetben. \*/
 
 
 
-manageStyles.textContent=`
+@media(min-width:651px){
 
 
 
-\\#own-reservations-trigger{position:fixed;bottom:18px;left:18px;z-index:900;background:#f6ecdd;color:#554537;border:1px solid #cbb89f;border-radius:999px;padding:12px 17px;box-shadow:0 5px 22px #0002;cursor:pointer;font:600 14px/1.3 inherit}
+ #detail-modal .detail-dialog{width:min(920px,calc(100vw - 40px));max-width:920px;padding:28px}
 
 
 
-\\#own-reservations-overlay[hidden]{display:none!important}
+ #detail-modal #detail-content>.detail-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);grid-template-rows:auto;gap:28px;align-items:start}
 
 
 
-\\#own-reservations-overlay{position:fixed;inset:0;z-index:3000;background:#18140fb8;display:flex;justify-content:center;align-items:center;padding:16px}
+ #detail-modal #detail-content>.detail-layout>.detail-picture{grid-column:1;grid-row:1;min-width:0;min-height:310px;height:310px}
 
 
 
-\\#own-reservations-dialog{background:#fffaf3;color:#51483d;border-radius:18px;width:min(560px,100%);max-height:90vh;overflow:auto;padding:24px;box-shadow:0 18px 70px #0004;font-family:inherit}
+ #detail-modal #detail-content>.detail-layout>div:nth-child(2){grid-column:2;grid-row:1;min-width:0}
 
 
 
-\\#own-reservations-dialog h2{margin:0 0 10px;font-size:1.5rem}
-
-
-
-\\#own-reservations-dialog p{line-height:1.5}
-
-
-
-.own-reservation-entry{border:1px solid #e2d4c2;border-radius:12px;padding:16px;margin:12px 0;background:#fff}
-
-
-
-.own-reservation-entry h3{font-size:1rem;margin:0 0 8px}
-
-
-
-.own-reservation-entry ul{padding-left:22px;margin:8px 0}
-
-
-
-.own-reservation-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-
-
-
-.own-reservation-actions button,#own-reservations-close{border:1px solid #c8b39a;border-radius:9px;padding:9px 13px;background:#f0e2ce;color:#4e3e30;cursor:pointer;font:inherit}
-
-
-
-.own-reservation-actions button:disabled{opacity:.5;cursor:wait}
-
-
-
-\\#own-reservations-close{float:right}
-
-
-
-.own-reservation-feedback{margin:8px 0 0;font-size:.93rem}
-
-
-
-/\\\\\* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő \\\\\*/
-
-
-
-@media (max-width:650px){
-
-
-
-  #own-reservations-trigger{
-
-
-
-    display:inline-flex;align-items:center;justify-content:center;
-
-
-
-    width:max-content;max-width:calc(100vw - 36px);margin:0;padding:9px 13px;
-
-
-
-    font-size:12px;line-height:1.3;box-shadow:0 3px 12px #00000016;
-
-
-
-  }
-
-
-
-  .detail-dialog{padding:15px;max-height:90svh}
-
-
-
-  .detail-layout{gap:9px}
-
-
-
-  .detail-picture{min-height:145px;max-height:175px}
-
-
-
-  .detail-emoji{font-size:65px}
-
-
-
-  .detail-eyebrow{margin:4px 0 6px}
-
-
-
-  .detail-title{margin:0 0 7px;font-size:24px}
-
-
-
-  .detail-description{margin:0 0 10px;line-height:1.5}
-
-
-
-  .detail-price{margin:0 0 9px;font-size:23px}
-
-
-
-  .detail-actions{margin-top:12px;gap:7px}
-
-
-
-  .detail-action{min-height:42px;padding:9px 12px}
-
-
-
-  .detail-footnote{font-size:12px;line-height:1.5;margin:2px 0 0}
+ #detail-modal #detail-content>.gift-choice{display:block;width:100%;margin-top:24px}
 
 
 
@@ -1174,692 +906,52 @@ manageStyles.textContent=`
 
 
 
-`;
+@media(max-width:650px){#detail-modal #detail-content>.detail-layout{display:grid;grid-template-columns:minmax(0,1fr)}}
 
 
+/* V51 – Egységes magasságú termékkártyák, két soros leírással */
+.product-card{display:flex;flex-direction:column;min-height:0}
+.product-body{display:flex;flex:1;flex-direction:column;min-width:0}
+.product-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
+.product-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;min-height:0;max-height:2.7em;overflow-wrap:anywhere}
+.product-body .price{margin-top:auto;padding-top:8px}
+.product-body .status{margin-top:10px}
+/* Részletek: rövid, kibővíthető termékleírás */
+.detail-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;overflow-wrap:anywhere;margin-bottom:6px}
+.detail-description.is-expanded{display:block;-webkit-line-clamp:unset;line-clamp:unset;overflow:visible}
+.detail-description-toggle{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:#946b43;font:700 12px/1.5 'DM Sans',sans-serif;padding:5px 0 9px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.detail-description-toggle:hover{color:#654329}
+.detail-description-toggle:focus-visible{outline:2px solid #946b43;outline-offset:3px;border-radius:3px}
 
-document.head.appendChild(manageStyles);
-
-
-
-const manageTrigger=document.createElement('button');
-
-
-
-manageTrigger.id='own-reservations-trigger';manageTrigger.type='button';manageTrigger.textContent='♡ Foglalásaim';
-
-
-
-// A gomb minden nézetben lebegő elem, a mobilos méretet a CSS szabályozza.
-
-
-
-document.body.appendChild(manageTrigger);
-
-
-
-const manageOverlay=document.createElement('div');
-
-
-
-manageOverlay.id='own-reservations-overlay';manageOverlay.hidden=true;
-
-
-
-manageOverlay.innerHTML=`<div id="own-reservations-dialog" role="dialog" aria-modal="true" aria-labelledby="own-reservations-title" tabindex="-1"><button id="own-reservations-close" type="button" aria-label="Bezárás">✕</button><h2 id="own-reservations-title">Foglalásaim ♡</h2><p>Az ezen a böngészőn létrehozott foglalásaidat találod itt. Másik eszközön nem jelennek meg automatikusan.</p><div id="own-reservations-list"></div></div>`;
-
-
-
-document.body.appendChild(manageOverlay);
-
-
-
-const manageDialog=document.getElementById('own-reservations-dialog');
-
-
-
-const manageList=document.getElementById('own-reservations-list');
-
-
-
-let manageReturnFocus=null;
-
-
-
-function ownReservationProducts(record){
-
-
-
-  const ids=Array.isArray(record.product_ids)?record.product_ids:[];
-
-
-
-  return ids.map(id=>products.find(p=>p.id===id)?.name||'Ajándék').map(n=>`<li>${escapeHtml(n)}</li>`).join('');
-
-
-
+/* V52 – mobilon kényelmes, nem összenyomott termékkártyák */
+#own-reservations-trigger.own-reservations-fixed{
+  position:fixed!important;bottom:18px!important;left:18px!important;right:auto!important;
+  z-index:2000!important;display:inline-flex!important;align-items:center;justify-content:center;
+  width:auto!important;max-width:calc(100vw - 36px);padding:11px 16px;
+  border:1px solid #cbb89f;border-radius:999px;background:#fff8ed;color:#60462f;
+  box-shadow:0 5px 22px #0002;font:700 13px/1.3 'DM Sans',sans-serif;
+  visibility:visible!important;opacity:1!important;transform:none!important;
 }
-
-
-
-function ownReservationTitle(record,i){
-
-
-
-  const name=typeof record.guest_name==='string'?record.guest_name.trim():'';
-
-
-
-  return name?escapeHtml(name):`Foglalás ${i+1}`;
-
-
-
+@media(max-width:650px){
+  .site-shell,.catalog,.content-area{max-width:100%;min-width:0}
+  .categories{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .category{min-width:0;padding:6px 2px;min-height:91px}
+  .category-art{width:48px;max-width:100%;height:48px}
+  .category-label{font-size:9px;overflow-wrap:anywhere}
+  .toolbar{min-width:0;gap:8px}
+  .search-wrap{min-width:0;flex:1 1 50%}
+  .sort-wrap{min-width:0;flex:1 1 42%}
+  .search-wrap input{min-width:0;width:100%;text-overflow:ellipsis}
+  .product-grid{grid-template-columns:minmax(0,1fr);gap:13px}
+  .product-card{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;min-width:0;padding:10px;align-items:stretch}
+  .product-image{height:100%;min-height:175px;max-height:230px}
+  .product-body{padding:4px 3px 3px;min-width:0;display:flex;flex-direction:column}
+  .product-name{font-size:16px;line-height:1.3;min-height:0;max-height:none;-webkit-line-clamp:3;line-clamp:3;overflow-wrap:break-word}
+  .product-description{font-size:12px;line-height:1.45;max-height:2.9em;-webkit-line-clamp:2;line-clamp:2}
+  .product-body .price{font-size:17px;margin-top:auto;padding-top:8px}
+  .product-button{min-height:36px;height:auto;font-size:12px;padding:7px 5px}
+  .status{margin-top:8px}
+  #own-reservations-trigger.own-reservations-fixed{bottom:14px!important;left:12px!important;padding:10px 13px;font-size:12px}
+  .back-to-top{bottom:14px;right:12px}
 }
-
-
-
-function ownReservationStatusLabel(status){
-
-
-
-  return {active:'Aktív',cancelled:'Lemondva',expired:'Lejárt',completed:'Lezárva'}[status]||'Ismeretlen';
-
-
-
-}
-
-
-
-function ownReservationIsExpired(record){
-
-
-
-  const date=Date.parse(record.expires_at);
-
-
-
-  return Number.isFinite(date)&&date<=Date.now();
-
-
-
-}
-
-
-
-function showOwnReservations(){
-
-
-
-  const records=readOwnReservations();
-
-
-
-  const activeRecords=records.filter(record=>!['cancelled','expired','completed'].includes(record.local_status)&&!ownReservationIsExpired(record));
-
-
-
-  manageList.innerHTML=activeRecords.length?activeRecords.map((record,i)=>{
-
-
-
-    const index=records.findIndex(r=>r.reservation_id===record.reservation_id);
-
-
-
-    return `
-
-
-
-    <article class="own-reservation-entry" data-own-index="${index}">
-
-
-
-      <h3>${ownReservationTitle(record,i)}</h3>
-
-
-
-      <p><strong>Azonosító:</strong> <code>${escapeHtml(record.reservation_id)}</code></p>
-
-
-
-      <p><strong>Lejárat:</strong> ${record.expires_at&&Number.isFinite(Date.parse(record.expires_at))?escapeHtml(new Date(record.expires_at).toLocaleString('hu-HU')):'Nem ismert'}</p>
-
-
-
-      <ul>${ownReservationProducts(record)}</ul>
-
-
-
-      <div class="own-reservation-actions"><button type="button" data-own-view="${index}">Állapot lekérdezése</button><button type="button" data-own-cancel="${index}">Foglalás lemondása</button></div>
-
-
-
-      <p class="own-reservation-feedback" data-own-feedback="${index}" role="status" aria-live="polite"></p>
-
-
-
-    </article>`;
-
-
-
-  }).join(''):'<p>Ebben a böngészőben nincs aktív foglalás.</p>';
-
-
-
-}
-
-
-
-let ownReservationsRefreshRunning=false;
-
-
-
-// Megnyitáskor ellenőrizzük a mentett foglalások valódi szerveroldali állapotát.
-
-
-
-// Hálózati hiba esetén a foglalást nem töröljük és nem minősítjük lezártnak.
-
-
-
-async function refreshOwnReservationsOnOpen(){
-
-
-
-  if(ownReservationsRefreshRunning)return;
-
-
-
-  const pending=readOwnReservations().filter(r=>
-
-
-
-    !['cancelled','expired','completed'].includes(r.local_status)&&!ownReservationIsExpired(r));
-
-
-
-  if(!pending.length)return;
-
-
-
-  ownReservationsRefreshRunning=true;
-
-
-
-  const notice=document.createElement('p');
-
-
-
-  notice.id='own-reservations-refresh-notice';
-
-
-
-  notice.setAttribute('role','status');
-
-
-
-  notice.textContent='Foglalások állapotának automatikus ellenőrzése…';
-
-
-
-  manageList.prepend(notice);
-
-
-
-  manageList.querySelectorAll('button').forEach(b=>b.disabled=true);
-
-
-
-  let failures=0;
-
-
-
-  try{
-
-
-
-    const results=await Promise.allSettled(pending.map(r=>requestOwnReservation('get',r)));
-
-
-
-    results.forEach((result,i)=>{
-
-
-
-      if(result.status!=='fulfilled'){failures++;return;}
-
-
-
-      const info=result.value.reservation||result.value;
-
-
-
-      const status=String(info.status||'').toLowerCase();
-
-
-
-      if(['cancelled','expired','completed'].includes(status)){
-
-
-
-        markOwnReservationClosed(pending[i].reservation_id,status);
-
-
-
-      }
-
-
-
-    });
-
-
-
-  }finally{
-
-
-
-    ownReservationsRefreshRunning=false;
-
-
-
-    if(!manageOverlay.hidden){
-
-
-
-      showOwnReservations();
-
-
-
-      if(failures){
-
-
-
-        const warning=document.createElement('p');
-
-
-
-        warning.setAttribute('role','status');
-
-
-
-        warning.textContent=`${failures} foglalás állapotát nem sikerült ellenőrizni. Próbáld meg később, vagy használd az „Állapot lekérdezése” gombot.`;
-
-
-
-        manageList.prepend(warning);
-
-
-
-      }
-
-
-
-    }
-
-
-
-  }
-
-
-
-}
-
-
-
-function openOwnReservations(){
-
-
-
-  if(!detailModal.hidden)closeProductDetail();
-
-
-
-  if(!cartModal.hidden)closeCart();
-
-
-
-  manageReturnFocus=document.activeElement;
-
-
-
-  showOwnReservations();manageOverlay.hidden=false;document.body.style.overflow='hidden';manageDialog.focus();
-
-
-
-  void refreshOwnReservationsOnOpen();
-
-
-
-}
-
-
-
-function closeOwnReservations(){manageOverlay.hidden=true;document.body.style.overflow='';if(manageReturnFocus?.isConnected)manageReturnFocus.focus();}
-
-
-
-manageTrigger.addEventListener('click',openOwnReservations);
-
-
-
-document.getElementById('own-reservations-close').addEventListener('click',closeOwnReservations);
-
-
-
-manageOverlay.addEventListener('click',e=>{if(e.target===manageOverlay)closeOwnReservations();});
-
-
-
-document.addEventListener('keydown',e=>{
-
-
-
-  if(manageOverlay.hidden)return;
-
-
-
-  if(e.key==='Escape'){e.preventDefault();closeOwnReservations();}
-
-
-
-  if(e.key==='Tab'){
-
-
-
-    const items=[...manageDialog.querySelectorAll('button:not([disabled])')];
-
-
-
-    if(!items.length)return;
-
-
-
-    const first=items[0],last=items[items.length-1];
-
-
-
-    if(e.shiftKey&&(document.activeElement===first||document.activeElement===manageDialog)){e.preventDefault();last.focus();}
-
-
-
-    else if(!e.shiftKey&&(document.activeElement===last||document.activeElement===manageDialog)){e.preventDefault();first.focus();}
-
-
-
-  }
-
-
-
-});
-
-
-
-async function requestOwnReservation(action,record){
-
-
-
-  const response=await fetch(MANAGEMENT_ENDPOINT,{
-
-
-
-    method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY},
-
-
-
-    body:JSON.stringify({action,reservation_id:record.reservation_id,management_token:record.management_token})
-
-
-
-  });
-
-
-
-  const result=await response.json().catch(()=>({}));
-
-
-
-  if(!response.ok)throw new Error(result.error||`A művelet sikertelen (HTTP ${response.status}).`);
-
-
-
-  return result;
-
-
-
-}
-
-
-
-// A foglalást az azonosítója alapján keressük, nem a változó listasorszám alapján.
-
-
-
-function markOwnReservationClosed(reservationId,status){
-
-
-
-  const records=readOwnReservations();
-
-
-
-  const index=records.findIndex(r=>r.reservation_id===reservationId);
-
-
-
-  if(index<0)return;
-
-
-
-  records[index].local_status=status;
-
-
-
-  writeOwnReservations(records);
-
-
-
-}
-
-
-
-manageList.addEventListener('click',async e=>{
-
-
-
-  const button=e.target.closest('[data-own-view],[data-own-cancel]');
-
-
-
-  if(!button)return;
-
-
-
-  const cancelling=button.hasAttribute('data-own-cancel');
-
-
-
-  const index=Number(button.dataset.ownCancel??button.dataset.ownView);
-
-
-
-  const record=readOwnReservations()[index];
-
-
-
-  if(!record)return;
-
-
-
-  if(cancelling&&!window.confirm('Biztosan lemondod ezt a foglalást? A benne lévő ajándékok újra foglalhatóvá válnak.'))return;
-
-
-
-  const entry=button.closest('.own-reservation-entry');
-
-
-
-  const feedback=entry.querySelector('.own-reservation-feedback');
-
-
-
-  const buttons=entry.querySelectorAll('button');
-
-
-
-  buttons.forEach(b=>b.disabled=true);
-
-
-
-  feedback.textContent=cancelling?'Lemondás folyamatban…':'Állapot lekérdezése…';
-
-
-
-  try{
-
-
-
-    let result;
-
-
-
-    try{
-
-
-
-      result=await requestOwnReservation(cancelling?'cancel':'get',record);
-
-
-
-    }catch(error){
-
-
-
-      // Ha a lemondás nem sikerül, előbb ellenőrizzük a szerver szerinti állapotot.
-
-
-
-      // Hálózati vagy jogosultsági hiba esetén semmit nem jelölünk önkényesen lezártnak.
-
-
-
-      if(!cancelling)throw error;
-
-
-
-      const current=await requestOwnReservation('get',record);
-
-
-
-      const currentStatus=String((current.reservation||current).status||'').toLowerCase();
-
-
-
-      if(['cancelled','expired','completed'].includes(currentStatus)){
-
-
-
-        markOwnReservationClosed(record.reservation_id,currentStatus);
-
-
-
-        showOwnReservations();
-
-
-
-        await loadProducts().catch(()=>{});
-
-
-
-        return;
-
-
-
-      }
-
-
-
-      throw error;
-
-
-
-    }
-
-
-
-    if(cancelling){
-
-
-
-      markOwnReservationClosed(record.reservation_id,'cancelled');
-
-
-
-      showOwnReservations();
-
-
-
-      await loadProducts().catch(()=>{});
-
-
-
-    }else{
-
-
-
-      const info=result.reservation||result;
-
-
-
-      const status=String(info.status||'ismeretlen').toLowerCase();
-
-
-
-      if(['cancelled','expired','completed'].includes(status)){
-
-
-
-        markOwnReservationClosed(record.reservation_id,status);
-
-
-
-        showOwnReservations();
-
-
-
-      }else{
-
-
-
-        feedback.textContent=`Aktuális állapot: ${ownReservationStatusLabel(status)}.`;
-
-
-
-      }
-
-
-
-    }
-
-
-
-  }catch(error){
-
-
-
-    feedback.textContent=error instanceof Error?error.message:'Nem sikerült a művelet.';
-
-
-
-  }finally{
-
-
-
-    buttons.forEach(b=>b.disabled=false);
-
-
-
-  }
-
-
-
-});
+@media(min-width:651px) and (max-width:900px){.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
