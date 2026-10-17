@@ -253,7 +253,11 @@ function renderReservations(){
   const active=reservationsCache.filter(r=>effectiveStatus(r)==='active').length;
   const purchased=reservationsCache.reduce((n,r)=>n+(r.items||[]).filter(i=>i.status==='purchased').length,0);
   reservationSummary.textContent=`Összesen ${reservationsCache.length} foglalás · ${active} aktív · ${purchased} megvásárolt ajándék`;
-  if(!visible.length){const panel=elt('div','empty-panel');panel.append(elt('span','', '📋'),elt('h3','', 'Nincs megjeleníthető foglalás'),elt('p','', 'Próbálj másik szűrőt vagy keresést.'));reservationList.append(panel);return;}
+  document.getElementById('reservation-count-active').textContent=String(active);
+  document.getElementById('reservation-count-purchased').textContent=String(purchased);
+  document.getElementById('reservation-count-expired').textContent=String(reservationsCache.filter(r=>effectiveStatus(r)==='expired').length);
+  document.getElementById('reservation-count-cancelled').textContent=String(reservationsCache.filter(r=>effectiveStatus(r)==='cancelled').length);
+  if(!visible.length){const panel=elt('div','reservation-empty');panel.append(elt('span','', '📋'),elt('h3','', 'Nincs megjeleníthető foglalás'),elt('p','', 'Próbálj másik szűrőt vagy keresést.'));reservationList.append(panel);return;}
   for(const r of visible){
     const state=effectiveStatus(r);const card=elt('article','reservation-card');
     const head=elt('div','reservation-card-head');const title=elt('div');title.append(elt('strong','',r.guest_name||'Név nélkül'),elt('small','',`Foglalás: ${reservationDate(r.created_at)}`));
