@@ -3,7 +3,7 @@
 const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
 function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');overlay.hidden=true;toggle.setAttribute('aria-expanded','false');}
-function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();window.scrollTo({top:0,behavior:'smooth'});}
+function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view],[data-go]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view||el.dataset.go)));
 toggle.addEventListener('click',()=>{const open=!sidebar.classList.contains('open');sidebar.classList.toggle('open',open);overlay.classList.toggle('open',open);overlay.hidden=!open;toggle.setAttribute('aria-expanded',String(open));});overlay.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 
@@ -225,3 +225,85 @@ importButton.addEventListener('click',async()=>{
   finally{if(requestId===importRequestId){importButton.disabled=false;importButton.textContent='✨ Adatok lekérése';}}
 });
 document.getElementById('product-reset').addEventListener('click',()=>{++importRequestId;importUrl.value='';importFeedback('');clearImportPreview();});
+
+// Foglaláskezelés: kizárólag a szerveroldalon ellenőrzött admin RPC-ket hívjuk.
+const reservationList=document.getElementById('reservation-list');
+const reservationMessage=document.getElementById('reservation-message');
+const reservationSummary=document.getElementById('reservation-summary');
+const reservationFilter=document.getElementById('reservation-filter');
+const reservationSearch=document.getElementById('reservation-search');
+const reservationRefresh=document.getElementById('reservation-refresh');
+let reservationsCache=[];
+let reservationsLoading=false;
+let reservationsGeneration=0;
+function reservationFeedback(message,error=false){reservationMessage.textContent=message;reservationMessage.classList.toggle('error',error);}
+function reservationDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('hu-HU',{dateStyle:'medium',timeStyle:'short'});}
+function reservationStatus(code){return ({active:'Aktív',reserved:'Lefoglalt',purchased:'Megvásárolt',cancelled:'Visszamondott',expired:'Lejárt'})[code]||code||'Ismeretlen';}
+function effectiveStatus(r){return r.status==='active'&&new Date(r.expires_at).getTime()<=Date.now()?'expired':r.status;}
+function elt(tag,className,textValue){const node=document.createElement(tag);if(className)node.className=className;if(textValue!==undefined)node.textContent=String(textValue);return node;}
+function renderReservations(){
+  reservationList.replaceChildren();
+  const filter=reservationFilter.value;const search=reservationSearch.value.trim().toLocaleLowerCase('hu-HU');
+  const visible=reservationsCache.filter(r=>{
+    const items=Array.isArray(r.items)?r.items:[];
+    const matchStatus=filter==='all'||effectiveStatus(r)===filter||items.some(i=>i.status===filter);
+    const matchSearch=!search||[r.guest_name||'',...items.map(i=>i.name||'')].join(' ').toLocaleLowerCase('hu-HU').includes(search);
+    return matchStatus&&matchSearch;
+  });
+  const active=reservationsCache.filter(r=>effectiveStatus(r)==='active').length;
+  const purchased=reservationsCache.reduce((n,r)=>n+(r.items||[]).filter(i=>i.status==='purchased').length,0);
+  reservationSummary.textContent=`Összesen ${reservationsCache.length} foglalás · ${active} aktív · ${purchased} megvásárolt ajándék`;
+  if(!visible.length){const panel=elt('div','empty-panel');panel.append(elt('span','', '📋'),elt('h3','', 'Nincs megjeleníthető foglalás'),elt('p','', 'Próbálj másik szűrőt vagy keresést.'));reservationList.append(panel);return;}
+  for(const r of visible){
+    const state=effectiveStatus(r);const card=elt('article','reservation-card');
+    const head=elt('div','reservation-card-head');const title=elt('div');title.append(elt('strong','',r.guest_name||'Név nélkül'),elt('small','',`Foglalás: ${reservationDate(r.created_at)}`));
+    head.append(title,elt('span','reservation-badge status-'+state,reservationStatus(state)));card.append(head);
+    const dates=elt('div','reservation-dates');dates.append(elt('span','',`Lejárat: ${reservationDate(r.expires_at)}`));if(r.completed_at)dates.append(elt('span','',`Lezárva: ${reservationDate(r.completed_at)}`));card.append(dates);
+    const items=elt('div','reservation-items');
+    for(const item of (r.items||[])){
+      const line=elt('div','reservation-item');const detail=elt('div','reservation-item-detail');
+      detail.append(elt('strong','',item.name||'Ismeretlen ajándék'),elt('small','',reservationStatus(item.status)));
+      const controls=elt('div','reservation-item-controls');
+      if(item.status==='reserved'&&state==='active'){
+        const buy=elt('button','reservation-buy','✓ Megvásárolva');buy.type='button';buy.addEventListener('click',()=>changeReservation(r.id,item.id,'purchase',item.name));
+        const release=elt('button','reservation-release','Feloldás');release.type='button';release.addEventListener('click',()=>changeReservation(r.id,item.id,'release',item.name));controls.append(buy,release);
+      }
+      line.append(detail,controls);items.append(line);
+    }
+    card.append(items);
+    if(state==='active'&&(r.items||[]).some(i=>i.status==='reserved')){
+      const footer=elt('div','reservation-card-actions');const all=elt('button','reservation-release','Összes hátralévő foglalás feloldása');all.type='button';all.addEventListener('click',()=>changeReservation(r.id,null,'release_all',r.guest_name||'Név nélküli foglalás'));footer.append(all);card.append(footer);
+    }
+    reservationList.append(card);
+  }
+}
+async function loadReservations(){
+  if(reservationsLoading)return;
+  if(!authClient||adminApp.hidden||!verifyIdle())return;
+  const generation=++reservationsGeneration;reservationsLoading=true;reservationRefresh.disabled=true;reservationFeedback('Foglalások lekérése…');
+  try{
+    const {data,error}=await authClient.rpc('admin_list_gift_reservations');
+    if(error)throw error;
+    if(generation!==reservationsGeneration||adminApp.hidden||!verifyIdle())return;
+    reservationsCache=Array.isArray(data)?data:[];
+    renderReservations();reservationFeedback('Foglalások frissítve: '+reservationDate(new Date().toISOString()));
+  }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat. Ellenőrizd, hogy az admin SQL telepítve van-e, és hogy van-e adminjogosultságod.',true);}
+  finally{reservationsLoading=false;reservationRefresh.disabled=false;}
+}
+async function changeReservation(reservationId,itemId,action,name){
+  if(!authClient||adminApp.hidden||!verifyIdle())return;
+  const labels={purchase:'megvásároltnak jelölni',release:'feloldani',release_all:'minden hátralévő ajándék foglalását feloldani'};
+  if(!window.confirm(`Biztosan szeretnéd ${labels[action]} ezt: ${name}?`))return;
+  reservationList.querySelectorAll('button').forEach(b=>b.disabled=true);
+  reservationFeedback('Módosítás folyamatban…');
+  try{
+    const {data,error}=await authClient.rpc('admin_manage_gift_reservation',{p_reservation_id:reservationId,p_item_id:itemId,p_action:action});
+    if(error)throw error;
+    if(!data?.success)throw new Error('A műveletet a szerver nem erősítette meg.');
+    reservationFeedback('Sikeres módosítás.');
+    await loadReservations();
+  }catch(error){console.error('Foglalásmódosítás hiba:',error);reservationFeedback('A művelet nem sikerült. Lehetséges, hogy a foglalás közben megváltozott vagy lejárt. Frissítsd a listát.',true);renderReservations();}
+}
+reservationFilter.addEventListener('change',renderReservations);
+reservationSearch.addEventListener('input',renderReservations);
+reservationRefresh.addEventListener('click',loadReservations);
