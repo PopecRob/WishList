@@ -218,6 +218,7 @@ importButton.addEventListener('click',async()=>{
     document.getElementById('product-import-price').textContent=price!==null?price.toLocaleString('hu-HU')+' Ft':(data.currency&&data.currency!=='HUF'?'Nem forintban megadott ár – töltsd ki kézzel.':'Az ár nem érhető el');
     if(image){importImage.src=image;importImage.hidden=false;importImage.onerror=()=>{importImage.hidden=true;};}
     importPreview.hidden=false;
+    importUrl.value='';
     const missing=[!name?'név':null,price===null?'ár':null,!image?'kép':null].filter(Boolean);
     importFeedback(missing.length?'Részleges kitöltés. Hiányzó adatok: '+missing.join(', ')+'. A kategóriát is válaszd ki, majd ellenőrizd az adatokat.':'Adatok betöltve! Válassz kategóriát, és mentés előtt ellenőrizd az adatokat.','success');
   }catch(error){if(requestId===importRequestId)importFeedback('Nem sikerült automatikusan kitölteni: '+String(error?.message||'Ismeretlen hiba')+' A mezőket kézzel is kitöltheted.','error');}
