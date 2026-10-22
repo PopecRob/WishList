@@ -652,6 +652,17 @@ manageStyles.textContent=`
 
 .own-reservation-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
+#own-reservations-dialog button[data-own-purchase]{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:5px 0 3px 6px;padding:10px 16px;
+  border:1px solid #91663f;border-radius:11px;
+  background:linear-gradient(120deg,#b78b5b,#947049);
+  color:#fff;font:700 13px/1.3 inherit;cursor:pointer;
+  box-shadow:0 4px 12px #8e694b35;
+}
+#own-reservations-dialog button[data-own-purchase]:hover{filter:brightness(.94)}
+#own-reservations-dialog button[data-own-purchase]:focus-visible{outline:3px solid #c59b69;outline-offset:2px}
+#own-reservations-dialog button[data-own-purchase]:disabled{opacity:.55;cursor:wait}
 .own-reservation-actions button,#own-reservations-close{border:1px solid #c8b39a;border-radius:9px;padding:9px 13px;background:#f0e2ce;color:#4e3e30;cursor:pointer;font:inherit}
 
 .own-reservation-actions button:disabled{opacity:.5;cursor:wait}
