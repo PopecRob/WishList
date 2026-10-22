@@ -1,9 +1,9 @@
 'use strict';
 // Admin belépés és termékkezelés Supabase Auth-tal.
-const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
+const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],categories:['Kategóriák','Ajándékkategóriák hozzáadása és módosítása.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
 function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');overlay.hidden=true;toggle.setAttribute('aria-expanded','false');}
-function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();window.scrollTo({top:0,behavior:'smooth'});}
+function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();if(view==='categories')void loadAdminCategories();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view],[data-go]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view||el.dataset.go)));
 toggle.addEventListener('click',()=>{const open=!sidebar.classList.contains('open');sidebar.classList.toggle('open',open);overlay.classList.toggle('open',open);overlay.hidden=!open;toggle.setAttribute('aria-expanded',String(open));});overlay.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 
@@ -77,7 +77,7 @@ async function checkAdmin(session){
   if(version!==authVersion)return;
   if(error||!data){showLogin('Ehhez a fiókhoz nincs adminjogosultság, vagy az ellenőrzés sikertelen.');return;}
   if(lastActivity && Date.now()-lastActivity>=IDLE_LIMIT_MS){await logoutForInactivity();return;}
-  showAdmin();
+  showAdmin();void loadAdminCategories();
 }
 
 async function initAuth(){
@@ -419,3 +419,67 @@ async function deleteProduct(p){
 productsSearch.addEventListener('input',renderProducts);
 productsFilter.addEventListener('change',renderProducts);
 document.getElementById('products-refresh').addEventListener('click',loadProducts);
+
+// v63: adatbázis-alapú kategóriakezelés.
+let adminCategories=[];
+const catForm=document.getElementById('category-form');
+const catList=document.getElementById('category-list');
+const catMessage=document.getElementById('category-message');
+const catLabel=document.getElementById('category-label');
+const catEditId=document.getElementById('category-edit-id');
+const catSave=document.getElementById('category-save');
+function catFeedback(msg,bad=false){catMessage.textContent=msg;catMessage.classList.toggle('error',bad);}
+function resetCategoryForm(){catForm.reset();catEditId.value='';catSave.textContent='Új kategória hozzáadása';document.getElementById('category-cancel').hidden=true;}
+document.getElementById('category-cancel').addEventListener('click',resetCategoryForm);
+function renderAdminCategories(){
+ catList.replaceChildren();
+ for(const c of adminCategories){
+  const row=elt('div','category-admin-item');
+  const name=elt('strong','',c.label);const meta=elt('small','',c.slug);
+  const info=elt('div','category-admin-info');info.append(name,meta);
+  const actions=elt('div','category-admin-actions');
+  const edit=elt('button','','Átnevezés');edit.type='button';edit.addEventListener('click',()=>{catEditId.value=c.slug;catLabel.value=c.label;catSave.textContent='Név mentése';document.getElementById('category-cancel').hidden=false;catLabel.focus();});
+  const del=elt('button','delete-product','Törlés');del.type='button';del.disabled=c.slug==='other';del.title=del.disabled?'Az Egyéb alapértelmezett kategória nem törölhető':'';
+  del.addEventListener('click',async()=>{
+   if(!verifyIdle()||!confirm(`Törlöd ezt a kategóriát?\n${c.label}\n\nHa tartozik hozzá termék, a törlés nem engedélyezett.`))return;
+   const {count,error:countError}=await authClient.from('products').select('id',{count:'exact',head:true}).eq('category',c.slug);
+   if(countError){catFeedback('Nem sikerült ellenőrizni a termékeket: '+countError.message,true);return;}
+   if(count){catFeedback('A kategóriához '+count+' termék tartozik. Előbb helyezd át őket másik kategóriába.',true);return;}
+   const {error}=await authClient.from('wishlist_categories').delete().eq('slug',c.slug);
+   if(error){catFeedback('Törlés sikertelen: '+error.message,true);return;}
+   resetCategoryForm();await loadAdminCategories();catFeedback('Kategória törölve.');
+  });
+  actions.append(edit,del);row.append(info,actions);catList.append(row);
+ }
+}
+async function loadAdminCategories(){
+ if(!authClient||adminApp.hidden||!verifyIdle())return;
+ const {data,error}=await authClient.from('wishlist_categories').select('slug,label,sort_order').order('sort_order',{ascending:true}).order('label',{ascending:true});
+ if(error){catFeedback('A kategóriák nem tölthetők be. Először futtasd a mellékelt Supabase SQL-t. '+error.message,true);return;}
+ adminCategories=data||[];
+ for(const select of [document.getElementById('product-category'),document.getElementById('edit-category')]){
+  const current=select.value;select.replaceChildren();
+  if(select.id==='product-category'){const empty=new Option('Válassz kategóriát','');select.add(empty);}
+  for(const c of adminCategories)select.add(new Option(c.label,c.slug));
+  if([...select.options].some(o=>o.value===current))select.value=current;
+ }
+ renderAdminCategories();catFeedback(adminCategories.length+' kategória betöltve.');
+ if(productsCache.length)renderProducts();
+}
+catForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(!verifyIdle())return;
+ const label=catLabel.value.trim();if(!label||label.length>70){catFeedback('Adj meg egy 1–70 karakteres nevet.',true);return;}
+ if(adminCategories.some(c=>c.label.toLocaleLowerCase('hu')===label.toLocaleLowerCase('hu')&&c.slug!==catEditId.value)){catFeedback('Ilyen nevű kategória már létezik.',true);return;}
+ catSave.disabled=true;catFeedback('Mentés…');
+ try{
+  let error;
+  if(catEditId.value){({error}=await authClient.from('wishlist_categories').update({label}).eq('slug',catEditId.value));}
+  else{
+   const slug='cat_'+(globalThis.crypto?.randomUUID?.()||String(Date.now())+'_'+Math.floor(Math.random()*100000));
+   ({error}=await authClient.from('wishlist_categories').insert({slug,label,sort_order:adminCategories.length*10+10}));
+  }
+  if(error)throw error;
+  resetCategoryForm();await loadAdminCategories();catFeedback('Sikeresen mentve.','');
+ }catch(error){catFeedback('Nem sikerült menteni: '+error.message,true);}
+ finally{catSave.disabled=false;}
+});
