@@ -774,7 +774,7 @@ function showOwnReservations(){
 
       <p><strong>Lejárat:</strong> ${record.expires_at&&Number.isFinite(Date.parse(record.expires_at))?escapeHtml(new Date(record.expires_at).toLocaleString('hu-HU')):'Nem ismert'}</p>
 
-      <ul>${ownReservationProducts(record)}</ul>
+      <ul>${Array.isArray(record.server_items)?record.server_items.map(item=>`<li>${escapeHtml(item.name||'Ajándék')} — ${item.status==='purchased'?'Megvásárolva':item.status==='reserved'?'Lefoglalva':escapeHtml(item.status||'—')}${item.status==='reserved'?` <button type="button" data-own-purchase="${index}" data-product-id="${escapeHtml(item.product_id)}">Megvásároltam</button>`:''}</li>`).join(''):ownReservationProducts(record)}</ul>
 
       <div class="own-reservation-actions"><button type="button" data-own-view="${index}">Állapot lekérdezése</button><button type="button" data-own-cancel="${index}">Foglalás lemondása</button></div>
 
@@ -827,6 +827,8 @@ async function refreshOwnReservationsOnOpen(){
       if(result.status!=='fulfilled'){failures++;return;}
 
       const info=result.value.reservation||result.value;
+
+      saveOwnReservationServerItems(pending[i].reservation_id,info);
 
       const status=String(info.status||'').toLowerCase();
 
@@ -908,13 +910,20 @@ document.addEventListener('keydown',e=>{
 
 });
 
-async function requestOwnReservation(action,record){
+function saveOwnReservationServerItems(reservationId,info){
+  if(!Array.isArray(info?.items))return;
+  const records=readOwnReservations();
+  const found=records.find(r=>r.reservation_id===reservationId);
+  if(found){found.server_items=info.items;writeOwnReservations(records);}
+}
+
+async function requestOwnReservation(action,record,productId=null){
 
   const response=await fetch(MANAGEMENT_ENDPOINT,{
 
     method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY},
 
-    body:JSON.stringify({action,reservation_id:record.reservation_id,management_token:record.management_token})
+    body:JSON.stringify({action,reservation_id:record.reservation_id,management_token:record.management_token,...(productId?{product_id:productId}:{})})
 
   });
 
@@ -944,19 +953,23 @@ function markOwnReservationClosed(reservationId,status){
 
 manageList.addEventListener('click',async e=>{
 
-  const button=e.target.closest('[data-own-view],[data-own-cancel]');
+  const button=e.target.closest('[data-own-view],[data-own-cancel],[data-own-purchase]');
 
   if(!button)return;
 
   const cancelling=button.hasAttribute('data-own-cancel');
 
-  const index=Number(button.dataset.ownCancel??button.dataset.ownView);
+  const purchasing=button.hasAttribute('data-own-purchase');
+
+  const index=Number(button.dataset.ownCancel??button.dataset.ownView??button.dataset.ownPurchase);
 
   const record=readOwnReservations()[index];
 
   if(!record)return;
 
   if(cancelling&&!window.confirm('Biztosan lemondod ezt a foglalást? A benne lévő ajándékok újra foglalhatóvá válnak.'))return;
+
+  if(purchasing&&!window.confirm('Biztosan megvásároltad ezt az ajándékot? A jelölés végleges, és a termék nem lesz újra foglalható.'))return;
 
   const entry=button.closest('.own-reservation-entry');
 
@@ -966,11 +979,21 @@ manageList.addEventListener('click',async e=>{
 
   buttons.forEach(b=>b.disabled=true);
 
-  feedback.textContent=cancelling?'Lemondás folyamatban…':'Állapot lekérdezése…';
+  feedback.textContent=purchasing?'Vásárlás visszaigazolása…':cancelling?'Lemondás folyamatban…':'Állapot lekérdezése…';
 
   try{
 
     let result;
+
+    if(purchasing){
+      const productId=button.dataset.productId;
+      result=await requestOwnReservation('purchase',record,productId);
+      const updated=await requestOwnReservation('get',record);
+      saveOwnReservationServerItems(record.reservation_id,updated.reservation||updated);
+      showOwnReservations();
+      await loadProducts().catch(()=>{});
+      return;
+    }
 
     try{
 
@@ -1016,6 +1039,8 @@ manageList.addEventListener('click',async e=>{
 
       const info=result.reservation||result;
 
+      saveOwnReservationServerItems(record.reservation_id,info);
+
       const status=String(info.status||'ismeretlen').toLowerCase();
 
       if(['cancelled','expired','completed'].includes(status)){
@@ -1026,7 +1051,9 @@ manageList.addEventListener('click',async e=>{
 
       }else{
 
-        feedback.textContent=`Aktuális állapot: ${ownReservationStatusLabel(status)}.`;
+        showOwnReservations();
+        const current=manageList.querySelector(`[data-own-index="${index}"] .own-reservation-feedback`);
+        if(current)current.textContent=`Aktuális állapot: ${ownReservationStatusLabel(status)}.`;
 
       }
 
