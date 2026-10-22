@@ -46,7 +46,7 @@ function categoryImage(id) {
 
   const drawing = categoryArt[id] || categoryArt.other;
 
-  const svg = `<svg xmlns="http\\://www.w3.org/2000/svg" viewBox="0 0 100 88" role="img"><ellipse cx="50" cy="47" rx="44" ry="38" fill="#f2eadb" opacity=".65"/><path d="M8 58q5-13 13-13M82 15q6 7 7 15" fill="none" stroke="#c1cdb6" stroke-width="3" stroke-linecap="round" opacity=".7"/>${drawing}</svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 88" role="img"><ellipse cx="50" cy="47" rx="44" ry="38" fill="#f2eadb" opacity=".65"/><path d="M8 58q5-13 13-13M82 15q6 7 7 15" fill="none" stroke="#c1cdb6" stroke-width="3" stroke-linecap="round" opacity=".7"/>${drawing}</svg>`;
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 
@@ -54,7 +54,7 @@ function categoryImage(id) {
 
 // Termékek kizárólag a Supabase adatbázisból érkeznek.
 
-const SUPABASE_URL='https\\://aalzgkdnqurpoepueehc.supabase.co';
+const SUPABASE_URL='https://aalzgkdnqurpoepueehc.supabase.co';
 
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1PZSSo5VB-ZD90s5OOU2QA_v_1bj_ZK';
 
@@ -260,7 +260,7 @@ function openProductDetail(id,keepFocus=false){
 
   const statusClass=p.status==='reserved'?'reserved':p.status==='preordered'?'preordered':'';
 
-  const hasShopLink=typeof p.url==='string' && p.url.startsWith('https\\://') || typeof p.url==='string' && p.url.startsWith('http\\://');
+  const hasShopLink=typeof p.url==='string' && p.url.startsWith('https://') || typeof p.url==='string' && p.url.startsWith('http://');
 
   const shopAction=hasShopLink
 
