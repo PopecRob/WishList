@@ -324,6 +324,7 @@ const productsSearch=document.getElementById('products-search');
 const productsFilter=document.getElementById('products-filter');
 function pmsg(message){productListMessage.textContent=message;}
 function safeText(v){return String(v??'');}
+function categoryName(value){const el=[...document.getElementById('product-category').options].find(o=>o.value===value);return el?.textContent||value||'Egyéb';}
 function fmtPrice(v){return Number(v||0).toLocaleString('hu-HU')+' Ft';}
 function renderProducts(){
  const query=productsSearch.value.trim().toLocaleLowerCase('hu');
@@ -337,7 +338,7 @@ function renderProducts(){
   if(p.image_url&&/^https?:\/\//i.test(p.image_url)){const img=document.createElement('img');img.src=p.image_url;img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';card.append(img);}
   const info=document.createElement('div');info.className='admin-product-info';
   const name=document.createElement('strong');name.textContent=safeText(p.name);
-  const meta=document.createElement('small');meta.textContent=`${safeText(p.category)} · ${fmtPrice(p.price)} · ${p.is_active?'Megjelenített':'Elrejtett'}`;
+  const meta=document.createElement('small');meta.textContent=`${safeText(categoryName(p.category))} · ${fmtPrice(p.price)} · ${p.is_active?'Megjelenített':'Elrejtett'}`;
   info.append(name,meta);card.append(info);
   const buttons=document.createElement('div');buttons.className='admin-product-buttons';
   const edit=document.createElement('button');edit.type='button';edit.textContent='Szerkesztés';edit.addEventListener('click',()=>editProduct(p.id));
@@ -363,9 +364,10 @@ function editProduct(id){
  selectedProductId=p.id;
  document.getElementById('edit-name').value=p.name||'';
  const cat=document.getElementById('edit-category');cat.replaceChildren();
- const options=new Set([...document.getElementById('product-category').options].map(o=>o.value).filter(Boolean));
+ const categoryLabels=Object.fromEntries([...document.getElementById('product-category').options].filter(o=>o.value).map(o=>[o.value,o.textContent]));
+ const options=new Set(Object.keys(categoryLabels));
  if(p.category)options.add(p.category);
- for(const c of options){const option=document.createElement('option');option.value=c;option.textContent=c;cat.append(option);}
+ for(const c of options){const option=document.createElement('option');option.value=c;option.textContent=categoryLabels[c]||c;cat.append(option);}
  cat.value=p.category||'';
  document.getElementById('edit-price').value=p.price??0;
  document.getElementById('edit-description').value=p.description||'';
