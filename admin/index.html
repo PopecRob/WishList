@@ -4,9 +4,9 @@
 /* v69: csak a bejelentkezési jelszómező szem ikonja */
 .login-password-wrap{position:relative;width:100%}
 .login-password-wrap #login-password{width:100%;padding-right:53px}
-.login-password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:0;border-radius:9px;background:transparent;color:#96704b;cursor:pointer;margin:0!important;box-shadow:none}
-.login-password-toggle:hover{background:#eee4d6;color:#66411f}
-.login-password-toggle:focus-visible{outline:2px solid #a0ad91;outline-offset:1px}
+.login-card form .login-password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:0;border-radius:9px;background:transparent;color:#96704b;cursor:pointer;margin:0!important;box-shadow:none}
+.login-card form .login-password-toggle:hover{background:#eee4d6;color:#66411f}
+.login-card form .login-password-toggle:focus-visible{outline:2px solid #a0ad91;outline-offset:1px}
 .login-password-toggle svg[hidden]{display:none!important}
 </style>
 <script>
@@ -15,12 +15,14 @@ document.addEventListener('DOMContentLoaded',function(){
   const toggle=document.getElementById('login-password-toggle');
   const show=document.getElementById('password-eye-show');
   const hide=document.getElementById('password-eye-hide');
-  if(!field||!toggle)return;
+  if(!field||!toggle||!show||!hide)return;
+  show.style.display='block';
+  hide.style.display='none';
   toggle.addEventListener('click',function(){
     const visible=field.type==='password';
     field.type=visible?'text':'password';
-    show.hidden=visible;
-    hide.hidden=!visible;
+    show.style.display=visible?'none':'block';
+    hide.style.display=visible?'block':'none';
     toggle.setAttribute('aria-pressed',String(visible));
     toggle.setAttribute('aria-label',visible?'Jelszó elrejtése':'Jelszó megjelenítése');
     toggle.title=visible?'Jelszó elrejtése':'Jelszó megjelenítése';
