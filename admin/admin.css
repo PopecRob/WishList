@@ -50,5 +50,19 @@
 @media(max-width:720px){.reservation-heading{margin-top:6px;margin-bottom:19px}.reservation-metrics{gap:10px;margin-bottom:17px}.reservation-metric{min-height:133px;padding:17px 13px}.reservation-metric .metric-label{font-size:11px;padding-right:0;max-width:100%}.reservation-metric .metric-symbol{right:11px;top:10px;width:25px;height:25px;font-size:15px;opacity:.55}.reservation-metric strong{font-size:32px;margin-top:14px}.reservation-metric small{font-size:10px}.reservation-management-panel{padding:18px 13px;border-radius:17px}.reservation-panel-heading h3{font-size:23px}.reservation-panel-decor{font-size:35px}.reservation-view .reservation-toolbar{grid-template-columns:1fr;gap:13px;margin-top:19px}.reservation-view .reservation-toolbar button{width:100%}.reservation-view .reservation-card{padding:15px}.reservation-view .reservation-card-head{align-items:flex-start}.reservation-view .reservation-card-head strong{font-size:18px}}
 @media(max-width:380px){.reservation-metric .metric-label{font-size:10px}.reservation-metric small{font-size:9px}}
 
-/* Foglaláskezelés: lejárt, de még lefoglaltnak jelölt tételek figyelmeztetése */
-.reservation-extra:empty{display:none}.reservation-alert{margin:12px 0;padding:14px 18px;border:1px solid #cfae7c;border-radius:14px;background:#fff7e9;color:#79502b;font-size:13px;line-height:1.55}
+/* v61 – a meglévő dizájnhoz illeszkedő termékkezelés */
+.product-toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+.product-toolbar input,.product-toolbar select,.product-edit-panel input,.product-edit-panel select,.product-edit-panel textarea{border:1px solid #d9c9b8;border-radius:12px;padding:12px;background:#fffdf9;color:#493a2d;font:inherit}
+.product-toolbar input{flex:2;min-width:210px}.product-toolbar select{flex:1;min-width:150px}
+.product-tool-button,.admin-product-buttons button,.product-edit-actions button{border:1px solid #cbb49d;background:#f8f0e7;border-radius:10px;padding:10px 14px;color:#674b34;cursor:pointer;font:inherit}
+.admin-products-list{display:grid;gap:12px;margin-top:16px}
+.admin-product-card{display:flex;gap:15px;align-items:center;background:#fffdf9;border:1px solid #e6dcd1;border-radius:16px;padding:15px;flex-wrap:wrap}
+.admin-product-card>img{width:66px;height:66px;object-fit:contain;border-radius:10px;background:#f5efe7}
+.admin-product-info{display:grid;gap:6px;flex:1;min-width:180px}.admin-product-info strong{color:#49382d}.admin-product-info small{color:#826e5d}
+.admin-product-buttons{display:flex;gap:8px;flex-wrap:wrap}.admin-product-buttons .delete-product{color:#9b4747}
+.product-edit-panel{margin:22px 0;padding:24px;border:1px solid #d9c9b8;border-radius:18px;background:#faf4ed}
+.product-edit-panel h3{margin:0 0 18px}.product-edit-panel form{display:grid;gap:12px}
+.product-edit-panel label{display:grid;gap:6px;color:#624a38}.product-edit-panel label input,.product-edit-panel label select,.product-edit-panel label textarea{width:100%;box-sizing:border-box}
+.product-edit-panel .edit-check{display:flex;align-items:center;gap:10px}.product-edit-panel .edit-check input{width:auto}
+.product-edit-actions{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:700px){.admin-product-card{align-items:flex-start}.admin-product-buttons{width:100%}}

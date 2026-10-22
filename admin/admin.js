@@ -1,9 +1,9 @@
 'use strict';
-// Admin belépés Supabase Auth-tal; foglaláskezelés élő RPC-adatokkal.
+// Admin belépés és termékkezelés Supabase Auth-tal.
 const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
 function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');overlay.hidden=true;toggle.setAttribute('aria-expanded','false');}
-function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();window.scrollTo({top:0,behavior:'smooth'});}
+function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view],[data-go]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view||el.dataset.go)));
 toggle.addEventListener('click',()=>{const open=!sidebar.classList.contains('open');sidebar.classList.toggle('open',open);overlay.classList.toggle('open',open);overlay.hidden=!open;toggle.setAttribute('aria-expanded',String(open));});overlay.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 
@@ -159,6 +159,7 @@ productForm.addEventListener('submit',async event=>{
     const {error}=await authClient.from('products').insert(payload);
     if(error)throw error;
     productForm.reset();
+    productsCache=[];
     productFeedback(active?'Sikeres mentés! Az ajándék megjelenhet a nyilvános kívánságlistán.':'Sikeres mentés! Az ajándék inaktívként került az adatbázisba.','success');
   }catch(error){
     console.error('Termékmentési hiba:',error);
@@ -239,7 +240,7 @@ let reservationsGeneration=0;
 function reservationFeedback(message,error=false){reservationMessage.textContent=message;reservationMessage.classList.toggle('error',error);}
 function reservationDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('hu-HU',{dateStyle:'medium',timeStyle:'short'});}
 function reservationStatus(code){return ({active:'Aktív',reserved:'Lefoglalt',purchased:'Megvásárolt',cancelled:'Visszamondott',expired:'Lejárt'})[code]||code||'Ismeretlen';}
-function effectiveStatus(r){return r.status==='active'&&r.expires_at&&new Date(r.expires_at).getTime()<=Date.now()?'expired':r.status;}
+function effectiveStatus(r){return r.status==='active'&&new Date(r.expires_at).getTime()<=Date.now()?'expired':r.status;}
 function elt(tag,className,textValue){const node=document.createElement(tag);if(className)node.className=className;if(textValue!==undefined)node.textContent=String(textValue);return node;}
 function renderReservations(){
   reservationList.replaceChildren();
@@ -252,9 +253,7 @@ function renderReservations(){
   });
   const active=reservationsCache.filter(r=>effectiveStatus(r)==='active').length;
   const purchased=reservationsCache.reduce((n,r)=>n+(r.items||[]).filter(i=>i.status==='purchased').length,0);
-  reservationSummary.textContent=`Összesen ${reservationsCache.length} foglalás · ${active} aktív · ${purchased} megvásárolt ajándék · ${visible.length} találat`;
-  const extra=document.getElementById('reservation-extra');
-  if(extra){extra.replaceChildren();const pending=reservationsCache.filter(r=>effectiveStatus(r)==='expired'&&(r.items||[]).some(i=>i.status==='reserved'));if(pending.length){const note=elt('div','reservation-alert',`${pending.length} lejárt foglalásnál még van lefoglaltként jelölt ajándék. Ellenőrizd a szerveroldali felszabadítást.`);extra.append(note);}}
+  reservationSummary.textContent=`Összesen ${reservationsCache.length} foglalás · ${active} aktív · ${purchased} megvásárolt ajándék`;
   document.getElementById('reservation-count-active').textContent=String(active);
   document.getElementById('reservation-count-purchased').textContent=String(purchased);
   document.getElementById('reservation-count-expired').textContent=String(reservationsCache.filter(r=>effectiveStatus(r)==='expired').length);
@@ -268,7 +267,7 @@ function renderReservations(){
     const items=elt('div','reservation-items');
     for(const item of (r.items||[])){
       const line=elt('div','reservation-item');const detail=elt('div','reservation-item-detail');
-      detail.append(elt('strong','',item.name||'Ismeretlen ajándék'),elt('small','',reservationStatus(item.status)));if(item.quantity!=null)detail.append(elt('small','',`Mennyiség: ${item.quantity}`));
+      detail.append(elt('strong','',item.name||'Ismeretlen ajándék'),elt('small','',reservationStatus(item.status)));
       const controls=elt('div','reservation-item-controls');
       if(item.status==='reserved'&&state==='active'){
         const buy=elt('button','reservation-buy','✓ Megvásárolva');buy.type='button';buy.addEventListener('click',()=>changeReservation(r.id,item.id,'purchase',item.name));
@@ -291,10 +290,9 @@ async function loadReservations(){
     const {data,error}=await authClient.rpc('admin_list_gift_reservations');
     if(error)throw error;
     if(generation!==reservationsGeneration||adminApp.hidden||!verifyIdle())return;
-    if(!Array.isArray(data))throw new Error('A lista RPC nem tömböt adott vissza.');
-    reservationsCache=data;
+    reservationsCache=Array.isArray(data)?data:[];
     renderReservations();reservationFeedback('Foglalások frissítve: '+reservationDate(new Date().toISOString()));
-  }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat: '+(error?.message||'ismeretlen hiba'),true);}
+  }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat. Ellenőrizd, hogy az admin SQL telepítve van-e, és hogy van-e adminjogosultságod.',true);}
   finally{reservationsLoading=false;reservationRefresh.disabled=false;}
 }
 async function changeReservation(reservationId,itemId,action,name){
@@ -306,11 +304,116 @@ async function changeReservation(reservationId,itemId,action,name){
   try{
     const {data,error}=await authClient.rpc('admin_manage_gift_reservation',{p_reservation_id:reservationId,p_item_id:itemId,p_action:action});
     if(error)throw error;
-    if(data?.success!==true)throw new Error(data?.message||'A műveletet a szerver nem erősítette meg.');
+    if(!data?.success)throw new Error('A műveletet a szerver nem erősítette meg.');
     reservationFeedback('Sikeres módosítás.');
     await loadReservations();
-  }catch(error){console.error('Foglalásmódosítás hiba:',error);renderReservations();reservationFeedback('A művelet nem sikerült: '+(error?.message||'ismeretlen hiba'),true);}
+  }catch(error){console.error('Foglalásmódosítás hiba:',error);reservationFeedback('A művelet nem sikerült. Lehetséges, hogy a foglalás közben megváltozott vagy lejárt. Frissítsd a listát.',true);renderReservations();}
 }
 reservationFilter.addEventListener('change',renderReservations);
 reservationSearch.addEventListener('input',renderReservations);
 reservationRefresh.addEventListener('click',loadReservations);
+
+
+// Valódi terméklista és szerkesztés. Az adatbázis RLS-jogosultságai érvényesek.
+let productsCache=[], selectedProductId=null, productsBusy=false;
+const productListEl=document.getElementById('products-list');
+const productListMessage=document.getElementById('products-message');
+const productEditPanel=document.getElementById('product-edit-panel');
+const productEditForm=document.getElementById('product-edit-form');
+const productsSearch=document.getElementById('products-search');
+const productsFilter=document.getElementById('products-filter');
+function pmsg(message){productListMessage.textContent=message;}
+function safeText(v){return String(v??'');}
+function fmtPrice(v){return Number(v||0).toLocaleString('hu-HU')+' Ft';}
+function renderProducts(){
+ const query=productsSearch.value.trim().toLocaleLowerCase('hu');
+ const filtered=productsCache.filter(p=>(productsFilter.value==='all'||(productsFilter.value==='active' ? p.is_active===true : p.is_active!==true))&&
+  (!query||(safeText(p.name)+' '+safeText(p.category)).toLocaleLowerCase('hu').includes(query)));
+ productListEl.replaceChildren();
+ pmsg(`${filtered.length} termék megjelenítve · ${productsCache.length} összesen`);
+ if(!filtered.length){const el=document.createElement('p');el.textContent='Nincs a szűrésnek megfelelő termék.';productListEl.append(el);return;}
+ for(const p of filtered){
+  const card=document.createElement('article');card.className='admin-product-card';
+  if(p.image_url&&/^https?:\/\//i.test(p.image_url)){const img=document.createElement('img');img.src=p.image_url;img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';card.append(img);}
+  const info=document.createElement('div');info.className='admin-product-info';
+  const name=document.createElement('strong');name.textContent=safeText(p.name);
+  const meta=document.createElement('small');meta.textContent=`${safeText(p.category)} · ${fmtPrice(p.price)} · ${p.is_active?'Megjelenített':'Elrejtett'}`;
+  info.append(name,meta);card.append(info);
+  const buttons=document.createElement('div');buttons.className='admin-product-buttons';
+  const edit=document.createElement('button');edit.type='button';edit.textContent='Szerkesztés';edit.addEventListener('click',()=>editProduct(p.id));
+  const visibility=document.createElement('button');visibility.type='button';visibility.textContent=p.is_active?'Elrejtés':'Megjelenítés';visibility.addEventListener('click',()=>toggleProduct(p));
+  const del=document.createElement('button');del.type='button';del.className='delete-product';del.textContent='Törlés';del.addEventListener('click',()=>deleteProduct(p));
+  buttons.append(edit,visibility,del);card.append(buttons);productListEl.append(card);
+ }
+}
+async function loadProducts(){
+ if(!authClient||adminApp.hidden||!verifyIdle()||productsBusy)return;
+ productsBusy=true;pmsg('Termékek betöltése…');
+ try{
+  // Admin RLS SELECT szükséges az elrejtett termékekhez is.
+  const {data,error}=await authClient.from('products').select('id,name,category,price,description,image_url,webshop_url,is_active').order('name',{ascending:true});
+  if(error)throw error;
+  if(!verifyIdle())return;
+  productsCache=data||[];renderProducts();
+ }catch(e){console.error(e);pmsg('Nem sikerült betölteni a termékeket. Ellenőrizd a products tábla admin SELECT jogosultságát. '+safeText(e.message));}
+ finally{productsBusy=false;}
+}
+function editProduct(id){
+ const p=productsCache.find(x=>String(x.id)===String(id));if(!p)return;
+ selectedProductId=p.id;
+ document.getElementById('edit-name').value=p.name||'';
+ const cat=document.getElementById('edit-category');cat.replaceChildren();
+ const options=new Set([...document.getElementById('product-category').options].map(o=>o.value).filter(Boolean));
+ if(p.category)options.add(p.category);
+ for(const c of options){const option=document.createElement('option');option.value=c;option.textContent=c;cat.append(option);}
+ cat.value=p.category||'';
+ document.getElementById('edit-price').value=p.price??0;
+ document.getElementById('edit-description').value=p.description||'';
+ document.getElementById('edit-image').value=p.image_url||'';
+ document.getElementById('edit-webshop').value=p.webshop_url||'';
+ document.getElementById('edit-active').checked=!!p.is_active;
+ document.getElementById('edit-message').textContent='';
+ productEditPanel.hidden=false;productEditPanel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('edit-cancel').addEventListener('click',()=>{productEditPanel.hidden=true;selectedProductId=null;});
+function validateUrl(value){if(!value)return true;try{return ['http:','https:'].includes(new URL(value).protocol);}catch{return false;}}
+productEditForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(selectedProductId===null||!verifyIdle())return;
+ const price=Number(document.getElementById('edit-price').value);
+ const payload={
+ name:document.getElementById('edit-name').value.trim(),
+ category:document.getElementById('edit-category').value,
+ price,
+ description:document.getElementById('edit-description').value.trim()||null,
+ image_url:document.getElementById('edit-image').value.trim()||null,
+ webshop_url:document.getElementById('edit-webshop').value.trim()||null,
+ is_active:document.getElementById('edit-active').checked
+ };
+ const message=document.getElementById('edit-message');
+ if(!payload.name||!payload.category||!Number.isSafeInteger(price)||price<0||price>999999999||!validateUrl(payload.image_url)||!validateUrl(payload.webshop_url)){message.textContent='Ellenőrizd a kötelező mezőket, az árat és a linkeket.';return;}
+ const save=document.getElementById('edit-save');save.disabled=true;message.textContent='Mentés…';
+ try{
+  const {error}=await authClient.from('products').update(payload).eq('id',selectedProductId);
+  if(error)throw error;
+  message.textContent='Sikeresen mentve.';productEditPanel.hidden=true;selectedProductId=null;await loadProducts();
+ }catch(err){message.textContent='Nem sikerült menteni: '+safeText(err.message);}
+ finally{save.disabled=false;}
+});
+async function toggleProduct(p){
+ if(!verifyIdle())return;
+ const action=p.is_active?'elrejteni':'megjeleníteni';
+ if(!confirm(`Biztosan szeretnéd ${action} ezt az ajándékot?\n${p.name}`))return;
+ const {error}=await authClient.from('products').update({is_active:!p.is_active}).eq('id',p.id);
+ if(error){alert('Nem sikerült módosítani: '+error.message);return;}
+ await loadProducts();
+}
+async function deleteProduct(p){
+ if(!verifyIdle())return;
+ if(!confirm(`VÉGLEGES TÖRLÉS\n\n${p.name}\n\nA korábbi foglalások miatt az adatbázis megakadályozhatja a törlést. Biztosan folytatod?`))return;
+ const {error}=await authClient.from('products').delete().eq('id',p.id);
+ if(error){alert('Nem sikerült törölni. Foglalási előzmény esetén inkább rejtsd el a terméket.\n'+error.message);return;}
+ await loadProducts();
+}
+productsSearch.addEventListener('input',renderProducts);
+productsFilter.addEventListener('change',renderProducts);
+document.getElementById('products-refresh').addEventListener('click',loadProducts);
