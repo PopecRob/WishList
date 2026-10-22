@@ -1,5 +1,5 @@
 'use strict';
-// Admin belépés Supabase Auth-tal; az adminfelület tartalma továbbra is bemutató adat.
+// Admin belépés Supabase Auth-tal; foglaláskezelés élő RPC-adatokkal.
 const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
 function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');overlay.hidden=true;toggle.setAttribute('aria-expanded','false');}
@@ -239,7 +239,7 @@ let reservationsGeneration=0;
 function reservationFeedback(message,error=false){reservationMessage.textContent=message;reservationMessage.classList.toggle('error',error);}
 function reservationDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('hu-HU',{dateStyle:'medium',timeStyle:'short'});}
 function reservationStatus(code){return ({active:'Aktív',reserved:'Lefoglalt',purchased:'Megvásárolt',cancelled:'Visszamondott',expired:'Lejárt'})[code]||code||'Ismeretlen';}
-function effectiveStatus(r){return r.status==='active'&&new Date(r.expires_at).getTime()<=Date.now()?'expired':r.status;}
+function effectiveStatus(r){return r.status==='active'&&r.expires_at&&new Date(r.expires_at).getTime()<=Date.now()?'expired':r.status;}
 function elt(tag,className,textValue){const node=document.createElement(tag);if(className)node.className=className;if(textValue!==undefined)node.textContent=String(textValue);return node;}
 function renderReservations(){
   reservationList.replaceChildren();
@@ -252,7 +252,9 @@ function renderReservations(){
   });
   const active=reservationsCache.filter(r=>effectiveStatus(r)==='active').length;
   const purchased=reservationsCache.reduce((n,r)=>n+(r.items||[]).filter(i=>i.status==='purchased').length,0);
-  reservationSummary.textContent=`Összesen ${reservationsCache.length} foglalás · ${active} aktív · ${purchased} megvásárolt ajándék`;
+  reservationSummary.textContent=`Összesen ${reservationsCache.length} foglalás · ${active} aktív · ${purchased} megvásárolt ajándék · ${visible.length} találat`;
+  const extra=document.getElementById('reservation-extra');
+  if(extra){extra.replaceChildren();const pending=reservationsCache.filter(r=>effectiveStatus(r)==='expired'&&(r.items||[]).some(i=>i.status==='reserved'));if(pending.length){const note=elt('div','reservation-alert',`${pending.length} lejárt foglalásnál még van lefoglaltként jelölt ajándék. Ellenőrizd a szerveroldali felszabadítást.`);extra.append(note);}}
   document.getElementById('reservation-count-active').textContent=String(active);
   document.getElementById('reservation-count-purchased').textContent=String(purchased);
   document.getElementById('reservation-count-expired').textContent=String(reservationsCache.filter(r=>effectiveStatus(r)==='expired').length);
@@ -266,7 +268,7 @@ function renderReservations(){
     const items=elt('div','reservation-items');
     for(const item of (r.items||[])){
       const line=elt('div','reservation-item');const detail=elt('div','reservation-item-detail');
-      detail.append(elt('strong','',item.name||'Ismeretlen ajándék'),elt('small','',reservationStatus(item.status)));
+      detail.append(elt('strong','',item.name||'Ismeretlen ajándék'),elt('small','',reservationStatus(item.status)));if(item.quantity!=null)detail.append(elt('small','',`Mennyiség: ${item.quantity}`));
       const controls=elt('div','reservation-item-controls');
       if(item.status==='reserved'&&state==='active'){
         const buy=elt('button','reservation-buy','✓ Megvásárolva');buy.type='button';buy.addEventListener('click',()=>changeReservation(r.id,item.id,'purchase',item.name));
@@ -289,9 +291,10 @@ async function loadReservations(){
     const {data,error}=await authClient.rpc('admin_list_gift_reservations');
     if(error)throw error;
     if(generation!==reservationsGeneration||adminApp.hidden||!verifyIdle())return;
-    reservationsCache=Array.isArray(data)?data:[];
+    if(!Array.isArray(data))throw new Error('A lista RPC nem tömböt adott vissza.');
+    reservationsCache=data;
     renderReservations();reservationFeedback('Foglalások frissítve: '+reservationDate(new Date().toISOString()));
-  }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat. Ellenőrizd, hogy az admin SQL telepítve van-e, és hogy van-e adminjogosultságod.',true);}
+  }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat: '+(error?.message||'ismeretlen hiba'),true);}
   finally{reservationsLoading=false;reservationRefresh.disabled=false;}
 }
 async function changeReservation(reservationId,itemId,action,name){
@@ -303,10 +306,10 @@ async function changeReservation(reservationId,itemId,action,name){
   try{
     const {data,error}=await authClient.rpc('admin_manage_gift_reservation',{p_reservation_id:reservationId,p_item_id:itemId,p_action:action});
     if(error)throw error;
-    if(!data?.success)throw new Error('A műveletet a szerver nem erősítette meg.');
+    if(data?.success!==true)throw new Error(data?.message||'A műveletet a szerver nem erősítette meg.');
     reservationFeedback('Sikeres módosítás.');
     await loadReservations();
-  }catch(error){console.error('Foglalásmódosítás hiba:',error);reservationFeedback('A művelet nem sikerült. Lehetséges, hogy a foglalás közben megváltozott vagy lejárt. Frissítsd a listát.',true);renderReservations();}
+  }catch(error){console.error('Foglalásmódosítás hiba:',error);renderReservations();reservationFeedback('A művelet nem sikerült: '+(error?.message||'ismeretlen hiba'),true);}
 }
 reservationFilter.addEventListener('change',renderReservations);
 reservationSearch.addEventListener('input',renderReservations);
