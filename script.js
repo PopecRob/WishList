@@ -440,7 +440,7 @@ deliveryOptions.addEventListener('change',e=>{
  if(e.target.name!=='delivery-mode')return;
  selectedDeliveryMode=e.target.value;
  shippingDetails.hidden=selectedDeliveryMode!=='shipping';
- if(selectedDeliveryMode==='shipping')void loadShippingLocations();
+ if(selectedDeliveryMode==='shipping')void loadShippingLocations();else selectedShippingLocation=null;
 });
 function cleanShippingRow(row){
  const provider=String(row.provider||row.carrier||row.service||row.code||'Csomagautomata');
@@ -459,6 +459,11 @@ function renderShippingLocations(){
   const addr=document.createElement('p');addr.textContent=place.address;card.appendChild(addr);
   if(place.identifier){const code=document.createElement('p');code.textContent='Automata azonosítója: '+place.identifier;card.appendChild(code);}
   if(place.extra){const extra=document.createElement('p');extra.textContent=place.extra;card.appendChild(extra);}
+  const select=document.createElement('label');select.style.display='block';select.style.marginTop='8px';
+  const radio=document.createElement('input');radio.type='radio';radio.name='selected-shipping-provider';radio.value=place.provider;
+  radio.checked=selectedShippingLocation?.provider===place.provider;
+  radio.addEventListener('change',()=>{selectedShippingLocation=place;});
+  select.append(radio,document.createTextNode(' Ezt az automatát választom'));card.appendChild(select);
   const button=document.createElement('button');button.type='button';button.textContent='Cím másolása';
   button.addEventListener('click',async()=>{
    const text=[place.provider+' – '+place.name,place.address,place.identifier?'Automata: '+place.identifier:'',place.extra].filter(Boolean).join('\n');
@@ -552,11 +557,12 @@ async function submitReservation(ids,name,button,feedback){
 
   if(!ids.length){feedback.textContent='Nincs foglalható ajándék kiválasztva.';return;}
 
+  if(selectedDeliveryMode==='shipping'&&!selectedShippingLocation){feedback.textContent='Válaszd ki a csomagautomatát a foglalás előtt.';return;}
   reservationBusy=true;button.disabled=true;feedback.textContent='Foglalás feldolgozása…';
 
   try{
 
-    const response=await fetch(RESERVATION_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({product_ids:ids,guest_name:name.trim()||null})});
+    const response=await fetch(RESERVATION_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({product_ids:ids,guest_name:name.trim()||null,delivery_mode:selectedDeliveryMode,shipping_provider:selectedDeliveryMode==='shipping'?selectedShippingLocation?.provider:null})});
 
     const result=await response.json().catch(()=>({}));
 

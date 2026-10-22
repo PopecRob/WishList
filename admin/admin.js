@@ -3,7 +3,7 @@
 const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, szeretettel rendezve.'],products:['Termékek','Az ajándékok áttekintése és kezelése.'],categories:['Kategóriák','Ajándékkategóriák hozzáadása és módosítása.'],new:['Új ajándék','Készítsük elő Nimród következő kívánságát!'],reservations:['Foglalások','Lefoglalt és megvásárolt ajándékok.'],shipping:['Szállítási adatok','Kedvenc átvételi helyeink és csomagautomatáink.']};
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
 function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');overlay.hidden=true;toggle.setAttribute('aria-expanded','false');}
-function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();if(view==='categories')void loadAdminCategories();if(view==='shipping')void loadShipping();window.scrollTo({top:0,behavior:'smooth'});}
+function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();if(view==='categories')void loadAdminCategories();window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-view],[data-go]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view||el.dataset.go)));
 toggle.addEventListener('click',()=>{const open=!sidebar.classList.contains('open');sidebar.classList.toggle('open',open);overlay.classList.toggle('open',open);overlay.hidden=!open;toggle.setAttribute('aria-expanded',String(open));});overlay.addEventListener('click',closeMenu);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 
@@ -276,6 +276,12 @@ function renderReservations(){
       line.append(detail,controls);items.append(line);
     }
     card.append(items);
+    if(r.delivery_mode){
+      const label=r.delivery_mode==='shipping'
+        ?`Csomagküldés: ${r.shipping_provider||'—'} – ${r.shipping_location_name||'—'} · ${r.shipping_address||'—'}`
+        :'Átadás: személyesen';
+      card.append(elt('p','reservation-delivery',label));
+    }
     if(state==='active'&&(r.items||[]).some(i=>i.status==='reserved')){
       const footer=elt('div','reservation-card-actions');const all=elt('button','reservation-release','Összes hátralévő foglalás feloldása');all.type='button';all.addEventListener('click',()=>changeReservation(r.id,null,'release_all',r.guest_name||'Név nélküli foglalás'));footer.append(all);card.append(footer);
     }
@@ -291,6 +297,10 @@ async function loadReservations(){
     if(error)throw error;
     if(generation!==reservationsGeneration||adminApp.hidden||!verifyIdle())return;
     reservationsCache=Array.isArray(data)?data:[];
+    const {data:deliveryRows,error:deliveryError}=await authClient.rpc('admin_reservation_delivery');
+    if(deliveryError)throw deliveryError;
+    const deliveryMap=new Map((Array.isArray(deliveryRows)?deliveryRows:[]).map(d=>[d.id,d]));
+    reservationsCache=reservationsCache.map(r=>({...r,...(deliveryMap.get(r.id)||{})}));
     renderReservations();reservationFeedback('Foglalások frissítve: '+reservationDate(new Date().toISOString()));
   }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat. Ellenőrizd, hogy az admin SQL telepítve van-e, és hogy van-e adminjogosultságod.',true);}
   finally{reservationsLoading=false;reservationRefresh.disabled=false;}
@@ -483,45 +493,3 @@ catForm.addEventListener('submit',async e=>{
  }catch(error){catFeedback('Nem sikerült menteni: '+error.message,true);}
  finally{catSave.disabled=false;}
 });
-
-
-// v64 — Átvételi helyek: kizárólag admin írhat, a publikus oldal csak aktív sorokat olvashat.
-const shippingProviders=[['gls','GLS','Csomagautomata'],['foxpost','FOXPOST','Csomagautomata'],['dpd','DPD','Pickup pont'],['emag','eMAG','easybox'],['alza','Alza','AlzaBox']];
-const shippingEditor=document.getElementById('shipping-editor');
-const shippingMessage=document.getElementById('shipping-message');
-let shippingLoadToken=0;
-function shippingFeedback(message,isError=false){shippingMessage.textContent=message;shippingMessage.classList.toggle('error',isError);shippingMessage.classList.toggle('success',!isError&&!!message);}
-async function loadShipping(){
- if(!authClient||adminApp.hidden||!verifyIdle())return;
- const token=++shippingLoadToken;shippingFeedback('Átvételi helyek lekérése…');
- const {data,error}=await authClient.from('shipping_locations').select('provider,location_name,address,location_code,notes,is_active');
- if(token!==shippingLoadToken)return;
- if(error){shippingEditor.replaceChildren(elt('p','','Nem sikerült betölteni az átvételi helyeket.'));shippingFeedback('Adatbázishiba: '+error.message+' — futtasd a mellékelt SQL-fájlt a Supabase SQL Editorban.',true);return;}
- const byProvider=new Map((data||[]).map(r=>[r.provider,r]));shippingEditor.replaceChildren();
- for(const [provider,label,type] of shippingProviders){
-  const row=byProvider.get(provider)||{};
-  const card=elt('form','shipping-location-card');card.dataset.provider=provider;
-  const heading=elt('div','shipping-location-heading');heading.append(elt('strong','',label),elt('small','',type));card.append(heading);
-  const fields=elt('div','shipping-fields');
-  function field(text,key,placeholder){const wrap=elt('label','',text);const input=elt('input');input.name=key;input.maxLength=key==='notes'?500:250;input.placeholder=placeholder;input.value=row[key]||'';wrap.append(input);fields.append(wrap);}
-  field('Automata / átvételi hely neve','location_name','Pl. Budapest, bevásárlóközpont');
-  field('Pontos cím','address','Irányítószám, település, utca, házszám');
-  field('Automata azonosítója (ha van)','location_code','Pl. automata kódja');
-  field('Kiegészítő információ (opcionális)','notes','Pl. bejárat mellett');
-  card.append(fields);
-  const actions=elt('div','shipping-location-actions');const visibility=elt('label','shipping-visibility');const check=elt('input');check.type='checkbox';check.name='is_active';check.checked=!!row.is_active;visibility.append(check,document.createTextNode(' Megjelenjen a látogatóknak'));
-  const save=elt('button','','Mentés');save.type='submit';actions.append(visibility,save);card.append(actions);
-  card.addEventListener('submit',async e=>{
-   e.preventDefault();if(!verifyIdle())return;
-   const fd=new FormData(card);const payload={provider,location_name:String(fd.get('location_name')||'').trim(),address:String(fd.get('address')||'').trim(),location_code:String(fd.get('location_code')||'').trim(),notes:String(fd.get('notes')||'').trim(),is_active:check.checked};
-   if(payload.is_active&&(!payload.location_name||!payload.address)){shippingFeedback(label+': megjelenítéshez add meg az átvételi hely nevét és címét.',true);return;}
-   save.disabled=true;save.textContent='Mentés…';shippingFeedback(label+' mentése…');
-   try{const {error}=await authClient.from('shipping_locations').upsert(payload,{onConflict:'provider'});if(error)throw error;shippingFeedback(label+': sikeresen mentve.');}
-   catch(err){shippingFeedback(label+': nem sikerült menteni. '+err.message,true);}
-   finally{save.disabled=false;save.textContent='Mentés';}
-  });
-  shippingEditor.append(card);
- }
- shippingFeedback('Az átvételi helyek betöltve.');
-}
-document.getElementById('shipping-refresh').addEventListener('click',()=>void loadShipping());
