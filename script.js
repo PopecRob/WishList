@@ -640,11 +640,13 @@ manageList.addEventListener('click',async e=>{
   if(!button)return;
   const cancelling=button.hasAttribute('data-own-cancel');
   const purchasing=button.hasAttribute('data-own-purchase');
+  const releasing=button.hasAttribute('data-own-release');
   const index=Number(button.dataset.ownCancel??button.dataset.ownView??button.dataset.ownPurchase??button.dataset.ownRelease);
   const record=readOwnReservations()[index];
   if(!record)return;
   if(cancelling&&!window.confirm('Biztosan lemondod ezt a foglalást? A benne lévő ajándékok újra foglalhatóvá válnak.'))return;
-  if(purchasing&&!window.confirm('Biztosan megvásároltad ezt az ajándékot? A jelölés végleges, és a termék nem lesz újra foglalható.'))return;
+  if(releasing&&!window.confirm('Biztosan feloldod ennek az egy ajándéknak a foglalását? A többi ajándék foglalása megmarad.'))return;
+  if(purchasing&&!window.confirm('Biztosan megvásároltad ezt az ajándékot? A jelölés végleges, és a termék nem lesz újra foglalható.'))return;
   const entry=button.closest('.own-reservation-entry');
   const feedback=entry.querySelector('.own-reservation-feedback');
   const buttons=entry.querySelectorAll('button');
@@ -652,7 +654,16 @@ manageList.addEventListener('click',async e=>{
   feedback.textContent=releasing?'Ajándék foglalásának feloldása…':purchasing?'Vásárlás visszaigazolása…':cancelling?'Lemondás folyamatban…':'Állapot lekérdezése…';
   try{
     let result;
-    if(purchasing){
+        if(releasing){
+      const productId=button.dataset.productId;
+      await requestOwnReservation('release_item',record,productId);
+      const updated=await requestOwnReservation('get',record);
+      saveOwnReservationServerItems(record.reservation_id,updated.reservation||updated);
+      showOwnReservations();
+      await loadProducts().catch(()=>{});
+      return;
+    }
+    if(purchasing){
       const productId=button.dataset.productId;
       result=await requestOwnReservation('purchase',record,productId);
       const updated=await requestOwnReservation('get',record);
@@ -721,4 +732,3 @@ async function loadWishlistCategories(){
  }catch(error){console.warn('Kategóriák lekérése sikertelen; alapértelmezett lista marad.',error);}
 }
 void loadWishlistCategories();
-
