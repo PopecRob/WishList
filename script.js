@@ -72,7 +72,7 @@ const state = {category:'all',query:'',sort:'newest',favorites:new Set()};
 // A kosár csak ebben a böngészőben tárolódik. Nem foglal le semmit.
 const NEW_GIFTS_SINCE=Date.parse('2026-10-23T11:38:00Z');
 const VIEWED_GIFTS_KEY='nimrod-viewed-gifts-v1';
-const CART_GUIDE_KEY='nimrod-cart-guide-ack-v1';
+let cartGuideAcknowledged=false;
 function readViewedGifts(){try{const stored=JSON.parse(localStorage.getItem(VIEWED_GIFTS_KEY)||'[]');return new Set(Array.isArray(stored)?stored.filter(id=>typeof id==='string'):[]);}catch{return new Set();}}
 const viewedGifts=readViewedGifts();
 function isNewGift(p){const date=Date.parse(p.createdAt);return Number.isFinite(date)&&date>=NEW_GIFTS_SINCE&&!viewedGifts.has(p.id);}
@@ -201,8 +201,8 @@ const cartGuide=document.getElementById('cart-guide-modal');
 const cartGuideDialog=cartGuide.querySelector('.cart-guide-dialog');
 let cartGuideReturnFocus=null;
 function closeCartGuide(){if(cartGuide.hidden)return;cartGuide.hidden=true;document.body.classList.remove('cart-guide-open');if(cartGuideReturnFocus?.isConnected)cartGuideReturnFocus.focus();}
-function requestCartOpen(){if(localStorage.getItem(CART_GUIDE_KEY)==='yes'){openCart();return;}cartGuideReturnFocus=document.activeElement;cartGuide.hidden=false;document.body.classList.add('cart-guide-open');cartGuideDialog.focus();}
-cartGuide.querySelector('[data-cart-guide-accept]').addEventListener('click',()=>{try{localStorage.setItem(CART_GUIDE_KEY,'yes');}catch{}closeCartGuide();openCart();});
+function requestCartOpen(){if(cartGuideAcknowledged){openCart();return;}cartGuideReturnFocus=document.activeElement;cartGuide.hidden=false;document.body.classList.add('cart-guide-open');cartGuideDialog.focus();}
+cartGuide.querySelector('[data-cart-guide-accept]').addEventListener('click',()=>{cartGuideAcknowledged=true;closeCartGuide();openCart();});
 cartGuide.querySelectorAll('[data-cart-guide-close]').forEach(button=>button.addEventListener('click',closeCartGuide));
 document.addEventListener('keydown',event=>{if(cartGuide.hidden)return;if(event.key==='Escape'){event.preventDefault();closeCartGuide();}if(event.key==='Tab'){const buttons=[...cartGuide.querySelectorAll('button')];if(!buttons.length)return;const first=buttons[0],last=buttons[buttons.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
 function openCart(){if(!detailModal.hidden)closeProductDetail();cartReturnFocus=document.activeElement;renderCart();cartModal.hidden=false;cartModal.removeAttribute('hidden');document.body.classList.add('cart-open');cartPanel.focus();}
