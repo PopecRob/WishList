@@ -98,3 +98,18 @@
 .shipping-card-buttons button:disabled{opacity:.6}
 @media(max-width:900px){.shipping-editor{grid-template-columns:1fr}}
 @media(max-width:720px){.shipping-editor>.shipping-location-card{padding:16px}.shipping-location-heading{flex-direction:column;gap:4px}}
+
+/* Admin UX – legutóbbi termékek, foglalás-előzmények, rendezők */
+.admin-recent-product{display:flex;align-items:center;gap:10px;min-width:0}
+.admin-recent-image{width:38px;height:38px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.admin-recent-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.admin-recent-name strong{overflow-wrap:anywhere;font-size:12px}
+.admin-recent-name small{font-size:10px;opacity:.7}
+.admin-recent-loading{padding:18px;color:#967b61}
+.admin-reservation-group-title{margin:18px 4px 12px;color:#795434;font-family:'Playfair Display',serif;font-weight:500}
+.admin-reservation-empty-group{padding:14px;border:1px dashed #ddcbb5;border-radius:10px;color:#967b61}
+.admin-reservation-history{margin-top:20px;border-top:1px solid #e6dbc9;padding-top:16px}
+.admin-reservation-history>summary{cursor:pointer;padding:12px 14px;border-radius:10px;background:#f3e9dc;color:#795434;font-weight:700;margin-bottom:14px}
+.admin-reservation-history>.reservation-card{margin-bottom:12px}
+#products-sort{min-width:150px}
+@media(max-width:700px){.admin-recent-image{width:30px;height:30px}.admin-recent-name strong{font-size:11px}#products-sort{min-width:0;max-width:100%}}
