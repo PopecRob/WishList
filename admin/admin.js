@@ -2,7 +2,15 @@
 
 
 
+
+
+
+
 // Admin belépés és termékkezelés Supabase Auth-tal.
+
+
+
+
 
 
 
@@ -10,7 +18,15 @@ const titles={overview:['Áttekintés','Minden apró kívánság egy helyen, sze
 
 
 
+
+
+
+
 const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay');const toggle=document.getElementById('menu-toggle');
+
+
+
+
 
 
 
@@ -18,11 +34,23 @@ function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('
 
 
 
-function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();if(view==='categories')void loadAdminCategories();if(view==='shipping')void loadAdminShipping();window.scrollTo({top:0,behavior:'smooth'});}
+
+
+
+
+function showView(view){if(!titles[view])return;document.querySelectorAll('[data-panel]').forEach(el=>el.classList.toggle('active',el.dataset.panel===view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));document.getElementById('page-title').innerHTML=titles[view][0]+' <span>♡</span>';document.getElementById('page-subtitle').textContent=titles[view][1];closeMenu();if(view==='overview')void loadOverviewStats();if(view==='reservations')void loadReservations();if(view==='products')void loadProducts();if(view==='categories')void loadAdminCategories();if(view==='shipping')void loadAdminShipping();window.scrollTo({top:0,behavior:'smooth'});}
+
+
+
+
 
 
 
 document.querySelectorAll('[data-view],[data-go]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.view||el.dataset.go)));
+
+
+
+
 
 
 
@@ -38,11 +66,31 @@ toggle.addEventListener('click',()=>{const open=!sidebar.classList.contains('ope
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // A nyilvános publishable key nem titok. Service role kulcsot SOHA ne tegyünk frontendbe.
 
 
 
-const SUPABASE_URL='https\://aalzgkdnqurpoepueehc.supabase.co';
+
+
+
+
+const SUPABASE_URL='https\\://aalzgkdnqurpoepueehc.supabase.co';
+
+
+
+
 
 
 
@@ -50,7 +98,15 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_1PZSSo5VB-ZD90s5OOU2QA_v_1bj_ZK';
 
 
 
+
+
+
+
 const loginScreen=document.getElementById('login-screen');
+
+
+
+
 
 
 
@@ -58,7 +114,15 @@ const adminApp=document.getElementById('admin-app');
 
 
 
+
+
+
+
 const loginForm=document.getElementById('login-form');
+
+
+
+
 
 
 
@@ -66,7 +130,15 @@ const loginMessage=document.getElementById('login-message');
 
 
 
+
+
+
+
 const loginSubmit=document.getElementById('login-submit');
+
+
+
+
 
 
 
@@ -74,7 +146,15 @@ const logoutButton=document.getElementById('logout-button');
 
 
 
+
+
+
+
 let authClient=null;
+
+
+
+
 
 
 
@@ -82,7 +162,15 @@ let authVersion=0;
 
 
 
+
+
+
+
 // 15 perc tényleges inaktivitás után automatikus kijelentkezés.
+
+
+
+
 
 
 
@@ -90,7 +178,15 @@ const IDLE_LIMIT_MS=15*60*1000;
 
 
 
+
+
+
+
 const LAST_ACTIVITY_KEY='nimrod_admin_last_activity_v1';
+
+
+
+
 
 
 
@@ -98,7 +194,15 @@ let lastActivity=0;
 
 
 
+
+
+
+
 let idleLogoutInProgress=false;
+
+
+
+
 
 
 
@@ -106,7 +210,15 @@ let lastStoredActivity=0;
 
 
 
+
+
+
+
 function storedActivity(){
+
+
+
+
 
 
 
@@ -114,11 +226,23 @@ function storedActivity(){
 
 
 
+
+
+
+
   catch {return 0;}
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -126,7 +250,15 @@ function rememberActivity(time=Date.now()){
 
 
 
+
+
+
+
   lastActivity=time;
+
+
+
+
 
 
 
@@ -134,7 +266,15 @@ function rememberActivity(time=Date.now()){
 
 
 
+
+
+
+
     try{localStorage.setItem(LAST_ACTIVITY_KEY,String(time));lastStoredActivity=time;}catch{}
+
+
+
+
 
 
 
@@ -142,7 +282,15 @@ function rememberActivity(time=Date.now()){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -150,7 +298,15 @@ function clearActivity(){lastActivity=0;lastStoredActivity=0;try{localStorage.re
 
 
 
+
+
+
+
 async function logoutForInactivity(){
+
+
+
+
 
 
 
@@ -158,7 +314,15 @@ async function logoutForInactivity(){
 
 
 
+
+
+
+
   idleLogoutInProgress=true;
+
+
+
+
 
 
 
@@ -166,7 +330,15 @@ async function logoutForInactivity(){
 
 
 
+
+
+
+
   showLogin('15 perc inaktivitás miatt automatikusan kijelentkeztettünk. Jelentkezz be újra.');
+
+
+
+
 
 
 
@@ -174,7 +346,15 @@ async function logoutForInactivity(){
 
 
 
+
+
+
+
     const {error}=await authClient.auth.signOut();
+
+
+
+
 
 
 
@@ -182,7 +362,15 @@ async function logoutForInactivity(){
 
 
 
+
+
+
+
     clearActivity();
+
+
+
+
 
 
 
@@ -190,7 +378,15 @@ async function logoutForInactivity(){
 
 
 
+
+
+
+
     // Hálózati hiba esetén sem engedjük vissza a felületre.
+
+
+
+
 
 
 
@@ -198,11 +394,23 @@ async function logoutForInactivity(){
 
 
 
+
+
+
+
   }finally{idleLogoutInProgress=false;}
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -210,7 +418,15 @@ function verifyIdle(){
 
 
 
+
+
+
+
   if(adminApp.hidden||!authClient||idleLogoutInProgress)return false;
+
+
+
+
 
 
 
@@ -218,7 +434,15 @@ function verifyIdle(){
 
 
 
+
+
+
+
   if(!latest||Date.now()-latest>=IDLE_LIMIT_MS){void logoutForInactivity();return false;}
+
+
+
+
 
 
 
@@ -226,7 +450,15 @@ function verifyIdle(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -234,7 +466,15 @@ function recordUserActivity(){
 
 
 
+
+
+
+
   if(!verifyIdle())return;
+
+
+
+
 
 
 
@@ -242,7 +482,15 @@ function recordUserActivity(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -250,7 +498,15 @@ function recordUserActivity(){
 
 
 
+
+
+
+
   document.addEventListener(type,recordUserActivity,{passive:true,capture:true})
+
+
+
+
 
 
 
@@ -258,11 +514,23 @@ function recordUserActivity(){
 
 
 
+
+
+
+
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)verifyIdle();});
 
 
 
+
+
+
+
 window.addEventListener('focus',verifyIdle);
+
+
+
+
 
 
 
@@ -274,7 +542,19 @@ setInterval(verifyIdle,5000);
 
 
 
+
+
+
+
+
+
+
+
 function showLogin(message=''){adminApp.hidden=true;loginScreen.hidden=false;loginMessage.textContent=message;closeMenu();}
+
+
+
+
 
 
 
@@ -282,7 +562,15 @@ function showAdmin(){if(idleLogoutInProgress)return;loginScreen.hidden=true;admi
 
 
 
+
+
+
+
 async function checkAdmin(session){
+
+
+
+
 
 
 
@@ -290,7 +578,15 @@ async function checkAdmin(session){
 
 
 
+
+
+
+
   const version=++authVersion;
+
+
+
+
 
 
 
@@ -298,7 +594,15 @@ async function checkAdmin(session){
 
 
 
+
+
+
+
   const {data,error}=await authClient.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
+
+
+
+
 
 
 
@@ -306,7 +610,15 @@ async function checkAdmin(session){
 
 
 
+
+
+
+
   if(error||!data){showLogin('Ehhez a fiókhoz nincs adminjogosultság, vagy az ellenőrzés sikertelen.');return;}
+
+
+
+
 
 
 
@@ -314,11 +626,27 @@ async function checkAdmin(session){
 
 
 
-  showAdmin();void loadAdminCategories();
+
+
+
+
+  showAdmin();void loadAdminCategories();void loadOverviewStats();
+
+
+
+
 
 
 
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -330,7 +658,15 @@ async function initAuth(){
 
 
 
+
+
+
+
   showLogin('Bejelentkezés ellenőrzése…');
+
+
+
+
 
 
 
@@ -338,7 +674,15 @@ async function initAuth(){
 
 
 
+
+
+
+
   authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:false}});
+
+
+
+
 
 
 
@@ -346,7 +690,15 @@ async function initAuth(){
 
 
 
+
+
+
+
   if(error){showLogin('Nem sikerült ellenőrizni a munkamenetet.');return;}
+
+
+
+
 
 
 
@@ -354,7 +706,15 @@ async function initAuth(){
 
 
 
+
+
+
+
     lastActivity=storedActivity();
+
+
+
+
 
 
 
@@ -362,7 +722,15 @@ async function initAuth(){
 
 
 
+
+
+
+
       await authClient.auth.signOut();
+
+
+
+
 
 
 
@@ -370,7 +738,15 @@ async function initAuth(){
 
 
 
+
+
+
+
       showLogin('A korábbi munkamenet lejárt. Jelentkezz be újra.');
+
+
+
+
 
 
 
@@ -378,7 +754,15 @@ async function initAuth(){
 
 
 
+
+
+
+
   }else{clearActivity();showLogin();}
+
+
+
+
 
 
 
@@ -386,7 +770,15 @@ async function initAuth(){
 
 
 
+
+
+
+
     if(event==='SIGNED_OUT'){authVersion++;clearActivity();if(!idleLogoutInProgress)showLogin();}
+
+
+
+
 
 
 
@@ -394,7 +786,15 @@ async function initAuth(){
 
 
 
+
+
+
+
     else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')setTimeout(()=>{if(!idleLogoutInProgress&&session){if(!lastActivity)lastActivity=storedActivity();if(!lastActivity||Date.now()-lastActivity>=IDLE_LIMIT_MS){void logoutForInactivity();}else void checkAdmin(session);}},0);
+
+
+
+
 
 
 
@@ -402,7 +802,15 @@ async function initAuth(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -410,7 +818,15 @@ loginForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   event.preventDefault();if(!authClient)return;
+
+
+
+
 
 
 
@@ -418,7 +834,15 @@ loginForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   try{
+
+
+
+
 
 
 
@@ -426,7 +850,15 @@ loginForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     if(error){showLogin('Hibás e-mail-cím vagy jelszó, vagy a bejelentkezés nem sikerült.');return;}
+
+
+
+
 
 
 
@@ -434,7 +866,15 @@ loginForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     await checkAdmin(data.session);
+
+
+
+
 
 
 
@@ -442,7 +882,15 @@ loginForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   }catch{showLogin('Hálózati hiba történt. Próbáld újra.');}
+
+
+
+
 
 
 
@@ -450,7 +898,15 @@ loginForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
 });
+
+
+
+
 
 
 
@@ -458,7 +914,15 @@ logoutButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
   authVersion++;clearActivity();showLogin('Kijelentkezés…');
+
+
+
+
 
 
 
@@ -466,11 +930,23 @@ logoutButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
   catch{showLogin('A kijelentkezés nem sikerült. Frissítsd az oldalt, majd próbáld újra.');}
 
 
 
+
+
+
+
 });
+
+
+
+
 
 
 
@@ -482,7 +958,19 @@ initAuth();
 
 
 
+
+
+
+
+
+
+
+
 // Termékfeltöltés: az adatbázis RLS szabályai ellenőrzik az admin jogosultságot.
+
+
+
+
 
 
 
@@ -490,7 +978,15 @@ const productForm=document.getElementById('new-product-form');
 
 
 
+
+
+
+
 const productSave=document.getElementById('product-save');
+
+
+
+
 
 
 
@@ -498,7 +994,15 @@ const productMessage=document.getElementById('product-form-message');
 
 
 
+
+
+
+
 function productFeedback(message,type=''){
+
+
+
+
 
 
 
@@ -506,7 +1010,15 @@ function productFeedback(message,type=''){
 
 
 
+
+
+
+
   productMessage.className='product-form-message'+(type?' '+type:'');
+
+
+
+
 
 
 
@@ -514,7 +1026,15 @@ function productFeedback(message,type=''){
 
 
 
+
+
+
+
 document.getElementById('product-reset').addEventListener('click',()=>{
+
+
+
+
 
 
 
@@ -522,7 +1042,15 @@ document.getElementById('product-reset').addEventListener('click',()=>{
 
 
 
+
+
+
+
 });
+
+
+
+
 
 
 
@@ -530,7 +1058,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   event.preventDefault();
+
+
+
+
 
 
 
@@ -538,11 +1074,23 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     productFeedback('A munkamenet lejárt. Jelentkezz be újra.','error');return;
 
 
 
+
+
+
+
   }
+
+
+
+
 
 
 
@@ -550,7 +1098,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   const category=document.getElementById('product-category').value;
+
+
+
+
 
 
 
@@ -558,7 +1114,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   const price=Number(priceText);
+
+
+
+
 
 
 
@@ -566,7 +1130,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   const image=document.getElementById('product-image').value.trim();
+
+
+
+
 
 
 
@@ -574,7 +1146,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   const active=document.getElementById('product-active').checked;
+
+
+
+
 
 
 
@@ -582,11 +1162,23 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     productFeedback('Ellenőrizd a nevet, a kategóriát és az árat.','error');return;
 
 
 
+
+
+
+
   }
+
+
+
+
 
 
 
@@ -594,11 +1186,23 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     if(link){try{const parsed=new URL(link);if(!['http:','https:'].includes(parsed.protocol))throw Error();}
 
 
 
-      catch{productFeedback('Csak http\:// vagy https\:// kezdetű linket adj meg.','error');return;}}
+
+
+
+
+      catch{productFeedback('Csak http\\:// vagy https\\:// kezdetű linket adj meg.','error');return;}}
+
+
+
+
 
 
 
@@ -606,7 +1210,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   productSave.disabled=true;productSave.textContent='Mentés…';productFeedback('Ajándék mentése folyamatban…');
+
+
+
+
 
 
 
@@ -614,7 +1226,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     const {data:sessionData,error:sessionError}=await authClient.auth.getSession();
+
+
+
+
 
 
 
@@ -622,7 +1242,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     const payload={name,category,price,description:description||null,image_url:image||null,webshop_url:webshop||null,is_active:active};
+
+
+
+
 
 
 
@@ -630,7 +1258,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     const {error}=await authClient.from('products').insert(payload);
+
+
+
+
 
 
 
@@ -638,11 +1274,23 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     productForm.reset();
 
 
 
-    productsCache=[];
+
+
+
+
+    productsCache=[];void loadOverviewStats();
+
+
+
+
 
 
 
@@ -650,7 +1298,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   }catch(error){
+
+
+
+
 
 
 
@@ -658,7 +1314,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     const message=String(error?.message||'');
+
+
+
+
 
 
 
@@ -666,7 +1330,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
     else if(/munkamenet lejárt/i.test(message))productFeedback(message,'error');
+
+
+
+
 
 
 
@@ -674,11 +1346,31 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
   }finally{productSave.disabled=false;productSave.textContent='Ajándék mentése →';}
 
 
 
+
+
+
+
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -694,7 +1386,15 @@ productForm.addEventListener('submit',async event=>{
 
 
 
+
+
+
+
 const importUrl=document.getElementById('product-import-url');
+
+
+
+
 
 
 
@@ -702,7 +1402,15 @@ const importButton=document.getElementById('product-import-button');
 
 
 
+
+
+
+
 const importMessage=document.getElementById('product-import-message');
+
+
+
+
 
 
 
@@ -710,7 +1418,15 @@ const importPreview=document.getElementById('product-import-preview');
 
 
 
+
+
+
+
 const importImage=document.getElementById('product-import-image');
+
+
+
+
 
 
 
@@ -718,7 +1434,15 @@ let importRequestId=0;
 
 
 
+
+
+
+
 function importFeedback(message,type=''){importMessage.textContent=message;importMessage.className='product-form-message'+(type?' '+type:'');}
+
+
+
+
 
 
 
@@ -726,7 +1450,15 @@ function clearImportPreview(){importPreview.hidden=true;importImage.hidden=true;
 
 
 
+
+
+
+
 function parseImportedPrice(value,currency){
+
+
+
+
 
 
 
@@ -734,7 +1466,15 @@ function parseImportedPrice(value,currency){
 
 
 
+
+
+
+
   const amount=Number(value);
+
+
+
+
 
 
 
@@ -742,7 +1482,15 @@ function parseImportedPrice(value,currency){
 
 
 
+
+
+
+
   if(currency&&currency.toUpperCase()!=='HUF')return null;
+
+
+
+
 
 
 
@@ -750,7 +1498,15 @@ function parseImportedPrice(value,currency){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -758,7 +1514,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
   if(!authClient||adminApp.hidden||!verifyIdle()){importFeedback('Jelentkezz be újra a lekéréshez.','error');return;}
+
+
+
+
 
 
 
@@ -766,7 +1530,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
   let url;
+
+
+
+
 
 
 
@@ -774,7 +1546,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
-  catch{importFeedback('Adj meg egy érvényes http\:// vagy https\:// webshoplinket.','error');return;}
+
+
+
+
+  catch{importFeedback('Adj meg egy érvényes http\\:// vagy https\\:// webshoplinket.','error');return;}
+
+
+
+
 
 
 
@@ -782,7 +1562,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
   importButton.disabled=true;importButton.textContent='Lekérés folyamatban…';clearImportPreview();importFeedback('Termékadatok lekérése…');
+
+
+
+
 
 
 
@@ -790,7 +1578,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     const {data:sessionData,error:sessionError}=await authClient.auth.getSession();
+
+
+
+
 
 
 
@@ -798,7 +1594,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     const {data,error}=await authClient.functions.invoke('fetch-product',{body:{url:url.href}});
+
+
+
+
 
 
 
@@ -806,7 +1610,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     if(error){
+
+
+
+
 
 
 
@@ -814,7 +1626,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
       try{const details=await error.context?.json();if(details?.error)message=details.error;}catch{}
+
+
+
+
 
 
 
@@ -822,7 +1642,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     }
+
+
+
+
 
 
 
@@ -830,7 +1658,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     const name=typeof data.name==='string'?data.name.trim():'';
+
+
+
+
 
 
 
@@ -838,7 +1674,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     const price=parseImportedPrice(data.price,data.currency);
+
+
+
+
 
 
 
@@ -846,7 +1690,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     if(name)document.getElementById('product-name').value=name.slice(0,180);
+
+
+
+
 
 
 
@@ -854,7 +1706,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     if(price!==null)document.getElementById('product-price').value=String(price);
+
+
+
+
 
 
 
@@ -862,7 +1722,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     if(image)document.getElementById('product-image').value=image.slice(0,2000);
+
+
+
+
 
 
 
@@ -870,7 +1738,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     document.getElementById('product-import-price').textContent=price!==null?price.toLocaleString('hu-HU')+' Ft':(data.currency&&data.currency!=='HUF'?'Nem forintban megadott ár – töltsd ki kézzel.':'Az ár nem érhető el');
+
+
+
+
 
 
 
@@ -878,7 +1754,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     importPreview.hidden=false;
+
+
+
+
 
 
 
@@ -886,7 +1770,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
     const missing=[!name?'név':null,price===null?'ár':null,!image?'kép':null].filter(Boolean);
+
+
+
+
 
 
 
@@ -894,7 +1786,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
   }catch(error){if(requestId===importRequestId)importFeedback('Nem sikerült automatikusan kitölteni: '+String(error?.message||'Ismeretlen hiba')+' A mezőket kézzel is kitöltheted.','error');}
+
+
+
+
 
 
 
@@ -902,7 +1802,15 @@ importButton.addEventListener('click',async()=>{
 
 
 
+
+
+
+
 });
+
+
+
+
 
 
 
@@ -914,7 +1822,76 @@ document.getElementById('product-reset').addEventListener('click',()=>{++importR
 
 
 
+
+
+
+
+
+
+
+
+// Áttekintés: valódi Supabase-adatok. Nem módosít adatbázist.
+let overviewRequestId=0;
+async function loadOverviewStats(){
+  if(!authClient||adminApp.hidden||!verifyIdle())return;
+  const requestId=++overviewRequestId;
+  const fields={
+    total:document.getElementById('overview-count-total'),
+    free:document.getElementById('overview-count-free'),
+    active:document.getElementById('overview-count-active'),
+    purchased:document.getElementById('overview-count-purchased')
+  };
+  const notes=Object.fromEntries(Object.entries(fields).map(([key,field])=>[key,document.getElementById(field.id+'-note')]));
+  for(const key of Object.keys(fields)){fields[key].textContent='—';notes[key].textContent='Frissítés…';}
+  try{
+    const [productsResult,reservationsResult]=await Promise.all([
+      authClient.from('products').select('id,is_active'),
+      authClient.rpc('admin_list_gift_reservations')
+    ]);
+    if(productsResult.error)throw productsResult.error;
+    if(reservationsResult.error)throw reservationsResult.error;
+    if(requestId!==overviewRequestId||adminApp.hidden||!verifyIdle())return;
+    const products=productsResult.data||[];
+    const reservations=reservationsResult.data;
+    if(!Array.isArray(reservations))throw new Error('A foglalási lista formátuma nem megfelelő.');
+    const occupied=new Set();
+    const purchased=new Set();
+    let active=0;
+    const now=Date.now();
+    for(const reservation of reservations){
+      const items=Array.isArray(reservation.items)?reservation.items:[];
+      const stillActive=reservation.status==='active' && new Date(reservation.expires_at).getTime()>now;
+      if(stillActive && items.some(item=>item.status==='reserved'))active++;
+      for(const item of items){
+        if(item.status!=='reserved' && item.status!=='purchased')continue;
+        // Az admin RPC a foglalási tételhez a termék azonosítóját is adja.
+        const productId=item.product_id;
+        if(!productId)throw new Error('A foglalási RPC nem adja vissza a product_id mezőt.');
+        if(item.status==='purchased'){purchased.add(productId);occupied.add(productId);}
+        else if(stillActive)occupied.add(productId);
+      }
+    }
+    const free=products.filter(p=>p.is_active===true&&!occupied.has(p.id)).length;
+    fields.total.textContent=String(products.length);
+    fields.free.textContent=String(free);
+    fields.active.textContent=String(active);
+    fields.purchased.textContent=String(purchased.size);
+    notes.total.textContent='Összes rögzített ajándék';
+    notes.free.textContent='Látható és foglalható';
+    notes.active.textContent='Érvényes foglalások';
+    notes.purchased.textContent='Megvásárolt ajándékok';
+  }catch(error){
+    if(requestId!==overviewRequestId)return;
+    console.error('Áttekintés statisztikai hiba:',error);
+    for(const key of Object.keys(fields)){fields[key].textContent='—';notes[key].textContent='Lekérési hiba';}
+  }
+}
+
 // Foglaláskezelés: kizárólag a szerveroldalon ellenőrzött admin RPC-ket hívjuk.
+
+
+
+
 
 
 
@@ -922,7 +1899,15 @@ const reservationList=document.getElementById('reservation-list');
 
 
 
+
+
+
+
 const reservationMessage=document.getElementById('reservation-message');
+
+
+
+
 
 
 
@@ -930,7 +1915,15 @@ const reservationSummary=document.getElementById('reservation-summary');
 
 
 
+
+
+
+
 const reservationFilter=document.getElementById('reservation-filter');
+
+
+
+
 
 
 
@@ -938,7 +1931,15 @@ const reservationSearch=document.getElementById('reservation-search');
 
 
 
+
+
+
+
 const reservationRefresh=document.getElementById('reservation-refresh');
+
+
+
+
 
 
 
@@ -946,7 +1947,15 @@ let reservationsCache=[];
 
 
 
+
+
+
+
 let reservationsLoading=false;
+
+
+
+
 
 
 
@@ -954,7 +1963,15 @@ let reservationsGeneration=0;
 
 
 
+
+
+
+
 function reservationFeedback(message,error=false){reservationMessage.textContent=message;reservationMessage.classList.toggle('error',error);}
+
+
+
+
 
 
 
@@ -962,23 +1979,47 @@ function reservationDate(value){if(!value)return '—';const d=new Date(value);r
 
 
 
+
+
+
+
 function reservationStatus(code){return ({active:'Aktív',reserved:'Lefoglalt',purchased:'Megvásárolt',cancelled:'Visszamondott',expired:'Lejárt'})[code]||code||'Ismeretlen';}
+
+
+
+
 
 
 
 function effectiveStatus(r){
 
+
+
   const items=Array.isArray(r.items)?r.items:[];
+
+
 
   // A teljesen megvásárolt foglalás nem jár le a kijelzőn.
 
+
+
   if(items.length && items.every(i=>i.status==='purchased'))return 'purchased';
+
+
 
   if(r.status==='active' && new Date(r.expires_at).getTime()<=Date.now())return 'expired';
 
+
+
   return r.status;
 
+
+
 }
+
+
+
+
 
 
 
@@ -986,7 +2027,15 @@ function elt(tag,className,textValue){const node=document.createElement(tag);if(
 
 
 
+
+
+
+
 function renderReservations(){
+
+
+
+
 
 
 
@@ -994,7 +2043,15 @@ function renderReservations(){
 
 
 
+
+
+
+
   const filter=reservationFilter.value;const search=reservationSearch.value.trim().toLocaleLowerCase('hu-HU');
+
+
+
+
 
 
 
@@ -1002,7 +2059,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     const items=Array.isArray(r.items)?r.items:[];
+
+
+
+
 
 
 
@@ -1010,7 +2075,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     const matchSearch=!search||[r.guest_name||'',...items.map(i=>i.name||'')].join(' ').toLocaleLowerCase('hu-HU').includes(search);
+
+
+
+
 
 
 
@@ -1018,7 +2091,15 @@ function renderReservations(){
 
 
 
+
+
+
+
   });
+
+
+
+
 
 
 
@@ -1026,7 +2107,15 @@ function renderReservations(){
 
 
 
+
+
+
+
   const purchased=reservationsCache.reduce((n,r)=>n+(r.items||[]).filter(i=>i.status==='purchased').length,0);
+
+
+
+
 
 
 
@@ -1034,7 +2123,15 @@ function renderReservations(){
 
 
 
+
+
+
+
   document.getElementById('reservation-count-active').textContent=String(active);
+
+
+
+
 
 
 
@@ -1042,7 +2139,15 @@ function renderReservations(){
 
 
 
+
+
+
+
   document.getElementById('reservation-count-expired').textContent=String(reservationsCache.filter(r=>effectiveStatus(r)==='expired').length);
+
+
+
+
 
 
 
@@ -1050,7 +2155,15 @@ function renderReservations(){
 
 
 
+
+
+
+
   if(!visible.length){const panel=elt('div','reservation-empty');panel.append(elt('span','', '📋'),elt('h3','', 'Nincs megjeleníthető foglalás'),elt('p','', 'Próbálj másik szűrőt vagy keresést.'));reservationList.append(panel);return;}
+
+
+
+
 
 
 
@@ -1058,7 +2171,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     const state=effectiveStatus(r);const card=elt('article','reservation-card');
+
+
+
+
 
 
 
@@ -1066,7 +2187,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     head.append(title,elt('span','reservation-badge status-'+state,reservationStatus(state)));card.append(head);
+
+
+
+
 
 
 
@@ -1074,7 +2203,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     const items=elt('div','reservation-items');
+
+
+
+
 
 
 
@@ -1082,7 +2219,15 @@ function renderReservations(){
 
 
 
+
+
+
+
       const line=elt('div','reservation-item');const detail=elt('div','reservation-item-detail');
+
+
+
+
 
 
 
@@ -1090,23 +2235,47 @@ function renderReservations(){
 
 
 
+
+
+
+
       const controls=elt('div','reservation-item-controls');      if(item.status==='reserved'&&state==='active'){
+
+
 
         const buy=elt('button','reservation-buy','✓ Megvásárolva');buy.type='button';buy.addEventListener('click',()=>changeReservation(r.id,item.id,'purchase',item.name));
 
+
+
         const release=elt('button','reservation-release','Feloldás');release.type='button';release.addEventListener('click',()=>changeReservation(r.id,item.id,'release',item.name));controls.append(buy,release);
+
+
 
       } else if(item.status==='purchased'){
 
+
+
         // Külön, jogosultság-ellenőrzött RPC: csak admin oldhat fel vásárolt terméket.
+
+
 
         const restore=elt('button','reservation-restore','Újra elérhetővé teszem');
 
+
+
         restore.type='button';restore.addEventListener('click',()=>changeReservation(r.id,item.id,'restore_purchased',item.name));
+
+
 
         controls.append(restore);
 
+
+
       }
+
+
+
+
 
 
 
@@ -1114,7 +2283,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     }
+
+
+
+
 
 
 
@@ -1122,7 +2299,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     if(r.delivery_mode){
+
+
+
+
 
 
 
@@ -1130,7 +2315,15 @@ function renderReservations(){
 
 
 
+
+
+
+
         ?`Csomagküldés: ${r.shipping_provider||'—'} – ${r.shipping_location_name||'—'} · ${r.shipping_address||'—'}`
+
+
+
+
 
 
 
@@ -1138,11 +2331,23 @@ function renderReservations(){
 
 
 
+
+
+
+
       card.append(elt('p','reservation-delivery',label));
 
 
 
+
+
+
+
     }
+
+
+
+
 
 
 
@@ -1150,7 +2355,15 @@ function renderReservations(){
 
 
 
+
+
+
+
       const footer=elt('div','reservation-card-actions');const all=elt('button','reservation-release','Összes hátralévő foglalás feloldása');all.type='button';all.addEventListener('click',()=>changeReservation(r.id,null,'release_all',r.guest_name||'Név nélküli foglalás'));footer.append(all);card.append(footer);
+
+
+
+
 
 
 
@@ -1158,7 +2371,15 @@ function renderReservations(){
 
 
 
+
+
+
+
     reservationList.append(card);
+
+
+
+
 
 
 
@@ -1166,7 +2387,15 @@ function renderReservations(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1174,11 +2403,23 @@ async function loadReservations(){
 
 
 
+
+
+
+
   if(reservationsLoading)return;
 
 
 
+
+
+
+
   if(!authClient||adminApp.hidden||!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1186,7 +2427,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
   try{
+
+
+
+
 
 
 
@@ -1194,7 +2443,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
     if(error)throw error;
+
+
+
+
 
 
 
@@ -1202,7 +2459,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
     reservationsCache=Array.isArray(data)?data:[];
+
+
+
+
 
 
 
@@ -1210,7 +2475,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
     if(deliveryError)throw deliveryError;
+
+
+
+
 
 
 
@@ -1218,7 +2491,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
     reservationsCache=reservationsCache.map(r=>({...r,...(deliveryMap.get(r.id)||{})}));
+
+
+
+
 
 
 
@@ -1226,7 +2507,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
   }catch(error){console.error('Foglaláslista hiba:',error);reservationFeedback('Nem sikerült betölteni a foglalásokat. Ellenőrizd, hogy az admin SQL telepítve van-e, és hogy van-e adminjogosultságod.',true);}
+
+
+
+
 
 
 
@@ -1234,7 +2523,15 @@ async function loadReservations(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1242,7 +2539,15 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
+
+
+
+
   if(!authClient||adminApp.hidden||!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1250,7 +2555,15 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
+
+
+
+
   if(!window.confirm(`Biztosan szeretnéd ${labels[action]} ezt: ${name}?`))return;
+
+
+
+
 
 
 
@@ -1258,7 +2571,15 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
+
+
+
+
   reservationFeedback('Módosítás folyamatban…');
+
+
+
+
 
 
 
@@ -1266,11 +2587,23 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
+
+
+
+
     const {data,error}=action==='restore_purchased'
+
+
 
       ? await authClient.rpc('admin_restore_purchased_gift',{p_reservation_id:reservationId,p_item_id:itemId})
 
+
+
       : await authClient.rpc('admin_manage_gift_reservation',{p_reservation_id:reservationId,p_item_id:itemId,p_action:action});
+
+
+
+
 
 
 
@@ -1278,7 +2611,15 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
+
+
+
+
     if(!data?.success)throw new Error('A műveletet a szerver nem erősítette meg.');
+
+
+
+
 
 
 
@@ -1286,7 +2627,15 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
-    await loadReservations();
+
+
+
+
+    await loadReservations();void loadOverviewStats();
+
+
+
+
 
 
 
@@ -1294,7 +2643,15 @@ async function changeReservation(reservationId,itemId,action,name){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1302,7 +2659,15 @@ reservationFilter.addEventListener('change',renderReservations);
 
 
 
+
+
+
+
 reservationSearch.addEventListener('input',renderReservations);
+
+
+
+
 
 
 
@@ -1318,7 +2683,23 @@ reservationRefresh.addEventListener('click',loadReservations);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Valódi terméklista és szerkesztés. Az adatbázis RLS-jogosultságai érvényesek.
+
+
+
+
 
 
 
@@ -1326,7 +2707,15 @@ let productsCache=[], selectedProductId=null, productsBusy=false;
 
 
 
+
+
+
+
 const productListEl=document.getElementById('products-list');
+
+
+
+
 
 
 
@@ -1334,7 +2723,15 @@ const productListMessage=document.getElementById('products-message');
 
 
 
+
+
+
+
 const productEditPanel=document.getElementById('product-edit-panel');
+
+
+
+
 
 
 
@@ -1342,7 +2739,15 @@ const productEditForm=document.getElementById('product-edit-form');
 
 
 
+
+
+
+
 const productsSearch=document.getElementById('products-search');
+
+
+
+
 
 
 
@@ -1350,7 +2755,15 @@ const productsFilter=document.getElementById('products-filter');
 
 
 
+
+
+
+
 function pmsg(message){productListMessage.textContent=message;}
+
+
+
+
 
 
 
@@ -1358,7 +2771,15 @@ function safeText(v){return String(v??'');}
 
 
 
+
+
+
+
 function categoryName(value){const el=[...document.getElementById('product-category').options].find(o=>o.value===value);return el?.textContent||value||'Egyéb';}
+
+
+
+
 
 
 
@@ -1366,7 +2787,15 @@ function fmtPrice(v){return Number(v||0).toLocaleString('hu-HU')+' Ft';}
 
 
 
+
+
+
+
 function renderProducts(){
+
+
+
+
 
 
 
@@ -1374,7 +2803,15 @@ function renderProducts(){
 
 
 
+
+
+
+
  const filtered=productsCache.filter(p=>(productsFilter.value==='all'||(productsFilter.value==='active' ? p.is_active===true : p.is_active!==true))&&
+
+
+
+
 
 
 
@@ -1382,7 +2819,15 @@ function renderProducts(){
 
 
 
+
+
+
+
  productListEl.replaceChildren();
+
+
+
+
 
 
 
@@ -1390,7 +2835,15 @@ function renderProducts(){
 
 
 
+
+
+
+
  if(!filtered.length){const el=document.createElement('p');el.textContent='Nincs a szűrésnek megfelelő termék.';productListEl.append(el);return;}
+
+
+
+
 
 
 
@@ -1398,7 +2851,15 @@ function renderProducts(){
 
 
 
+
+
+
+
   const card=document.createElement('article');card.className='admin-product-card';
+
+
+
+
 
 
 
@@ -1406,7 +2867,15 @@ function renderProducts(){
 
 
 
+
+
+
+
   const info=document.createElement('div');info.className='admin-product-info';
+
+
+
+
 
 
 
@@ -1414,7 +2883,15 @@ function renderProducts(){
 
 
 
+
+
+
+
   const meta=document.createElement('small');meta.textContent=`${safeText(categoryName(p.category))} · ${fmtPrice(p.price)} · ${p.is_active?'Megjelenített':'Elrejtett'}`;
+
+
+
+
 
 
 
@@ -1422,7 +2899,15 @@ function renderProducts(){
 
 
 
+
+
+
+
   const buttons=document.createElement('div');buttons.className='admin-product-buttons';
+
+
+
+
 
 
 
@@ -1430,7 +2915,15 @@ function renderProducts(){
 
 
 
+
+
+
+
   const visibility=document.createElement('button');visibility.type='button';visibility.textContent=p.is_active?'Elrejtés':'Megjelenítés';visibility.addEventListener('click',()=>toggleProduct(p));
+
+
+
+
 
 
 
@@ -1438,7 +2931,15 @@ function renderProducts(){
 
 
 
+
+
+
+
   buttons.append(edit,visibility,del);card.append(buttons);productListEl.append(card);
+
+
+
+
 
 
 
@@ -1446,7 +2947,15 @@ function renderProducts(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1454,7 +2963,15 @@ async function loadProducts(){
 
 
 
+
+
+
+
  if(!authClient||adminApp.hidden||!verifyIdle()||productsBusy)return;
+
+
+
+
 
 
 
@@ -1462,7 +2979,15 @@ async function loadProducts(){
 
 
 
+
+
+
+
  try{
+
+
+
+
 
 
 
@@ -1470,11 +2995,23 @@ async function loadProducts(){
 
 
 
+
+
+
+
   const {data,error}=await authClient.from('products').select('id,name,category,price,description,image_url,webshop_url,is_active').order('name',{ascending:true});
 
 
 
+
+
+
+
   if(error)throw error;
+
+
+
+
 
 
 
@@ -1482,7 +3019,15 @@ async function loadProducts(){
 
 
 
+
+
+
+
   productsCache=data||[];renderProducts();
+
+
+
+
 
 
 
@@ -1490,11 +3035,23 @@ async function loadProducts(){
 
 
 
+
+
+
+
  finally{productsBusy=false;}
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1502,7 +3059,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  const p=productsCache.find(x=>String(x.id)===String(id));if(!p)return;
+
+
+
+
 
 
 
@@ -1510,7 +3075,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  document.getElementById('edit-name').value=p.name||'';
+
+
+
+
 
 
 
@@ -1518,7 +3091,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  const categoryLabels=Object.fromEntries([...document.getElementById('product-category').options].filter(o=>o.value).map(o=>[o.value,o.textContent]));
+
+
+
+
 
 
 
@@ -1526,7 +3107,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  if(p.category)options.add(p.category);
+
+
+
+
 
 
 
@@ -1534,7 +3123,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  cat.value=p.category||'';
+
+
+
+
 
 
 
@@ -1542,7 +3139,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  document.getElementById('edit-description').value=p.description||'';
+
+
+
+
 
 
 
@@ -1550,7 +3155,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  document.getElementById('edit-webshop').value=p.webshop_url||'';
+
+
+
+
 
 
 
@@ -1558,7 +3171,15 @@ function editProduct(id){
 
 
 
+
+
+
+
  document.getElementById('edit-message').textContent='';
+
+
+
+
 
 
 
@@ -1566,7 +3187,15 @@ function editProduct(id){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1574,7 +3203,15 @@ document.getElementById('edit-cancel').addEventListener('click',()=>{productEdit
 
 
 
+
+
+
+
 function validateUrl(value){if(!value)return true;try{return ['http:','https:'].includes(new URL(value).protocol);}catch{return false;}}
+
+
+
+
 
 
 
@@ -1582,7 +3219,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  e.preventDefault();if(selectedProductId===null||!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1590,7 +3235,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  const payload={
+
+
+
+
 
 
 
@@ -1598,7 +3251,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  category:document.getElementById('edit-category').value,
+
+
+
+
 
 
 
@@ -1606,7 +3267,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  description:document.getElementById('edit-description').value.trim()||null,
+
+
+
+
 
 
 
@@ -1614,7 +3283,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  webshop_url:document.getElementById('edit-webshop').value.trim()||null,
+
+
+
+
 
 
 
@@ -1622,7 +3299,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  };
+
+
+
+
 
 
 
@@ -1630,7 +3315,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  if(!payload.name||!payload.category||!Number.isSafeInteger(price)||price<0||price>999999999||!validateUrl(payload.image_url)||!validateUrl(payload.webshop_url)){message.textContent='Ellenőrizd a kötelező mezőket, az árat és a linkeket.';return;}
+
+
+
+
 
 
 
@@ -1638,7 +3331,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  try{
+
+
+
+
 
 
 
@@ -1646,11 +3347,23 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
   if(error)throw error;
 
 
 
-  message.textContent='Sikeresen mentve.';productEditPanel.hidden=true;selectedProductId=null;await loadProducts();
+
+
+
+
+  message.textContent='Sikeresen mentve.';productEditPanel.hidden=true;selectedProductId=null;await loadProducts();void loadOverviewStats();
+
+
+
+
 
 
 
@@ -1658,7 +3371,15 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  finally{save.disabled=false;}
+
+
+
+
 
 
 
@@ -1666,11 +3387,23 @@ productEditForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
 async function toggleProduct(p){
 
 
 
+
+
+
+
  if(!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1678,7 +3411,15 @@ async function toggleProduct(p){
 
 
 
+
+
+
+
  if(!confirm(`Biztosan szeretnéd ${action} ezt az ajándékot?\n${p.name}`))return;
+
+
+
+
 
 
 
@@ -1686,15 +3427,31 @@ async function toggleProduct(p){
 
 
 
+
+
+
+
  if(error){alert('Nem sikerült módosítani: '+error.message);return;}
 
 
 
- await loadProducts();
+
+
+
+
+ await loadProducts();void loadOverviewStats();
+
+
+
+
 
 
 
 }
+
+
+
+
 
 
 
@@ -1702,7 +3459,15 @@ async function deleteProduct(p){
 
 
 
+
+
+
+
  if(!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1710,7 +3475,15 @@ async function deleteProduct(p){
 
 
 
+
+
+
+
  const {error}=await authClient.from('products').delete().eq('id',p.id);
+
+
+
+
 
 
 
@@ -1718,7 +3491,15 @@ async function deleteProduct(p){
 
 
 
- await loadProducts();
+
+
+
+
+ await loadProducts();void loadOverviewStats();
+
+
+
+
 
 
 
@@ -1726,11 +3507,23 @@ async function deleteProduct(p){
 
 
 
+
+
+
+
 productsSearch.addEventListener('input',renderProducts);
 
 
 
+
+
+
+
 productsFilter.addEventListener('change',renderProducts);
+
+
+
+
 
 
 
@@ -1742,7 +3535,19 @@ document.getElementById('products-refresh').addEventListener('click',loadProduct
 
 
 
+
+
+
+
+
+
+
+
 // v63: adatbázis-alapú kategóriakezelés.
+
+
+
+
 
 
 
@@ -1750,7 +3555,15 @@ let adminCategories=[];
 
 
 
+
+
+
+
 const catForm=document.getElementById('category-form');
+
+
+
+
 
 
 
@@ -1758,7 +3571,15 @@ const catList=document.getElementById('category-list');
 
 
 
+
+
+
+
 const catMessage=document.getElementById('category-message');
+
+
+
+
 
 
 
@@ -1766,7 +3587,15 @@ const catLabel=document.getElementById('category-label');
 
 
 
+
+
+
+
 const catEditId=document.getElementById('category-edit-id');
+
+
+
+
 
 
 
@@ -1774,7 +3603,15 @@ const catSave=document.getElementById('category-save');
 
 
 
+
+
+
+
 function catFeedback(msg,bad=false){catMessage.textContent=msg;catMessage.classList.toggle('error',bad);}
+
+
+
+
 
 
 
@@ -1782,7 +3619,15 @@ function resetCategoryForm(){catForm.reset();catEditId.value='';catSave.textCont
 
 
 
+
+
+
+
 document.getElementById('category-cancel').addEventListener('click',resetCategoryForm);
+
+
+
+
 
 
 
@@ -1790,7 +3635,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
  catList.replaceChildren();
+
+
+
+
 
 
 
@@ -1798,7 +3651,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
   const row=elt('div','category-admin-item');
+
+
+
+
 
 
 
@@ -1806,7 +3667,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
   const info=elt('div','category-admin-info');info.append(name,meta);
+
+
+
+
 
 
 
@@ -1814,7 +3683,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
   const edit=elt('button','','Átnevezés');edit.type='button';edit.addEventListener('click',()=>{catEditId.value=c.slug;catLabel.value=c.label;catSave.textContent='Név mentése';document.getElementById('category-cancel').hidden=false;catLabel.focus();});
+
+
+
+
 
 
 
@@ -1822,7 +3699,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
   del.addEventListener('click',async()=>{
+
+
+
+
 
 
 
@@ -1830,7 +3715,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
    const {count,error:countError}=await authClient.from('products').select('id',{count:'exact',head:true}).eq('category',c.slug);
+
+
+
+
 
 
 
@@ -1838,7 +3731,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
    if(count){catFeedback('A kategóriához '+count+' termék tartozik. Előbb helyezd át őket másik kategóriába.',true);return;}
+
+
+
+
 
 
 
@@ -1846,7 +3747,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
    if(error){catFeedback('Törlés sikertelen: '+error.message,true);return;}
+
+
+
+
 
 
 
@@ -1854,7 +3763,15 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
   });
+
+
+
+
 
 
 
@@ -1862,11 +3779,23 @@ function renderAdminCategories(){
 
 
 
+
+
+
+
  }
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1874,7 +3803,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
  if(!authClient||adminApp.hidden||!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1882,7 +3819,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
  if(error){catFeedback('A kategóriák nem tölthetők be. Először futtasd a mellékelt Supabase SQL-t. '+error.message,true);return;}
+
+
+
+
 
 
 
@@ -1890,7 +3835,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
  for(const select of [document.getElementById('product-category'),document.getElementById('edit-category')]){
+
+
+
+
 
 
 
@@ -1898,7 +3851,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
   if(select.id==='product-category'){const empty=new Option('Válassz kategóriát','');select.add(empty);}
+
+
+
+
 
 
 
@@ -1906,7 +3867,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
   if([...select.options].some(o=>o.value===current))select.value=current;
+
+
+
+
 
 
 
@@ -1914,7 +3883,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
  renderAdminCategories();catFeedback(adminCategories.length+' kategória betöltve.');
+
+
+
+
 
 
 
@@ -1922,7 +3899,15 @@ async function loadAdminCategories(){
 
 
 
+
+
+
+
 }
+
+
+
+
 
 
 
@@ -1930,7 +3915,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  e.preventDefault();if(!verifyIdle())return;
+
+
+
+
 
 
 
@@ -1938,7 +3931,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  if(adminCategories.some(c=>c.label.toLocaleLowerCase('hu')===label.toLocaleLowerCase('hu')&&c.slug!==catEditId.value)){catFeedback('Ilyen nevű kategória már létezik.',true);return;}
+
+
+
+
 
 
 
@@ -1946,7 +3947,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  try{
+
+
+
+
 
 
 
@@ -1954,7 +3963,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
   if(catEditId.value){({error}=await authClient.from('wishlist_categories').update({label}).eq('slug',catEditId.value));}
+
+
+
+
 
 
 
@@ -1962,7 +3979,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
-   const slug='cat\\_'+(globalThis.crypto?.randomUUID?.()||String(Date.now())+'\\_'+Math.floor(Math.random()*100000));
+
+
+
+
+   const slug='cat\\\\_'+(globalThis.crypto?.randomUUID?.()||String(Date.now())+'\\\\_'+Math.floor(Math.random()*100000));
+
+
+
+
 
 
 
@@ -1970,7 +3995,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
   }
+
+
+
+
 
 
 
@@ -1978,7 +4011,15 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
   resetCategoryForm();await loadAdminCategories();catFeedback('Sikeresen mentve.','');
+
+
+
+
 
 
 
@@ -1986,145 +4027,290 @@ catForm.addEventListener('submit',async e=>{
 
 
 
+
+
+
+
  finally{catSave.disabled=false;}
+
+
+
+
 
 
 
 });
 
 
+
+
+
 // Szállítási adatok admin kezelése – a nyilvános oldal shipping_locations táblájával.
+
 const shippingEditor = document.getElementById('shipping-editor');
+
 const shippingMessage = document.getElementById('shipping-message');
+
 const shippingRefresh = document.getElementById('shipping-refresh');
+
 let shippingBusy = false;
+
 let shippingRows = [];
+
 let shippingColumns = [];
+
 const shippingFields = {
-  provider: ['provider','carrier','service','code'],
-  name: ['location_name','name','pickup_name','automata_name'],
-  address: ['address','full_address','exact_address'],
-  identifier: ['location_code','automata_id','machine_id'],
-  notes: ['notes','extra_info','description'],
-  visible: ['is_visible','is_public','is_active','visible']
+
+  provider: ['provider','carrier','service','code'],
+
+  name: ['location_name','name','pickup_name','automata_name'],
+
+  address: ['address','full_address','exact_address'],
+
+  identifier: ['location_code','automata_id','machine_id'],
+
+  notes: ['notes','extra_info','description'],
+
+  visible: ['is_visible','is_public','is_active','visible']
+
 };
+
 function shippingColumn(kind) {
-  return shippingFields[kind].find(key => shippingColumns.includes(key)) || null;
+
+  return shippingFields[kind].find(key => shippingColumns.includes(key)) || null;
+
 }
+
 function shippingValue(row,kind) {
-  const key=shippingColumn(kind);
-  return key ? row[key] : '';
+
+  const key=shippingColumn(kind);
+
+  return key ? row[key] : '';
+
 }
+
 function shippingFeedback(message,bad=false) {
-  shippingMessage.textContent=message;
-  shippingMessage.classList.toggle('error',bad);
+
+  shippingMessage.textContent=message;
+
+  shippingMessage.classList.toggle('error',bad);
+
 }
+
 function shippingField(label,value,kind) {
-  const wrap=document.createElement('label');
-  wrap.textContent=label;
-  const control=kind==='notes'?document.createElement('textarea'):document.createElement('input');
-  if(kind!=='notes')control.type='text';
-  control.value=value==null?'':String(value);
-  control.dataset.shippingField=kind;
-  if(['provider','name','address'].includes(kind))control.required=true;
-  wrap.append(control);
-  return wrap;
+
+  const wrap=document.createElement('label');
+
+  wrap.textContent=label;
+
+  const control=kind==='notes'?document.createElement('textarea'):document.createElement('input');
+
+  if(kind!=='notes')control.type='text';
+
+  control.value=value==null?'':String(value);
+
+  control.dataset.shippingField=kind;
+
+  if(['provider','name','address'].includes(kind))control.required=true;
+
+  wrap.append(control);
+
+  return wrap;
+
 }
+
 function renderAdminShipping() {
-  shippingEditor.replaceChildren();
-  const canCreate=['provider','name','address'].every(k=>shippingColumn(k));
-  if(!canCreate) {
-    shippingFeedback('A shipping_locations tábla oszlopai nem azonosíthatók.',true);
-    return;
-  }
-  const names={gls:'GLS',foxpost:'FOXPOST',dpd:'DPD',emag:'eMAG',easybox:'eMAG'};
-  const order={gls:0,foxpost:1,dpd:2,emag:3,easybox:3};
-  const sorted=[...shippingRows].sort((a,b)=>{
-    const x=String(shippingValue(a,'provider')||'').toLowerCase();
-    const y=String(shippingValue(b,'provider')||'').toLowerCase();
-    return (order[x]??10)-(order[y]??10);
-  });
-  function addEditor(row,isNew) {
-    const provider=String(shippingValue(row,'provider')||'').toLowerCase();
-    const form=document.createElement('form');
-    form.className='shipping-location-card shipping-admin-form';
-    const head=document.createElement('div');head.className='shipping-location-heading';
-    const title=document.createElement('strong');
-    title.textContent=isNew?'＋ Új átvételi hely':(names[provider]||provider.toUpperCase()||'Átvételi hely');
-    const tag=document.createElement('small');tag.textContent=isNew?'Új hely hozzáadása':(provider==='emag'||provider==='easybox'?'easybox':provider==='dpd'?'Pickup pont':'Csomagautomata');
-    head.append(title,tag);form.append(head);
-    const fields=document.createElement('div');fields.className='shipping-fields';
-    for(const [kind,label,placeholder] of [
-      ['provider','Szállító','Pl. foxpost, gls, dpd, emag'],
-      ['name','Automata / átvételi hely neve','Pl. Budapest, bevásárlóközpont'],
-      ['address','Pontos cím','Irányítószám, település, utca, házszám'],
-      ['identifier','Automata azonosítója (ha van)','Pl. automata kódja'],
-      ['notes','Kiegészítő információ (opcionális)','Pl. bejárat mellett']
-    ]) {
-      if(!shippingColumn(kind))continue;
-      const field=shippingField(label,isNew?'':shippingValue(row,kind),kind);
-      const control=field.querySelector('input,textarea');control.placeholder=placeholder;
-      fields.append(field);
-    }
-    form.append(fields);
-    const footer=document.createElement('div');footer.className='shipping-location-actions';
-    if(shippingColumn('visible')) {
-      const label=document.createElement('label');label.className='shipping-visibility';
-      const cb=document.createElement('input');cb.type='checkbox';cb.dataset.shippingField='visible';
-      cb.checked=isNew?false:shippingValue(row,'visible')===true;
-      label.append(cb,document.createTextNode(' Megjelenjen a látogatóknak'));footer.append(label);
-    }
-    const actions=document.createElement('div');actions.className='shipping-card-buttons';
-    const save=document.createElement('button');save.type='submit';save.textContent=isNew?'Hozzáadás':'Mentés';actions.append(save);
-    if(!isNew){
-      const del=document.createElement('button');del.type='button';del.className='shipping-delete-button';del.textContent='Törlés';
-      del.addEventListener('click',async()=>{
-        if(!verifyIdle()||!confirm('Biztosan törlöd ezt az átvételi helyet?'))return;
-        del.disabled=true;
-        try{
-          const {error}=await authClient.from('shipping_locations').delete().eq('id',row.id);
-          if(error)throw error;
-          shippingFeedback('Átvételi hely törölve.');await loadAdminShipping();
-        }catch(e){shippingFeedback('Törlés sikertelen: '+e.message,true);del.disabled=false;}
-      });actions.append(del);
-    }
-    footer.append(actions);form.append(footer);
-    form.addEventListener('submit',async event=>{
-      event.preventDefault();if(!authClient||adminApp.hidden||!verifyIdle())return;
-      const payload={};
-      form.querySelectorAll('[data-shipping-field]').forEach(input=>{
-        const col=shippingColumn(input.dataset.shippingField);
-        if(col)payload[col]=input.type==='checkbox'?input.checked:input.value.trim();
-      });
-      save.disabled=true;shippingFeedback('Mentés folyamatban…');
-      try{
-        const query=authClient.from('shipping_locations');
-        const {error}=isNew?await query.insert(payload):await query.update(payload).eq('id',row.id);
-        if(error)throw error;
-        shippingFeedback('Sikeresen mentve.');await loadAdminShipping();
-      }catch(e){shippingFeedback('Mentés sikertelen: '+e.message+' (ellenőrizd a shipping_locations admin RLS-jogosultságait).',true);}
-      finally{save.disabled=false;}
-    });
-    shippingEditor.append(form);
-  }
-  for(const row of sorted)addEditor(row,false);
-  addEditor({},true);
+
+  shippingEditor.replaceChildren();
+
+  const canCreate=['provider','name','address'].every(k=>shippingColumn(k));
+
+  if(!canCreate) {
+
+    shippingFeedback('A shipping_locations tábla oszlopai nem azonosíthatók.',true);
+
+    return;
+
+  }
+
+  const names={gls:'GLS',foxpost:'FOXPOST',dpd:'DPD',emag:'eMAG',easybox:'eMAG'};
+
+  const order={gls:0,foxpost:1,dpd:2,emag:3,easybox:3};
+
+  const sorted=[...shippingRows].sort((a,b)=>{
+
+    const x=String(shippingValue(a,'provider')||'').toLowerCase();
+
+    const y=String(shippingValue(b,'provider')||'').toLowerCase();
+
+    return (order[x]??10)-(order[y]??10);
+
+  });
+
+  function addEditor(row,isNew) {
+
+    const provider=String(shippingValue(row,'provider')||'').toLowerCase();
+
+    const form=document.createElement('form');
+
+    form.className='shipping-location-card shipping-admin-form';
+
+    const head=document.createElement('div');head.className='shipping-location-heading';
+
+    const title=document.createElement('strong');
+
+    title.textContent=isNew?'＋ Új átvételi hely':(names[provider]||provider.toUpperCase()||'Átvételi hely');
+
+    const tag=document.createElement('small');tag.textContent=isNew?'Új hely hozzáadása':(provider==='emag'||provider==='easybox'?'easybox':provider==='dpd'?'Pickup pont':'Csomagautomata');
+
+    head.append(title,tag);form.append(head);
+
+    const fields=document.createElement('div');fields.className='shipping-fields';
+
+    for(const [kind,label,placeholder] of [
+
+      ['provider','Szállító','Pl. foxpost, gls, dpd, emag'],
+
+      ['name','Automata / átvételi hely neve','Pl. Budapest, bevásárlóközpont'],
+
+      ['address','Pontos cím','Irányítószám, település, utca, házszám'],
+
+      ['identifier','Automata azonosítója (ha van)','Pl. automata kódja'],
+
+      ['notes','Kiegészítő információ (opcionális)','Pl. bejárat mellett']
+
+    ]) {
+
+      if(!shippingColumn(kind))continue;
+
+      const field=shippingField(label,isNew?'':shippingValue(row,kind),kind);
+
+      const control=field.querySelector('input,textarea');control.placeholder=placeholder;
+
+      fields.append(field);
+
+    }
+
+    form.append(fields);
+
+    const footer=document.createElement('div');footer.className='shipping-location-actions';
+
+    if(shippingColumn('visible')) {
+
+      const label=document.createElement('label');label.className='shipping-visibility';
+
+      const cb=document.createElement('input');cb.type='checkbox';cb.dataset.shippingField='visible';
+
+      cb.checked=isNew?false:shippingValue(row,'visible')===true;
+
+      label.append(cb,document.createTextNode(' Megjelenjen a látogatóknak'));footer.append(label);
+
+    }
+
+    const actions=document.createElement('div');actions.className='shipping-card-buttons';
+
+    const save=document.createElement('button');save.type='submit';save.textContent=isNew?'Hozzáadás':'Mentés';actions.append(save);
+
+    if(!isNew){
+
+      const del=document.createElement('button');del.type='button';del.className='shipping-delete-button';del.textContent='Törlés';
+
+      del.addEventListener('click',async()=>{
+
+        if(!verifyIdle()||!confirm('Biztosan törlöd ezt az átvételi helyet?'))return;
+
+        del.disabled=true;
+
+        try{
+
+          const {error}=await authClient.from('shipping_locations').delete().eq('id',row.id);
+
+          if(error)throw error;
+
+          shippingFeedback('Átvételi hely törölve.');await loadAdminShipping();
+
+        }catch(e){shippingFeedback('Törlés sikertelen: '+e.message,true);del.disabled=false;}
+
+      });actions.append(del);
+
+    }
+
+    footer.append(actions);form.append(footer);
+
+    form.addEventListener('submit',async event=>{
+
+      event.preventDefault();if(!authClient||adminApp.hidden||!verifyIdle())return;
+
+      const payload={};
+
+      form.querySelectorAll('[data-shipping-field]').forEach(input=>{
+
+        const col=shippingColumn(input.dataset.shippingField);
+
+        if(col)payload[col]=input.type==='checkbox'?input.checked:input.value.trim();
+
+      });
+
+      save.disabled=true;shippingFeedback('Mentés folyamatban…');
+
+      try{
+
+        const query=authClient.from('shipping_locations');
+
+        const {error}=isNew?await query.insert(payload):await query.update(payload).eq('id',row.id);
+
+        if(error)throw error;
+
+        shippingFeedback('Sikeresen mentve.');await loadAdminShipping();
+
+      }catch(e){shippingFeedback('Mentés sikertelen: '+e.message+' (ellenőrizd a shipping_locations admin RLS-jogosultságait).',true);}
+
+      finally{save.disabled=false;}
+
+    });
+
+    shippingEditor.append(form);
+
+  }
+
+  for(const row of sorted)addEditor(row,false);
+
+  addEditor({},true);
+
 }
+
 async function loadAdminShipping() {
-  if(shippingBusy||!authClient||adminApp.hidden||!verifyIdle())return;
-  shippingBusy=true;shippingRefresh.disabled=true;
-  shippingFeedback('Átvételi helyek betöltése…');
-  try {
-    const {data,error}=await authClient.from('shipping_locations').select('*');
-    if(error)throw error;
-    shippingRows=Array.isArray(data)?data:[];
-    shippingColumns=shippingRows.length?Object.keys(shippingRows[0]):['id','provider','location_name','address','is_visible'];
-    renderAdminShipping();
-    if(shippingRows.length||!shippingMessage.classList.contains('error'))shippingFeedback('Átvételi helyek betöltve.');
-  }catch(e){
-    console.error('Szállítási adatok betöltési hiba:',e);
-    shippingFeedback('Nem sikerült betölteni az átvételi helyeket: '+e.message,true);
-    shippingEditor.textContent='Az adatbázis lekérése sikertelen.';
-  }finally{shippingBusy=false;shippingRefresh.disabled=false;}
+
+  if(shippingBusy||!authClient||adminApp.hidden||!verifyIdle())return;
+
+  shippingBusy=true;shippingRefresh.disabled=true;
+
+  shippingFeedback('Átvételi helyek betöltése…');
+
+  try {
+
+    const {data,error}=await authClient.from('shipping_locations').select('*');
+
+    if(error)throw error;
+
+    shippingRows=Array.isArray(data)?data:[];
+
+    shippingColumns=shippingRows.length?Object.keys(shippingRows[0]):['id','provider','location_name','address','is_visible'];
+
+    renderAdminShipping();
+
+    if(shippingRows.length||!shippingMessage.classList.contains('error'))shippingFeedback('Átvételi helyek betöltve.');
+
+  }catch(e){
+
+    console.error('Szállítási adatok betöltési hiba:',e);
+
+    shippingFeedback('Nem sikerült betölteni az átvételi helyeket: '+e.message,true);
+
+    shippingEditor.textContent='Az adatbázis lekérése sikertelen.';
+
+  }finally{shippingBusy=false;shippingRefresh.disabled=false;}
+
 }
+
 shippingRefresh.addEventListener('click',loadAdminShipping);
