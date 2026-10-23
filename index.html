@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=74">
-  <script src="script.js?v=74" defer></script>
+  <link rel="stylesheet" href="style.css?v=75">
+  <script src="script.js?v=75" defer></script>
 </head>
 <body>
   <div class="site-shell" id="top">
@@ -33,7 +33,7 @@
         <div class="categories" id="categories" aria-label="Ajándékkategóriák"></div>
         <div class="toolbar">
           <label class="search-wrap"><span aria-hidden="true">⌕</span><span class="sr-only">Keresés a kívánságlistában</span><input id="search" type="search" placeholder="Keresés a kívánságlistában..." autocomplete="off"></label>
-          <label class="sort-wrap"><span>☷</span><span class="sr-only">Rendezés</span><select id="sort"><option value="default">Rendezés</option><option value="price-asc">Ár: növekvő</option><option value="price-desc">Ár: csökkenő</option><option value="name">Név szerint</option><option value="available">Szabad ajándékok előre</option></select></label>
+          <label class="sort-wrap"><span>☷</span><span class="sr-only">Rendezés</span><select id="sort"><option value="newest" selected>Újak elöl</option><option value="price-asc">Ár: növekvő</option><option value="price-desc">Ár: csökkenő</option><option value="name">Név szerint</option><option value="available">Szabad ajándékok előre</option></select></label>
         </div>
         <p id="results" class="results" aria-live="polite"></p>
         <div id="product-grid" class="product-grid"></div>
@@ -48,6 +48,20 @@
     <section class="detail-dialog" role="dialog" aria-modal="true" aria-labelledby="detail-title" tabindex="-1">
       <button class="detail-close" type="button" aria-label="Bezárás" data-close-detail>×</button>
       <div id="detail-content"></div>
+    </section>
+  </div>
+  <div class="cart-guide-modal" id="cart-guide-modal" hidden>
+    <div class="cart-guide-backdrop" data-cart-guide-close></div>
+    <section class="cart-guide-dialog" role="dialog" aria-modal="true" aria-labelledby="cart-guide-title" tabindex="-1">
+      <button type="button" class="cart-guide-close" data-cart-guide-close aria-label="Bezárás">×</button>
+      <span class="cart-guide-ornament" aria-hidden="true">♡</span>
+      <p class="cart-guide-eyebrow">MIELŐTT LEFOGLALOD</p>
+      <h2 id="cart-guide-title">Egy kis útmutató az ajándékokhoz</h2>
+      <p>Az ajándékok kosárba helyezése még nem foglalás. A kosárban véglegesített foglalás <strong>7 napig érvényes</strong>, és csak arra szolgál, hogy mások is lássák: ezt az ajándékot már kiválasztottad.</p>
+      <p><strong>A tényleges vásárlást külön, a termékhez tartozó webshopban kell elvégezned.</strong> A foglalás önmagában nem rendelés és nem fizetés.</p>
+      <p>Ha sikerült megvásárolnod az ajándékot, kérünk, a <strong>„Foglalásaim”</strong> résznél jelöld <strong>„Megvásároltam”</strong> állapotúra. Ha meggondoltad magad, vagy nem sikerült a vásárlás, ott fel is oldhatod a foglalást.</p>
+      <p class="cart-guide-note">Ezzel segítesz, hogy mindenki az aktuális elérhetőséget lássa, és elkerüljük a dupla ajándékokat. Köszönjük! ♡</p>
+      <button type="button" class="cart-guide-accept" data-cart-guide-accept>Megértettem, tovább a kosárhoz</button>
     </section>
   </div>
   <div class="cart-modal" id="cart-modal" hidden>

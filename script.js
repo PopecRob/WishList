@@ -43,13 +43,13 @@ function normalizeProduct(p){
   const url=typeof p.webshop_url==='string'&&/^https?:\/\//i.test(p.webshop_url)?p.webshop_url:'';
   const image=typeof p.image_url==='string'&&/^https?:\/\//i.test(p.image_url)?p.image_url:'';
   return {id:String(p.id),name:String(p.name||''),description:String(p.description||''),
-    price:Number(p.price)||0,category,status:'available',emoji,image,url};
+    createdAt:String(p.created_at||''),price:Number(p.price)||0,category,status:'available',emoji,image,url};
 }
 async function loadProducts(){
   const results=document.getElementById('results');
   results.textContent='Ajándékok betöltése…';
   try{
-    const response=await fetch(`${SUPABASE_URL}/rest/v1/products?select=id,name,description,price,category,image_url,webshop_url&is_active=eq.true&order=created_at.asc`,{
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/products?select=id,name,description,price,category,image_url,webshop_url,created_at&is_active=eq.true&order=created_at.desc`,{
       headers:{apikey:SUPABASE_PUBLISHABLE_KEY}
     });
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
@@ -68,8 +68,15 @@ async function loadProducts(){
     document.getElementById('empty-state').hidden=true;
   }
 }
-const state = {category:'all',query:'',sort:'default',favorites:new Set()};
+const state = {category:'all',query:'',sort:'newest',favorites:new Set()};
 // A kosár csak ebben a böngészőben tárolódik. Nem foglal le semmit.
+const NEW_GIFTS_SINCE=Date.parse('2026-10-23T11:38:00Z');
+const VIEWED_GIFTS_KEY='nimrod-viewed-gifts-v1';
+const CART_GUIDE_KEY='nimrod-cart-guide-ack-v1';
+function readViewedGifts(){try{const stored=JSON.parse(localStorage.getItem(VIEWED_GIFTS_KEY)||'[]');return new Set(Array.isArray(stored)?stored.filter(id=>typeof id==='string'):[]);}catch{return new Set();}}
+const viewedGifts=readViewedGifts();
+function isNewGift(p){const date=Date.parse(p.createdAt);return Number.isFinite(date)&&date>=NEW_GIFTS_SINCE&&!viewedGifts.has(p.id);}
+function markGiftViewed(id){if(viewedGifts.has(id))return;viewedGifts.add(id);try{localStorage.setItem(VIEWED_GIFTS_KEY,JSON.stringify([...viewedGifts]));}catch{}renderProducts();}
 const CART_KEY='nimrod-wishlist-supabase-cart-v43';
 function readCart(){try{const stored=JSON.parse(localStorage.getItem(CART_KEY)||'[]');return new Set(Array.isArray(stored)?stored.filter(id=>typeof id==='string'):[]);}catch{return new Set();}}
 const cart=readCart();
@@ -85,7 +92,8 @@ function renderCategories(){
 }
 function renderProducts(){
   let filtered=products.filter(p=>(state.category==='all'||p.category===state.category)&&`${p.name} ${p.description}`.toLocaleLowerCase('hu-HU').includes(state.query));
-  if(state.sort==='price-asc')filtered.sort((a,b)=>a.price-b.price);
+  if(state.sort==='newest')filtered.sort((a,b)=>Date.parse(b.createdAt||0)-Date.parse(a.createdAt||0));
+  if(state.sort==='price-asc')filtered.sort((a,b)=>a.price-b.price);
   if(state.sort==='price-desc')filtered.sort((a,b)=>b.price-a.price);
   if(state.sort==='name')filtered.sort((a,b)=>a.name.localeCompare(b.name,'hu'));
   if(state.sort==='available')filtered.sort((a,b)=>(a.status==='available'?0:1)-(b.status==='available'?0:1));
@@ -94,7 +102,7 @@ function renderProducts(){
   grid.innerHTML=filtered.map(p=>{
     const reserved=p.status==='reserved';const preordered=p.status==='preordered';
     const statusText=reserved?'Foglalt':preordered?'Félretéve':'Szabad';
-    return `<article class="product-card" data-product="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.name)} részleteinek megtekintése"><div class="product-image"><span class="product-placeholder" aria-hidden="true">${p.emoji}</span>${p.image?`<img class="product-photo" src="${p.image}" alt="" loading="lazy" onerror="this.remove()">`:``}<button type="button" class="favorite" data-favorite="${p.id}" aria-pressed="${state.favorites.has(p.id)}" aria-label="${state.favorites.has(p.id)?'Eltávolítás a kedvencekből':'Kedvencekhez adás'}: ${escapeHtml(p.name)}">${state.favorites.has(p.id)?'♥':'♡'}</button></div><div class="product-body"><h3 class="product-name">${escapeHtml(p.name)}</h3><p class="product-description">${escapeHtml(p.description)}</p><p class="price">${money(p.price)}</p><button class="product-button product-cart-button" type="button" data-cart-add="${p.id}" ${p.status!=='available'?'disabled title="Ez az ajándék jelenleg nem elérhető"':''}>${p.status!=='available'?'Nem elérhető':cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button><div class="status ${reserved?'reserved':preordered?'preordered':''}"><span aria-hidden="true">🎁</span>${statusText}</div></div></article>`;
+    return `<article class="product-card" data-product="${p.id}" tabindex="0" role="button" aria-label="${escapeHtml(p.name)} részleteinek megtekintése"><div class="product-image">${isNewGift(p)?`<span class="new-gift-badge">✦ ÚJ</span>`:''}<span class="product-placeholder" aria-hidden="true">${p.emoji}</span>${p.image?`<img class="product-photo" src="${p.image}" alt="" loading="lazy" onerror="this.remove()">`:``}<button type="button" class="favorite" data-favorite="${p.id}" aria-pressed="${state.favorites.has(p.id)}" aria-label="${state.favorites.has(p.id)?'Eltávolítás a kedvencekből':'Kedvencekhez adás'}: ${escapeHtml(p.name)}">${state.favorites.has(p.id)?'♥':'♡'}</button></div><div class="product-body"><h3 class="product-name">${escapeHtml(p.name)}</h3><p class="product-description">${escapeHtml(p.description)}</p><p class="price">${money(p.price)}</p><button class="product-button product-cart-button" type="button" data-cart-add="${p.id}" ${p.status!=='available'?'disabled title="Ez az ajándék jelenleg nem elérhető"':''}>${p.status!=='available'?'Nem elérhető':cart.has(p.id)?'✓ Kosárban – eltávolítom':'🛒 Kosárba teszem'}</button><div class="status ${reserved?'reserved':preordered?'preordered':''}"><span aria-hidden="true">🎁</span>${statusText}</div></div></article>`;
   }).join('');
 }
 categoryContainer.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;state.category=button.dataset.category;renderCategories();renderProducts();});
@@ -126,6 +134,7 @@ function openProductDetail(id,keepFocus=false){
   const p=products.find(item=>item.id===id);if(!p)return;
   if(!keepFocus)detailReturnFocus=document.activeElement;
   detailContent.dataset.productId=String(id);
+  if(!keepFocus)markGiftViewed(String(id));
   const cat=categories.find(item=>item.id===p.category);
   const statusText=p.status==='reserved'?'Foglalt':p.status==='preordered'?'Félretéve':'Szabad';
   const statusClass=p.status==='reserved'?'reserved':p.status==='preordered'?'preordered':'';
@@ -188,9 +197,17 @@ function renderCart(){
   if(!selected.length)closeCartReservationPreview();
 }
 function closeCartReservationPreview(){document.getElementById('cart-reservation-preview').hidden=true;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','false');}
+const cartGuide=document.getElementById('cart-guide-modal');
+const cartGuideDialog=cartGuide.querySelector('.cart-guide-dialog');
+let cartGuideReturnFocus=null;
+function closeCartGuide(){if(cartGuide.hidden)return;cartGuide.hidden=true;document.body.classList.remove('cart-guide-open');if(cartGuideReturnFocus?.isConnected)cartGuideReturnFocus.focus();}
+function requestCartOpen(){if(localStorage.getItem(CART_GUIDE_KEY)==='yes'){openCart();return;}cartGuideReturnFocus=document.activeElement;cartGuide.hidden=false;document.body.classList.add('cart-guide-open');cartGuideDialog.focus();}
+cartGuide.querySelector('[data-cart-guide-accept]').addEventListener('click',()=>{try{localStorage.setItem(CART_GUIDE_KEY,'yes');}catch{}closeCartGuide();openCart();});
+cartGuide.querySelectorAll('[data-cart-guide-close]').forEach(button=>button.addEventListener('click',closeCartGuide));
+document.addEventListener('keydown',event=>{if(cartGuide.hidden)return;if(event.key==='Escape'){event.preventDefault();closeCartGuide();}if(event.key==='Tab'){const buttons=[...cartGuide.querySelectorAll('button')];if(!buttons.length)return;const first=buttons[0],last=buttons[buttons.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
 function openCart(){if(!detailModal.hidden)closeProductDetail();cartReturnFocus=document.activeElement;renderCart();cartModal.hidden=false;cartModal.removeAttribute('hidden');document.body.classList.add('cart-open');cartPanel.focus();}
 function closeCart(){if(cartModal.hidden)return;closeCartReservationPreview();cartModal.hidden=true;document.body.classList.remove('cart-open');if(cartReturnFocus?.isConnected)cartReturnFocus.focus();}
-document.getElementById('floating-cart').addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openCart();});
+document.getElementById('floating-cart').addEventListener('click',event=>{event.preventDefault();event.stopPropagation();requestCartOpen();});
 document.getElementById('cart-continue').addEventListener('click',closeCart);
 document.getElementById('cart-reserve-all').addEventListener('click',()=>{const selected=products.filter(p=>cart.has(p.id)&&p.status==='available');if(!selected.length)return;document.getElementById('cart-reservation-summary').textContent=`${selected.length} ajándék, összesen ${money(selected.reduce((sum,p)=>sum+p.price,0))}. A megerősítés után mindegyik 7 napra foglalttá válik.`;document.getElementById('cart-reserve-confirm').disabled=false;document.getElementById('cart-reservation-preview').hidden=false;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','true');document.getElementById('cart-reservation-preview').scrollIntoView({block:'nearest',behavior:'smooth'});});
 // Szállítási választás: csak a címeket közöljük, személyes adatot nem kérünk.
