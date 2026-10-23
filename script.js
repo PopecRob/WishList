@@ -278,6 +278,8 @@ function openProductDetail(id,keepFocus=false){
 
     <p class="detail-description" id="detail-product-description">${escapeHtml(p.description)}</p>
 
+
+
     ${p.description.trim().length>180?`<button type="button" class="detail-description-toggle" id="detail-description-toggle" aria-expanded="false" aria-controls="detail-product-description">Teljes leírás megjelenítése ↓</button>`:''}
 
     <p class="detail-price">${money(p.price)}</p>
@@ -298,17 +300,31 @@ function openProductDetail(id,keepFocus=false){
 
   if(detailCartButton)detailCartButton.addEventListener('click',()=>toggleCartItem(p.id));
 
+
+
   const descriptionToggle=detailContent.querySelector('#detail-description-toggle');
+
+
 
   if(descriptionToggle)descriptionToggle.addEventListener('click',()=>{
 
+
+
     const description=detailContent.querySelector('#detail-product-description');
+
+
 
     const expanded=description.classList.toggle('is-expanded');
 
+
+
     descriptionToggle.setAttribute('aria-expanded',String(expanded));
 
+
+
     descriptionToggle.textContent=expanded?'Leírás összecsukása ↑':'Teljes leírás megjelenítése ↓';
+
+
 
   });
 
@@ -388,166 +404,87 @@ document.getElementById('cart-continue').addEventListener('click',closeCart);
 
 document.getElementById('cart-reserve-all').addEventListener('click',()=>{const selected=products.filter(p=>cart.has(p.id)&&p.status==='available');if(!selected.length)return;document.getElementById('cart-reservation-summary').textContent=`${selected.length} ajándék, összesen ${money(selected.reduce((sum,p)=>sum+p.price,0))}. A megerősítés után mindegyik 7 napra foglalttá válik.`;document.getElementById('cart-reserve-confirm').disabled=false;document.getElementById('cart-reservation-preview').hidden=false;document.getElementById('cart-reserve-all').setAttribute('aria-expanded','true');document.getElementById('cart-reservation-preview').scrollIntoView({block:'nearest',behavior:'smooth'});});
 
+
 // Szállítási választás: csak a címeket közöljük, személyes adatot nem kérünk.
-
 // A Supabase-ben tárolt publikus átvételi helyeket olvassuk, nem adminjoggal.
-
 const SHIPPING_TABLE='shipping_locations';
-
 let shippingLocations=[];
-
 let selectedShippingLocation=null;
-
 let selectedDeliveryMode='personal';
-
 const shippingStyle=document.createElement('style');
-
 shippingStyle.textContent=`
-
 #delivery-options{margin:17px 0;padding:16px;border:1px solid #dfcdb8;border-radius:14px;background:#fffaf4;color:#554536}
-
 #delivery-options h4{margin:0 0 9px;font-size:1.05rem}
-
 .delivery-choices{display:flex;flex-wrap:wrap;gap:10px;margin:9px 0 12px}
-
 .delivery-choices label{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.92rem}
-
 #shipping-addresses{display:grid;gap:9px;margin-top:9px}
-
 .shipping-address{border:1px solid #e0d1bf;border-radius:10px;padding:11px;background:#fff}
-
 .shipping-address strong{display:block;margin-bottom:4px}
-
 .shipping-address p{margin:3px 0;line-height:1.5;overflow-wrap:anywhere}
-
 .shipping-address button{margin-top:8px;background:#9d7555;color:#fff;border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
-
 #delivery-options .shipping-hint{font-size:.84rem;line-height:1.5;margin:7px 0}
-
 `;
-
 document.head.appendChild(shippingStyle);
-
 const deliveryOptions=document.createElement('section');
-
 deliveryOptions.id='delivery-options';
-
 deliveryOptions.innerHTML=`<h4>Hogyan szeretnéd átadni az ajándékot?</h4>
-
 <div class="delivery-choices"><label><input type="radio" name="delivery-mode" value="personal" checked> Személyesen adom át</label><label><input type="radio" name="delivery-mode" value="shipping"> Elküldöm a csomagot</label></div>
-
 <div id="shipping-details" hidden><p class="shipping-hint">Válaszd ki a csomagautomatát, majd másold ki a címet a webshop rendelési felületére. A webshopban a saját adataidat te adod meg.</p><div id="shipping-addresses" aria-live="polite">Csomagautomaták betöltése…</div></div>
-
 <p class="shipping-hint">A szállítási mód kiválasztása tájékoztató jellegű; a tényleges szállítást a webshopban kell intézni.</p>`;
-
 const reservationWarning=document.querySelector('#cart-reservation-preview .cart-reservation-warning');
-
 if(reservationWarning)reservationWarning.before(deliveryOptions);
-
 else document.getElementById('cart-reservation-preview').appendChild(deliveryOptions);
-
 const shippingDetails=document.getElementById('shipping-details');
-
 const shippingAddresses=document.getElementById('shipping-addresses');
-
 deliveryOptions.addEventListener('change',e=>{
-
  if(e.target.name!=='delivery-mode')return;
-
  selectedDeliveryMode=e.target.value;
-
  shippingDetails.hidden=selectedDeliveryMode!=='shipping';
-
  if(selectedDeliveryMode==='shipping')void loadShippingLocations();else selectedShippingLocation=null;
-
 });
-
 function cleanShippingRow(row){
-
  const provider=String(row.provider||row.carrier||row.service||row.code||'Csomagautomata');
-
  const name=String(row.location_name||row.name||row.pickup_name||row.automata_name||'Átvételi hely');
-
  const address=String(row.address||row.full_address||row.exact_address||'');
-
  const identifier=String(row.location_code||row.automata_id||row.machine_id||'');
-
  const extra=String(row.notes||row.extra_info||row.description||'');
-
  return {id:String(row.id||provider+name),provider,name,address,identifier,extra};
-
 }
-
 function renderShippingLocations(){
-
  shippingAddresses.replaceChildren();
-
  if(!shippingLocations.length){shippingAddresses.textContent='Jelenleg nincs megjeleníthető csomagautomata. A foglalás ettől még lehetséges.';return;}
-
  for(const place of shippingLocations){
-
   const card=document.createElement('div');card.className='shipping-address';
-
   const title=document.createElement('strong');title.textContent=place.provider+' – '+place.name;card.appendChild(title);
-
   const addr=document.createElement('p');addr.textContent=place.address;card.appendChild(addr);
-
   if(place.identifier){const code=document.createElement('p');code.textContent='Automata azonosítója: '+place.identifier;card.appendChild(code);}
-
   if(place.extra){const extra=document.createElement('p');extra.textContent=place.extra;card.appendChild(extra);}
-
   const select=document.createElement('label');select.style.display='block';select.style.marginTop='8px';
-
   const radio=document.createElement('input');radio.type='radio';radio.name='selected-shipping-provider';radio.value=place.provider;
-
   radio.checked=selectedShippingLocation?.provider===place.provider;
-
   radio.addEventListener('change',()=>{selectedShippingLocation=place;});
-
   select.append(radio,document.createTextNode(' Ezt az automatát választom'));card.appendChild(select);
-
   const button=document.createElement('button');button.type='button';button.textContent='Cím másolása';
-
   button.addEventListener('click',async()=>{
-
    const text=[place.provider+' – '+place.name,place.address,place.identifier?'Automata: '+place.identifier:'',place.extra].filter(Boolean).join('\n');
-
    try{await navigator.clipboard.writeText(text);selectedShippingLocation=place;button.textContent='✓ Cím kimásolva';}
-
    catch{const field=document.createElement('textarea');field.value=text;field.readOnly=true;card.appendChild(field);field.select();button.textContent='Jelöld ki és másold a címet';}
-
   });card.appendChild(button);shippingAddresses.appendChild(card);
-
  }
-
 }
-
 let shippingLoadPromise=null;
-
 async function loadShippingLocations(){
-
  if(shippingLoadPromise)return shippingLoadPromise;
-
  shippingLoadPromise=(async()=>{
-
   try{
-
    const response=await fetch(`${SUPABASE_URL}/rest/v1/${SHIPPING_TABLE}?select=*`,{headers:{apikey:SUPABASE_PUBLISHABLE_KEY}});
-
    if(!response.ok)throw new Error(`HTTP ${response.status}`);
-
    const rows=await response.json();
-
    shippingLocations=(Array.isArray(rows)?rows:[]).filter(r=>r.is_visible===true||r.is_public===true||r.is_active===true||r.visible===true).map(cleanShippingRow).filter(r=>r.address);
-
    renderShippingLocations();
-
   }catch(err){console.warn('Szállítási helyek lekérése:',err);shippingAddresses.textContent='A csomagautomaták most nem érhetők el. A foglalás ettől még működik.';}
-
  })();
-
  return shippingLoadPromise;
-
 }
 
 document.getElementById('cart-reserve-cancel').addEventListener('click',closeCartReservationPreview);
@@ -621,7 +558,6 @@ async function submitReservation(ids,name,button,feedback){
   if(!ids.length){feedback.textContent='Nincs foglalható ajándék kiválasztva.';return;}
 
   if(selectedDeliveryMode==='shipping'&&!selectedShippingLocation){feedback.textContent='Válaszd ki a csomagautomatát a foglalás előtt.';return;}
-
   reservationBusy=true;button.disabled=true;feedback.textContent='Foglalás feldolgozása…';
 
   try{
@@ -717,27 +653,16 @@ manageStyles.textContent=`
 .own-reservation-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
 #own-reservations-dialog button[data-own-purchase]{
-
   display:inline-flex;align-items:center;justify-content:center;
-
   margin:5px 0 3px 6px;padding:10px 16px;
-
   border:1px solid #91663f;border-radius:11px;
-
   background:linear-gradient(120deg,#b78b5b,#947049);
-
   color:#fff;font:700 13px/1.3 inherit;cursor:pointer;
-
   box-shadow:0 4px 12px #8e694b35;
-
 }
-
 #own-reservations-dialog button[data-own-purchase]:hover{filter:brightness(.94)}
-
 #own-reservations-dialog button[data-own-purchase]:focus-visible{outline:3px solid #c59b69;outline-offset:2px}
-
 #own-reservations-dialog button[data-own-purchase]:disabled{opacity:.55;cursor:wait}
-
 .own-reservation-actions button,#own-reservations-close{border:1px solid #c8b39a;border-radius:9px;padding:9px 13px;background:#f0e2ce;color:#4e3e30;cursor:pointer;font:inherit}
 
 .own-reservation-actions button:disabled{opacity:.5;cursor:wait}
@@ -746,7 +671,7 @@ manageStyles.textContent=`
 
 .own-reservation-feedback{margin:8px 0 0;font-size:.93rem}
 
-/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/
+/\\\\\\\\\\\\\\\\\\\\* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő \\\\\\\\\\\\\\\\\\\\*/
 
 @media (max-width:650px){
 
@@ -997,15 +922,10 @@ document.addEventListener('keydown',e=>{
 });
 
 function saveOwnReservationServerItems(reservationId,info){
-
   if(!Array.isArray(info?.items))return;
-
   const records=readOwnReservations();
-
   const found=records.find(r=>r.reservation_id===reservationId);
-
   if(found){found.server_items=info.items;writeOwnReservations(records);}
-
 }
 
 async function requestOwnReservation(action,record,productId=null){
@@ -1077,21 +997,13 @@ manageList.addEventListener('click',async e=>{
     let result;
 
     if(purchasing){
-
       const productId=button.dataset.productId;
-
       result=await requestOwnReservation('purchase',record,productId);
-
       const updated=await requestOwnReservation('get',record);
-
       saveOwnReservationServerItems(record.reservation_id,updated.reservation||updated);
-
       showOwnReservations();
-
       await loadProducts().catch(()=>{});
-
       return;
-
     }
 
     try{
@@ -1151,9 +1063,7 @@ manageList.addEventListener('click',async e=>{
       }else{
 
         showOwnReservations();
-
         const current=manageList.querySelector(`[data-own-index="${index}"] .own-reservation-feedback`);
-
         if(current)current.textContent=`Aktuális állapot: ${ownReservationStatusLabel(status)}.`;
 
       }
@@ -1171,6 +1081,8 @@ manageList.addEventListener('click',async e=>{
   }
 
 });
+
+
 
 // v63: kategóriák Supabase-ből, a meglévő illusztrációk megtartásával.
 

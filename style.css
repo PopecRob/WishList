@@ -160,7 +160,7 @@
 
   right: auto;
 
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\\://www.w3.org/2000/svg' viewBox='0 0 350 650'%3E%3Cg opacity='.58'%3E%3Cpath d='M-35 -15 Q175 170 -20 380 M-35 340 Q180 480 -20 675' stroke='%237f9b7c' stroke-width='4' fill='none'/%3E%3Cg fill='%2398b094'%3E%3Cellipse cx='52' cy='75' rx='40' ry='96' transform='rotate(-48 52 75)'/%3E%3Cellipse cx='151' cy='162' rx='34' ry='84' transform='rotate(48 151 162)'/%3E%3Cellipse cx='31' cy='246' rx='48' ry='104' transform='rotate(-40 31 246)'/%3E%3Cellipse cx='120' cy='340' rx='33' ry='77' transform='rotate(47 120 340)'/%3E%3Cellipse cx='40' cy='450' rx='46' ry='98' transform='rotate(-47 40 450)'/%3E%3Cellipse cx='145' cy='532' rx='34' ry='84' transform='rotate(47 145 532)'/%3E%3Cellipse cx='22' cy='619' rx='45' ry='94' transform='rotate(-42 22 619)'/%3E%3C/g%3E%3Cg fill='%23c6b99a' opacity='.65'%3E%3Cellipse cx='212' cy='253' rx='24' ry='58' transform='rotate(50 212 253)'/%3E%3Cellipse cx='213' cy='580' rx='24' ry='56' transform='rotate(45 213 580)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\://www.w3.org/2000/svg' viewBox='0 0 350 650'%3E%3Cg opacity='.58'%3E%3Cpath d='M-35 -15 Q175 170 -20 380 M-35 340 Q180 480 -20 675' stroke='%237f9b7c' stroke-width='4' fill='none'/%3E%3Cg fill='%2398b094'%3E%3Cellipse cx='52' cy='75' rx='40' ry='96' transform='rotate(-48 52 75)'/%3E%3Cellipse cx='151' cy='162' rx='34' ry='84' transform='rotate(48 151 162)'/%3E%3Cellipse cx='31' cy='246' rx='48' ry='104' transform='rotate(-40 31 246)'/%3E%3Cellipse cx='120' cy='340' rx='33' ry='77' transform='rotate(47 120 340)'/%3E%3Cellipse cx='40' cy='450' rx='46' ry='98' transform='rotate(-47 40 450)'/%3E%3Cellipse cx='145' cy='532' rx='34' ry='84' transform='rotate(47 145 532)'/%3E%3Cellipse cx='22' cy='619' rx='45' ry='94' transform='rotate(-42 22 619)'/%3E%3C/g%3E%3Cg fill='%23c6b99a' opacity='.65'%3E%3Cellipse cx='212' cy='253' rx='24' ry='58' transform='rotate(50 212 253)'/%3E%3Cellipse cx='213' cy='580' rx='24' ry='56' transform='rotate(45 213 580)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
 }
 
@@ -170,7 +170,7 @@
 
   left: auto;
 
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\\://www.w3.org/2000/svg' viewBox='0 0 350 650'%3E%3Cg transform='translate(350 0) scale(-1 1)'%3E%3Cg opacity='.58'%3E%3Cpath d='M-35 -15 Q175 170 -20 380 M-35 340 Q180 480 -20 675' stroke='%237f9b7c' stroke-width='4' fill='none'/%3E%3Cg fill='%2398b094'%3E%3Cellipse cx='52' cy='75' rx='40' ry='96' transform='rotate(-48 52 75)'/%3E%3Cellipse cx='151' cy='162' rx='34' ry='84' transform='rotate(48 151 162)'/%3E%3Cellipse cx='31' cy='246' rx='48' ry='104' transform='rotate(-40 31 246)'/%3E%3Cellipse cx='120' cy='340' rx='33' ry='77' transform='rotate(47 120 340)'/%3E%3Cellipse cx='40' cy='450' rx='46' ry='98' transform='rotate(-47 40 450)'/%3E%3Cellipse cx='145' cy='532' rx='34' ry='84' transform='rotate(47 145 532)'/%3E%3Cellipse cx='22' cy='619' rx='45' ry='94' transform='rotate(-42 22 619)'/%3E%3C/g%3E%3Cg fill='%23c6b99a' opacity='.65'%3E%3Cellipse cx='212' cy='253' rx='24' ry='58' transform='rotate(50 212 253)'/%3E%3Cellipse cx='213' cy='580' rx='24' ry='56' transform='rotate(45 213 580)'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http\\://www.w3.org/2000/svg' viewBox='0 0 350 650'%3E%3Cg transform='translate(350 0) scale(-1 1)'%3E%3Cg opacity='.58'%3E%3Cpath d='M-35 -15 Q175 170 -20 380 M-35 340 Q180 480 -20 675' stroke='%237f9b7c' stroke-width='4' fill='none'/%3E%3Cg fill='%2398b094'%3E%3Cellipse cx='52' cy='75' rx='40' ry='96' transform='rotate(-48 52 75)'/%3E%3Cellipse cx='151' cy='162' rx='34' ry='84' transform='rotate(48 151 162)'/%3E%3Cellipse cx='31' cy='246' rx='48' ry='104' transform='rotate(-40 31 246)'/%3E%3Cellipse cx='120' cy='340' rx='33' ry='77' transform='rotate(47 120 340)'/%3E%3Cellipse cx='40' cy='450' rx='46' ry='98' transform='rotate(-47 40 450)'/%3E%3Cellipse cx='145' cy='532' rx='34' ry='84' transform='rotate(47 145 532)'/%3E%3Cellipse cx='22' cy='619' rx='45' ry='94' transform='rotate(-42 22 619)'/%3E%3C/g%3E%3Cg fill='%23c6b99a' opacity='.65'%3E%3Cellipse cx='212' cy='253' rx='24' ry='58' transform='rotate(50 212 253)'/%3E%3Cellipse cx='213' cy='580' rx='24' ry='56' transform='rotate(45 213 580)'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 
 }
 
@@ -220,7 +220,7 @@
 
 .categories{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:11px;margin:18px 0 20px}
 
-.category{appearance:none;min-width:0;min-height:116px;padding:10px 5px 11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(155,166,135,.43);border-radius:17px;background:linear-gradient(155deg,rgba(255,253,246,.97),rgba(237,240,226,.94));box-shadow:0 6px 17px rgba(75,85,60,.11),inset 0 1px 0 rgba(255,255,255,.94);color:#694a32;cursor:pointer;transition:transform .18s,box-shadow .18s,background* .18s}
+.category{appearance:none;min-width:0;min-height:116px;padding:10px 5px 11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(155,166,135,.43);border-radius:17px;background:linear-gradient(155deg,rgba(255,253,246,.97),rgba(237,240,226,.94));box-shadow:0 6px 17px rgba(75,85,60,.11),inset 0 1px 0 rgba(255,255,255,.94);color:#694a32;cursor:pointer;transition:transform .18s,box-shadow .18s,background .18s}
 
 .category:hover{transform:translateY(-3px);box-shadow:0 10px 23px rgba(75,85,60,.17)}
 
@@ -350,7 +350,7 @@ body.detail-open{overflow:hidden}
 
 .gift-choice-button{min-height:49px;font-size:14px;line-height:1.4;padding:12px 16px}
 
-.gift-choice-back{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;margin:11px 0 0;padding:11px 16px;border:1.5px solid #b7a083;border-radius:12px;background:#fbf4e8;color:#65472f;text-decoration:none;font:700 14px/1.4 'DM Sans',sans-serif;box-shadow:0 2px 5px rgba(86,64,39,.07);transition:background* .18s,border-color .18s,transform .18s}
+.gift-choice-back{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;box-sizing:border-box;margin:11px 0 0;padding:11px 16px;border:1.5px solid #b7a083;border-radius:12px;background:#fbf4e8;color:#65472f;text-decoration:none;font:700 14px/1.4 'DM Sans',sans-serif;box-shadow:0 2px 5px rgba(86,64,39,.07);transition:background .18s,border-color .18s,transform .18s}
 
 .gift-choice-back:hover{background:#f0e4d2;border-color:#947452;transform:translateY(-1px)}
 
@@ -457,283 +457,150 @@ body.detail-open{overflow:hidden}
 @media(max-width:650px){#detail-modal #detail-content>.detail-layout{display:grid;grid-template-columns:minmax(0,1fr)}}
 
 .product-card{display:flex;flex-direction:column;min-height:0}
-
 .product-body{display:flex;flex:1;flex-direction:column;min-width:0}
-
 .product-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;overflow-wrap:anywhere}
-
 .product-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;min-height:0;max-height:2.7em;overflow-wrap:anywhere}
-
 .product-body .price{margin-top:auto;padding-top:8px}
-
 .product-body .status{margin-top:10px}
-
 /* Részletek: rövid, kibővíthető termékleírás */
-
 .detail-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;overflow-wrap:anywhere;margin-bottom:6px}
-
 .detail-description.is-expanded{display:block;-webkit-line-clamp:unset;line-clamp:unset;overflow:visible}
-
 .detail-description-toggle{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:#946b43;font:700 12px/1.5 'DM Sans',sans-serif;padding:5px 0 9px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-
 .detail-description-toggle:hover{color:#654329}
-
 .detail-description-toggle:focus-visible{outline:2px solid #946b43;outline-offset:3px;border-radius:3px}
 
 #own-reservations-trigger.own-reservations-fixed{
-
   position:fixed!important;bottom:18px!important;left:18px!important;right:auto!important;
-
   z-index:2000!important;display:inline-flex!important;align-items:center;justify-content:center;
-
   width:auto!important;max-width:calc(100vw - 36px);padding:11px 16px;
-
   border:1px solid #cbb89f;border-radius:999px;background:#fff8ed;color:#60462f;
-
   box-shadow:0 5px 22px #0002;font:700 13px/1.3 'DM Sans',sans-serif;
-
   visibility:visible!important;opacity:1!important;transform:none!important;
-
 }
-
 @media(max-width:650px){
-
   .site-shell,.catalog,.content-area{max-width:100%;min-width:0}
-
   .categories{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-
   .category{min-width:0;padding:6px 2px;min-height:91px}
-
   .category-art{width:48px;max-width:100%;height:48px}
-
   .category-label{font-size:9px;overflow-wrap:anywhere}
-
   .toolbar{min-width:0;gap:8px}
-
   .search-wrap{min-width:0;flex:1 1 50%}
-
   .sort-wrap{min-width:0;flex:1 1 42%}
-
   .search-wrap input{min-width:0;width:100%;text-overflow:ellipsis}
-
   .product-grid{grid-template-columns:minmax(0,1fr);gap:13px}
-
   .product-card{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;min-width:0;padding:10px;align-items:stretch}
-
   .product-image{height:100%;min-height:175px;max-height:230px}
-
   .product-body{padding:4px 3px 3px;min-width:0;display:flex;flex-direction:column}
-
   .product-name{font-size:16px;line-height:1.3;min-height:0;max-height:none;-webkit-line-clamp:3;line-clamp:3;overflow-wrap:break-word}
-
   .product-description{font-size:12px;line-height:1.45;max-height:2.9em;-webkit-line-clamp:2;line-clamp:2}
-
   .product-body .price{font-size:17px;margin-top:auto;padding-top:8px}
-
   .product-button{min-height:36px;height:auto;font-size:12px;padding:7px 5px}
-
   .status{margin-top:8px}
-
   #own-reservations-trigger.own-reservations-fixed{bottom:14px!important;left:12px!important;padding:10px 13px;font-size:12px}
-
   .back-to-top{bottom:14px;right:12px}
-
 }
-
 @media(min-width:651px) and (max-width:900px){.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 #own-reservations-overlay[hidden]{display:none!important}
-
 #own-reservations-overlay:not([hidden]){position:fixed!important;inset:0!important;z-index:3000!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:16px!important;background:rgba(24,20,15,.72)!important}
-
 #own-reservations-dialog{width:min(560px,100%)!important;max-height:85dvh!important;overflow-y:auto!important;background:#fffaf3!important;border-radius:18px!important;padding:22px!important;box-shadow:0 18px 70px #0004!important}
-
 @media(max-width:650px){
-
   .product-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-items:stretch!important}
-
   .product-card{display:flex!important;flex-direction:column!important;min-width:0!important;padding:6px!important;gap:0!important;border-radius:12px!important}
-
   .product-image{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:1/1!important;flex:none!important}
-
   .product-photo{object-fit:cover!important}
-
   .product-body{display:flex!important;flex:1!important;flex-direction:column!important;padding:8px 3px 4px!important;min-width:0!important}
-
   .product-name{font-size:12px!important;line-height:1.3!important;min-height:3.9em!important;max-height:3.9em!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:3!important;line-clamp:3!important;overflow:hidden!important;overflow-wrap:anywhere!important;margin:0 0 5px!important}
-
   .product-description{font-size:10px!important;line-height:1.35!important;min-height:2.7em!important;max-height:2.7em!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;line-clamp:2!important;overflow:hidden!important;margin:0 0 6px!important}
-
   .product-body .price{font-size:14px!important;margin-top:auto!important;padding-top:6px!important;margin-bottom:7px!important}
-
   .product-button{width:100%!important;min-height:34px!important;height:auto!important;font-size:10px!important;line-height:1.2!important;padding:7px 3px!important}
-
   .product-body .status{font-size:10px!important;margin:8px 1px 1px!important}
-
   #own-reservations-dialog{padding:18px!important}
-
 }
 
 #back-to-top.back-to-top{
-
   position:fixed!important;right:18px!important;bottom:calc(20px + env(safe-area-inset-bottom, 0px))!important;
-
   left:auto!important;top:auto!important;z-index:1900!important;
-
   display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
-
   width:auto!important;min-width:0!important;max-width:calc(100vw - 36px)!important;min-height:44px!important;
-
   padding:10px 15px!important;border:1px solid #cbb89f!important;border-radius:999px!important;
-
   background:#fff8ed!important;color:#60462f!important;box-shadow:0 5px 22px #0002!important;
-
   font:700 13px/1.3 'DM Sans',sans-serif!important;text-decoration:none!important;cursor:pointer!important;
-
   opacity:0!important;visibility:hidden!important;pointer-events:none!important;
-
   transform:translateY(12px)!important;transition:opacity .2s ease,transform .2s ease,visibility .2s ease!important;
-
 }
-
 #back-to-top.back-to-top.is-visible{opacity:1!important;visibility:visible!important;pointer-events:auto!important;transform:translateY(0)!important}
-
 #back-to-top.back-to-top>span[aria-hidden]{font-size:21px;line-height:1}
-
 @media(max-width:650px){
-
   #back-to-top.back-to-top{right:12px!important;bottom:calc(14px + env(safe-area-inset-bottom, 0px))!important;width:46px!important;height:46px!important;min-height:46px!important;padding:0!important;border-radius:50%!important}
-
   #back-to-top .back-to-top-label{display:none!important}
-
 }
-
 @media(prefers-reduced-motion:reduce){#back-to-top.back-to-top{transition:none!important}}
 
 @media (max-width:650px) {
-
   html, body {width:100%;max-width:100%;overflow-x:clip;}
-
   .site-shell, .content-area, .catalog {box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;}
-
   .catalog {padding-left:12px!important;padding-right:12px!important;overflow-x:clip;}
-
   .categories {display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;max-width:100%!important;min-width:0!important;gap:6px!important;}
-
   .categories > * {box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;}
-
   .category {min-width:0!important;min-height:82px!important;padding:6px 2px!important;overflow:hidden!important;}
-
   .category-art {width:42px!important;height:42px!important;max-width:100%!important;object-fit:contain!important;}
-
   .category-label {font-size:9px!important;line-height:1.18!important;overflow-wrap:anywhere!important;word-break:normal!important;}
-
   .toolbar {width:100%!important;max-width:100%!important;min-width:0!important;}
-
   .toolbar > * {min-width:0!important;max-width:100%!important;}
-
   .product-grid {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;width:100%!important;max-width:100%!important;min-width:0!important;}
-
   .product-card {box-sizing:border-box!important;display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:5px!important;overflow:hidden!important;}
-
   .product-image {width:100%!important;min-width:0!important;aspect-ratio:1/1!important;height:auto!important;}
-
   .product-body {box-sizing:border-box!important;width:100%!important;min-width:0!important;padding:7px 3px 4px!important;}
-
   .product-name {font-size:12px!important;overflow-wrap:anywhere!important;}
-
   .product-description {font-size:10px!important;overflow-wrap:anywhere!important;}
-
   .product-button {box-sizing:border-box!important;width:100%!important;min-width:0!important;font-size:10px!important;white-space:normal!important;}
-
 }
 
 /* Asztali katalógus: az eredeti, teljes szélességű elrendezés. */
-
 @media (min-width:651px) {
-
   .catalog {max-width:none;margin:0;padding:20px clamp(18px,3vw,64px) 80px;}
-
   .categories {width:100%;max-width:none;margin:18px 0 20px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:11px;}
-
   .categories > .category {min-width:0;width:100%;max-width:100%;}
-
   .product-grid {width:100%;max-width:none;grid-template-columns:repeat(7,minmax(0,1fr));gap:11px;}
-
   .product-image {height:121px;aspect-ratio:auto;}
-
   .product-name {font-size:13px;}
-
   .product-description {font-size:11px;}
-
   .price {font-size:15px;}
-
   .product-button {height:31px;min-height:0;font-size:11px;}
-
 }
 
 /* Kosár: a foglalás és visszalépés gombok egységes, korábbi megjelenése */
-
 #cart-reserve-all.cart-reserve-all {
-
   display:block;width:100%;min-height:48px;box-sizing:border-box;
-
   padding:12px 16px;margin:15px 0 10px;border:0;border-radius:12px;
-
   background:#98714c;color:#fff;
-
   font:700 14px/1.35 'DM Sans',sans-serif;
-
   text-align:center;cursor:pointer;appearance:none;
-
 }
-
 #cart-reserve-all.cart-reserve-all:hover {background:#805c3b;}
-
 #cart-reserve-all.cart-reserve-all[hidden] {display:none!important;}
-
 #cart-continue.cart-continue {
-
   display:block;width:100%;min-height:47px;box-sizing:border-box;
-
   padding:11px 14px;margin-top:8px;border:1px solid #cbb89e;
-
   border-radius:12px;background:#fffaf2;color:#684c34;
-
   font:700 14px/1.4 'DM Sans',sans-serif;text-align:center;cursor:pointer;
-
   appearance:none;
-
 }
-
 #cart-reserve-confirm.cart-reserve-disabled,
-
 #cart-reserve-cancel.cart-reserve-cancel {
-
   display:block;width:100%;box-sizing:border-box;min-height:44px;
-
   padding:10px 14px;border-radius:10px;
-
   font:700 13px/1.4 'DM Sans',sans-serif;cursor:pointer;
-
 }
-
 #cart-reserve-confirm.cart-reserve-disabled {border:0;background:#98714c;color:white;}
-
 #cart-reserve-cancel.cart-reserve-cancel {margin-top:8px;border:1px solid #cbb89e;background:#fffaf2;color:#684c34;}
 
 /* A kosár megnyitásakor a háttéroldal lebegő vezérlői nem látszanak. */
-
 body.cart-open #own-reservations-trigger,
-
 body.cart-open #back-to-top.back-to-top,
-
 body.cart-open #back-to-top.back-to-top.is-visible {
-
   opacity: 0 !important;
-
   visibility: hidden !important;
-
   pointer-events: none !important;
-
 }
