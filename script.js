@@ -860,6 +860,19 @@ manageStyles.textContent=`
 
 .own-reservation-feedback{margin:8px 0 0;font-size:.93rem}
 
+.own-reservation-section>h3{font-size:1.12rem;margin:18px 0 10px;color:#6d4f37}
+.own-reservation-section>h3 span{font-size:.82rem;background:#eee1d1;padding:3px 9px;border-radius:99px}
+.own-reservation-history{border-top:1px solid #e5d8c8;margin-top:20px;padding-top:14px}
+.own-reservation-history>summary{cursor:pointer;font-weight:700;color:#795a41;padding:10px 4px}
+.own-reservation-history>summary:focus-visible{outline:2px solid #9d7653;outline-offset:3px}
+.own-reservation-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.own-reservation-state{border-radius:99px;padding:5px 10px;font-size:.78rem;font-weight:700}
+.own-reservation-state.is-active{background:#e4eee6;color:#42694f}
+.own-reservation-state.is-closed{background:#eee8e1;color:#766655}
+.own-reservation-summary{font-size:.9rem;color:#786653}
+.own-reservation-empty{padding:13px;border:1px dashed #ddcdbb;border-radius:10px;background:#fffdf9}
+.own-reservation-id code{overflow-wrap:anywhere}
+
 /* v4 – csak mobil: kompakt termékadatlap és nem takaró foglaláskezelő */
 
 @media (max-width:650px){
@@ -941,53 +954,52 @@ function ownReservationTitle(record,i){
 }
 
 function ownReservationStatusLabel(status){
-
-  return {active:'Aktív',cancelled:'Lemondva',expired:'Lejárt',completed:'Lezárva'}[status]||'Ismeretlen';
-
+  return {active:'Aktív',cancelled:'Lemondva',expired:'Lejárt',completed:'Lezárva',purchased:'Megvásárolva'}[status]||'Ismeretlen';
 }
-
 function ownReservationIsExpired(record){
-
   const date=Date.parse(record.expires_at);
-
   return Number.isFinite(date)&&date<=Date.now();
-
 }
-
 function ownReservationHasNoServerItems(record){
-  return Array.isArray(record.server_items) && record.server_items.length===0;
+  return Array.isArray(record.server_items)&&record.server_items.length===0;
 }
-
+function ownReservationDisplayStatus(record){
+  const status=String(record.local_status||record.server_status||'active').toLowerCase();
+  if(['cancelled','expired','completed','purchased'].includes(status))return status;
+  if(ownReservationHasNoServerItems(record))return 'completed';
+  const items=Array.isArray(record.server_items)?record.server_items:[];
+  if(items.length&&!items.some(item=>item.status==='reserved')){
+    return items.some(item=>item.status==='purchased')?'purchased':'completed';
+  }
+  return ownReservationIsExpired(record)?'expired':'active';
+}
+function ownReservationCard(record,index,i,history=false){
+  const status=ownReservationDisplayStatus(record);
+  const items=reservationItemsForDisplay(record);
+  const reserved=items.filter(item=>item.status==='reserved').length;
+  const purchased=items.filter(item=>item.status==='purchased').length;
+  const canManage=!history&&status==='active'&&reserved>0;
+  const date=record.expires_at&&Number.isFinite(Date.parse(record.expires_at))?new Date(record.expires_at).toLocaleString('hu-HU'):'Nem ismert';
+  return `<article class="own-reservation-entry" data-own-index="${index}">
+    <div class="own-reservation-card-head"><h3>${ownReservationTitle(record,i)}</h3><span class="own-reservation-state ${status==='active'?'is-active':'is-closed'}">${ownReservationStatusLabel(status)}</span></div>
+    <p class="own-reservation-id"><strong>Azonosító:</strong> <code>${escapeHtml(record.reservation_id)}</code></p>
+    <p><strong>${status==='active'?'Lejárat':'Eredeti lejárat'}:</strong> ${escapeHtml(date)}</p>
+    ${items.length?`<p class="own-reservation-summary">${reserved} lefoglalt · ${purchased} megvásárolt</p>${giftShopGroupedHtml(items,{showStatus:true,purchaseIndex:canManage?index:null})}`:'<p class="own-reservation-summary">Ehhez a lezárt foglaláshoz már nem tartozik nyilvántartott ajándék.</p>'}
+    ${canManage?`<div class="own-reservation-actions"><button type="button" data-own-view="${index}">Állapot lekérdezése</button><button type="button" data-own-cancel="${index}">Foglalás lemondása</button></div>`:''}
+    <p class="own-reservation-feedback" data-own-feedback="${index}" role="status" aria-live="polite"></p>
+  </article>`;
+}
 function showOwnReservations(){
-
   const records=readOwnReservations();
-
-  const activeRecords=records.filter(record=>!['cancelled','expired','completed'].includes(record.local_status)&&!ownReservationIsExpired(record)&&!ownReservationHasNoServerItems(record));
-
-  manageList.innerHTML=activeRecords.length?activeRecords.map((record,i)=>{
-
-    const index=records.findIndex(r=>r.reservation_id===record.reservation_id);
-
-    return `
-
-    <article class="own-reservation-entry" data-own-index="${index}">
-
-      <h3>${ownReservationTitle(record,i)}</h3>
-
-      <p><strong>Azonosító:</strong> <code>${escapeHtml(record.reservation_id)}</code></p>
-
-      <p><strong>Lejárat:</strong> ${record.expires_at&&Number.isFinite(Date.parse(record.expires_at))?escapeHtml(new Date(record.expires_at).toLocaleString('hu-HU')):'Nem ismert'}</p>
-
-      ${giftShopGroupedHtml(reservationItemsForDisplay(record),{showStatus:true,purchaseIndex:index})}
-
-      <div class="own-reservation-actions"><button type="button" data-own-view="${index}">Állapot lekérdezése</button><button type="button" data-own-cancel="${index}">Foglalás lemondása</button></div>
-
-      <p class="own-reservation-feedback" data-own-feedback="${index}" role="status" aria-live="polite"></p>
-
-    </article>`;
-
-  }).join(''):'<p>Ebben a böngészőben nincs aktív foglalás.</p>';
-
+  const active=[],history=[];
+  records.forEach((record,index)=>{
+    const entry={record,index};
+    (ownReservationDisplayStatus(record)==='active'?active:history).push(entry);
+  });
+  manageList.innerHTML=`<div class="own-reservation-section"><h3>Aktív foglalások <span>${active.length}</span></h3>
+    ${active.length?active.map(({record,index},i)=>ownReservationCard(record,index,i)).join(''):'<p class="own-reservation-empty">Jelenleg nincs aktív foglalásod.</p>'}</div>
+    <details class="own-reservation-history"><summary>Korábbi és lezárt foglalások (${history.length})</summary>
+    ${history.length?history.map(({record,index},i)=>ownReservationCard(record,index,i,true)).join(''):'<p class="own-reservation-empty">Még nincs lezárt foglalás.</p>'}</details>`;
 }
 
 let ownReservationsRefreshRunning=false;
@@ -1002,7 +1014,7 @@ async function refreshOwnReservationsOnOpen(){
 
   const pending=readOwnReservations().filter(r=>
 
-    !['cancelled','expired','completed'].includes(r.local_status)&&!ownReservationIsExpired(r)&&!ownReservationHasNoServerItems(r));
+    ownReservationDisplayStatus(r)==='active');
 
   if(!pending.length)return;
 
@@ -1039,7 +1051,7 @@ async function refreshOwnReservationsOnOpen(){
         }
 const status=String(info.status||'').toLowerCase();
 
-      if(['cancelled','expired','completed'].includes(status)){
+      if(['cancelled','expired','completed','purchased'].includes(status)){
 
         markOwnReservationClosed(pending[i].reservation_id,status);
 
@@ -1125,7 +1137,7 @@ function saveOwnReservationServerItems(reservationId,info){
 
   const found=records.find(r=>r.reservation_id===reservationId);
 
-  if(found){found.server_items=info.items;writeOwnReservations(records);}
+  if(found){found.server_items=info.items;if(typeof info.status==='string')found.server_status=info.status;writeOwnReservations(records);}
 
 }
 
@@ -1267,7 +1279,7 @@ manageList.addEventListener('click',async e=>{
       }
 const status=String(info.status||'ismeretlen').toLowerCase();
 
-      if(['cancelled','expired','completed'].includes(status)){
+      if(['cancelled','expired','completed','purchased'].includes(status)){
 
         markOwnReservationClosed(record.reservation_id,status);
 
