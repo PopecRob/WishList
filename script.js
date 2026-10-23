@@ -547,8 +547,9 @@ function ownReservationExpiryWarning(record,reserved,status){
   if(!Number.isFinite(expires))return '';
   const remaining=expires-Date.now();
   if(remaining<=0||remaining>24*60*60*1000)return '';
-  const hours=Math.floor(remaining/3600000);
-  const minutes=Math.ceil((remaining%3600000)/60000);
+  const totalMinutes=Math.ceil(remaining/60000);
+  const hours=Math.floor(totalMinutes/60);
+  const minutes=totalMinutes%60;
   const time=hours>0?`${hours} óra${minutes>0?` ${minutes} perc`:''}`:`${Math.max(1,minutes)} perc`;
   return `<div class="own-reservation-expiry-warning" role="status"><strong>⏳ Figyelem! A foglalás hamarosan lejár – még ${time} van hátra.</strong><p>Ha már megvásároltad az ajándékot, jelöld meg a „Megvásároltam” gombbal. Ha meggondoltad magad, oldd fel a foglalást, hogy más is kiválaszthassa.</p></div>`;
 }
@@ -569,21 +570,6 @@ function ownReservationCard(record,index,i,history=false){
     <p class="own-reservation-feedback" data-own-feedback="${index}" role="status" aria-live="polite"></p>
   </article>`;
 }
-// IDEIGLENES TESZT: csak ?teszt-lejarat=1 esetén látható, nem ment foglalást.
-const expiryPreviewMode=new URLSearchParams(window.location.search).get('teszt-lejarat')==='1';
-function expiryPreviewHtml(){
-  if(!expiryPreviewMode)return '';
-  const example={expires_at:new Date(Date.now()+18*60*60*1000).toISOString()};
-  return `<section class="own-reservation-section" aria-label="Lejárati figyelmeztetés teszt">
-    <p style="margin:12px 0;padding:10px 12px;border:1px dashed #aa8059;border-radius:10px;background:#fff5e8;color:#69492f;font-weight:700">🧪 TESZT NÉZET – nem valódi foglalás, semmi nem változik az adatbázisban.</p>
-    <article class="own-reservation-entry">
-      <div class="own-reservation-card-head"><h3>Próbafoglalás – előnézet</h3><span class="own-reservation-state is-active">Aktív (teszt)</span></div>
-      <p><strong>Lejárat:</strong> ${new Date(example.expires_at).toLocaleString('hu-HU')}</p>
-      ${ownReservationExpiryWarning(example,1,'active')}
-      <p class="own-reservation-summary">1 lefoglalt · 0 megvásárolt (tesztadat)</p>
-    </article>
-  </section>`;
-}
 function showOwnReservations(){
   const records=readOwnReservations();
   const active=[],history=[];
@@ -591,7 +577,7 @@ function showOwnReservations(){
     const entry={record,index};
     (ownReservationDisplayStatus(record)==='active'?active:history).push(entry);
   });
-  manageList.innerHTML=`${expiryPreviewHtml()}<div class="own-reservation-section"><h3>Aktív foglalások <span>${active.length}</span></h3>
+  manageList.innerHTML=`<div class="own-reservation-section"><h3>Aktív foglalások <span>${active.length}</span></h3>
     ${active.length?active.map(({record,index},i)=>ownReservationCard(record,index,i)).join(''):'<p class="own-reservation-empty">Jelenleg nincs aktív foglalásod.</p>'}</div>
     <details class="own-reservation-history"><summary>Korábbi és lezárt foglalások (${history.length})</summary>
     ${history.length?history.map(({record,index},i)=>ownReservationCard(record,index,i,true)).join(''):'<p class="own-reservation-empty">Még nincs lezárt foglalás.</p>'}</details>`;
