@@ -482,6 +482,11 @@ manageStyles.textContent=`
 }
 `;
 document.head.appendChild(manageStyles);
+// A lejárati figyelmeztetés a meglévő barnás-bézses megjelenést követi.
+const expiryWarningStyles=document.createElement('style');
+expiryWarningStyles.textContent='.own-reservation-expiry-warning{margin:12px 0;padding:13px 15px;border:1px solid #cba879;border-left:4px solid #a8794c;border-radius:11px;background:#f8eddb;color:#65472f;line-height:1.5}.own-reservation-expiry-warning strong{display:block;font-size:.94rem}.own-reservation-expiry-warning p{margin:7px 0 0;font-size:.87rem}';
+document.head.appendChild(expiryWarningStyles);
+
 const manageTrigger=document.getElementById('own-reservations-trigger') || document.createElement('button');
 manageTrigger.id='own-reservations-trigger';manageTrigger.type='button';manageTrigger.textContent='♡ Foglalásaim';
 // A gomb minden nézetben lebegő elem, a mobilos méretet a CSS szabályozza.
@@ -535,6 +540,18 @@ function ownReservationItemsWithDisplayStatus(record){
     return item;
   });
 }
+// Csak az aktív, még lefoglalt ajándékokat tartalmazó foglalásoknál figyelmeztetünk az utolsó 24 órában.
+function ownReservationExpiryWarning(record,reserved,status){
+  if(status!=='active'||reserved<1)return '';
+  const expires=Date.parse(record.expires_at);
+  if(!Number.isFinite(expires))return '';
+  const remaining=expires-Date.now();
+  if(remaining<=0||remaining>24*60*60*1000)return '';
+  const hours=Math.floor(remaining/3600000);
+  const minutes=Math.ceil((remaining%3600000)/60000);
+  const time=hours>0?`${hours} óra${minutes>0?` ${minutes} perc`:''}`:`${Math.max(1,minutes)} perc`;
+  return `<div class="own-reservation-expiry-warning" role="status"><strong>⏳ Figyelem! A foglalás hamarosan lejár – még ${time} van hátra.</strong><p>Ha már megvásároltad az ajándékot, jelöld meg a „Megvásároltam” gombbal. Ha meggondoltad magad, oldd fel a foglalást, hogy más is kiválaszthassa.</p></div>`;
+}
 function ownReservationCard(record,index,i,history=false){
   const status=ownReservationDisplayStatus(record);
   const items=ownReservationItemsWithDisplayStatus(record);
@@ -546,6 +563,7 @@ function ownReservationCard(record,index,i,history=false){
     <div class="own-reservation-card-head"><h3>${ownReservationTitle(record,i)}</h3><span class="own-reservation-state ${status==='active'?'is-active':'is-closed'}">${ownReservationStatusLabel(status)}</span></div>
     <p class="own-reservation-id"><strong>Azonosító:</strong> <code>${escapeHtml(record.reservation_id)}</code></p>
     <p><strong>${status==='active'?'Lejárat':'Eredeti lejárat'}:</strong> ${escapeHtml(date)}</p>
+    ${ownReservationExpiryWarning(record,reserved,status)}
     ${items.length?`<p class="own-reservation-summary">${reserved} lefoglalt · ${purchased} megvásárolt</p>${giftShopGroupedHtml(items,{showStatus:true,purchaseIndex:canManage?index:null,releaseIndex:canManage?index:null})}`:'<p class="own-reservation-summary">Ehhez a lezárt foglaláshoz már nem tartozik nyilvántartott ajándék.</p>'}
     ${canManage?`<div class="own-reservation-actions"><button type="button" data-own-view="${index}">Állapot lekérdezése</button><button type="button" data-own-cancel="${index}">Foglalás lemondása</button></div>`:''}
     <p class="own-reservation-feedback" data-own-feedback="${index}" role="status" aria-live="polite"></p>
