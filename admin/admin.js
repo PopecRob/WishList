@@ -2032,37 +2032,52 @@ function shippingField(label,value,kind) {
 }
 function renderAdminShipping() {
   shippingEditor.replaceChildren();
-  const existing=shippingRows;
-  const heading=document.createElement('p');
-  heading.textContent=`${existing.length} átvételi hely az adatbázisban.`;
-  shippingEditor.append(heading);
   const canCreate=['provider','name','address'].every(k=>shippingColumn(k));
   if(!canCreate) {
-    shippingFeedback('A shipping_locations tábla oszlopai nem azonosíthatók. Ellenőrizni kell az adatbázis szerkezetét.',true);
+    shippingFeedback('A shipping_locations tábla oszlopai nem azonosíthatók.',true);
     return;
   }
+  const names={gls:'GLS',foxpost:'FOXPOST',dpd:'DPD',emag:'eMAG',easybox:'eMAG'};
+  const order={gls:0,foxpost:1,dpd:2,emag:3,easybox:3};
+  const sorted=[...shippingRows].sort((a,b)=>{
+    const x=String(shippingValue(a,'provider')||'').toLowerCase();
+    const y=String(shippingValue(b,'provider')||'').toLowerCase();
+    return (order[x]??10)-(order[y]??10);
+  });
   function addEditor(row,isNew) {
+    const provider=String(shippingValue(row,'provider')||'').toLowerCase();
     const form=document.createElement('form');
-    form.className='shipping-admin-form';
-    form.style.cssText='border:1px solid #e3d7c9;border-radius:14px;padding:18px;margin:14px 0;background:#fffaf5;display:grid;gap:12px';
+    form.className='shipping-location-card shipping-admin-form';
+    const head=document.createElement('div');head.className='shipping-location-heading';
     const title=document.createElement('strong');
-    title.textContent=isNew?'＋ Új átvételi hely':`${shippingValue(row,'provider')||'Átvételi hely'} – ${shippingValue(row,'name')||''}`;
-    form.append(title);
-    for(const [kind,label] of [['provider','Szállító (pl. FOXPOST, GLS)'],['name','Átvételi hely neve'],['address','Pontos cím'],['identifier','Automata azonosító'],['notes','Megjegyzés']]) {
-      if(shippingColumn(kind))form.append(shippingField(label,isNew?'':shippingValue(row,kind),kind));
+    title.textContent=isNew?'＋ Új átvételi hely':(names[provider]||provider.toUpperCase()||'Átvételi hely');
+    const tag=document.createElement('small');tag.textContent=isNew?'Új hely hozzáadása':(provider==='emag'||provider==='easybox'?'easybox':provider==='dpd'?'Pickup pont':'Csomagautomata');
+    head.append(title,tag);form.append(head);
+    const fields=document.createElement('div');fields.className='shipping-fields';
+    for(const [kind,label,placeholder] of [
+      ['provider','Szállító','Pl. foxpost, gls, dpd, emag'],
+      ['name','Automata / átvételi hely neve','Pl. Budapest, bevásárlóközpont'],
+      ['address','Pontos cím','Irányítószám, település, utca, házszám'],
+      ['identifier','Automata azonosítója (ha van)','Pl. automata kódja'],
+      ['notes','Kiegészítő információ (opcionális)','Pl. bejárat mellett']
+    ]) {
+      if(!shippingColumn(kind))continue;
+      const field=shippingField(label,isNew?'':shippingValue(row,kind),kind);
+      const control=field.querySelector('input,textarea');control.placeholder=placeholder;
+      fields.append(field);
     }
+    form.append(fields);
+    const footer=document.createElement('div');footer.className='shipping-location-actions';
     if(shippingColumn('visible')) {
-      const label=document.createElement('label');
+      const label=document.createElement('label');label.className='shipping-visibility';
       const cb=document.createElement('input');cb.type='checkbox';cb.dataset.shippingField='visible';
-      cb.checked=isNew?true:shippingValue(row,'visible')===true;
-      label.append(cb,document.createTextNode(' Megjelenjen a vásárlói oldalon'));
-      form.append(label);
+      cb.checked=isNew?false:shippingValue(row,'visible')===true;
+      label.append(cb,document.createTextNode(' Megjelenjen a látogatóknak'));footer.append(label);
     }
-    const actions=document.createElement('div');actions.className='form-actions';
-    const save=document.createElement('button');save.type='submit';save.textContent=isNew?'Átvételi hely hozzáadása':'Módosítások mentése';
-    actions.append(save);
+    const actions=document.createElement('div');actions.className='shipping-card-buttons';
+    const save=document.createElement('button');save.type='submit';save.textContent=isNew?'Hozzáadás':'Mentés';actions.append(save);
     if(!isNew){
-      const del=document.createElement('button');del.type='button';del.className='secondary-button';del.textContent='Törlés';
+      const del=document.createElement('button');del.type='button';del.className='shipping-delete-button';del.textContent='Törlés';
       del.addEventListener('click',async()=>{
         if(!verifyIdle()||!confirm('Biztosan törlöd ezt az átvételi helyet?'))return;
         del.disabled=true;
@@ -2071,10 +2086,9 @@ function renderAdminShipping() {
           if(error)throw error;
           shippingFeedback('Átvételi hely törölve.');await loadAdminShipping();
         }catch(e){shippingFeedback('Törlés sikertelen: '+e.message,true);del.disabled=false;}
-      });
-      actions.append(del);
+      });actions.append(del);
     }
-    form.append(actions);
+    footer.append(actions);form.append(footer);
     form.addEventListener('submit',async event=>{
       event.preventDefault();if(!authClient||adminApp.hidden||!verifyIdle())return;
       const payload={};
@@ -2083,7 +2097,7 @@ function renderAdminShipping() {
         if(col)payload[col]=input.type==='checkbox'?input.checked:input.value.trim();
       });
       save.disabled=true;shippingFeedback('Mentés folyamatban…');
-      try {
+      try{
         const query=authClient.from('shipping_locations');
         const {error}=isNew?await query.insert(payload):await query.update(payload).eq('id',row.id);
         if(error)throw error;
@@ -2093,7 +2107,7 @@ function renderAdminShipping() {
     });
     shippingEditor.append(form);
   }
-  for(const row of existing)addEditor(row,false);
+  for(const row of sorted)addEditor(row,false);
   addEditor({},true);
 }
 async function loadAdminShipping() {
